@@ -37,14 +37,14 @@ public class UserControllerImpl {
             loginReturnDTO.setJwtToken(jwt);
             return new ResponseEntity<>(loginReturnDTO, HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping(value="/save", consumes = "application/json")
     public ResponseEntity<User> save(@RequestBody User entity) {
         User user=userService.save(entity);
         if(user!=null)
-            return new ResponseEntity<>(userService.save(entity), HttpStatus.CREATED);
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
