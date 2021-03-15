@@ -6,11 +6,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "api/certificate")
-public class CertificateController {
+public class CertificateControllerImpl {
+    @Autowired
     private final CertificateService certificateService;
 
     @Autowired
-    public CertificateController(CertificateService certificateService) {
+    public CertificateControllerImpl(CertificateService certificateService) {
         this.certificateService = certificateService;
     }
 }
