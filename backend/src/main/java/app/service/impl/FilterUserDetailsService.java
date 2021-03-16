@@ -12,7 +12,7 @@ public class FilterUserDetailsService implements UserDetailsService {
     private final UserService userService;
 
     @Autowired
-    public FilterUserDetailsService(UserService userService){
+    public FilterUserDetailsService(UserService userService) {
         this.userService = userService;
     }
 

@@ -1,12 +1,12 @@
 package app.security;
 
+import app.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import app.model.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -20,6 +20,8 @@ public class TokenUtils {
     private static final String AUDIENCE_WEB = "web";
     private static final String AUDIENCE_MOBILE = "mobile";
     private static final String AUDIENCE_TABLET = "tablet";
+    // Algoritam za potpisivanje JWT
+    private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
     // Tajna koju samo backend aplikacija treba da zna kako bi mogla da generise i proveri JWT https://jwt.io/
     @Value("somesecret")
     public String SECRET;
@@ -32,8 +34,6 @@ public class TokenUtils {
     // Naziv headera kroz koji ce se prosledjivati JWT u komunikaciji server-klijent
     @Value("Authorization")
     private String AUTH_HEADER;
-    // Algoritam za potpisivanje JWT
-    private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
     // Funkcija za generisanje JWT token
     public String generateToken(String username, Long id) {

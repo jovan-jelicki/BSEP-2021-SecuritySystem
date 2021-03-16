@@ -6,12 +6,12 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableAsync
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class SecuritySystemApplication {
     public static void main(String[] args) {
         SpringApplication.run(SecuritySystemApplication.class, args);
     }
 
-    }
+}
 
 

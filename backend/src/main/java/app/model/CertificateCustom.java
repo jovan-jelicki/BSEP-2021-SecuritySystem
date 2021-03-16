@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "certificates")
@@ -16,12 +15,14 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Certificate {
+public class CertificateCustom {
     @Id
-    private Long id;
-
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID", strategy = "org.hibernate.id.UUIDGenerator"
+    )
     @Column(nullable = false, unique = true)
-    private String serialNumber;
+    private UUID alias;
 
     @Column(nullable = false)
     private Boolean isActive;
