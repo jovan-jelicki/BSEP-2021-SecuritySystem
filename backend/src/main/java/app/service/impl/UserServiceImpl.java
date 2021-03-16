@@ -1,7 +1,7 @@
 package app.service.impl;
 
 import app.dtos.LoginDTO;
-import app.dtos.LoginReturnDTO;
+import app.dtos.UserTokenDTO;
 import app.model.Role;
 import app.model.User;
 import app.repository.UserRepository;
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository) {
@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User entity) {
-        if(this.findByEmail(entity.getEmail())==null){
+        if (this.findByEmail(entity.getEmail()) == null) {
             entity.setRole(Role.ROLE_user);
             return userRepository.save(entity);
         }
@@ -31,13 +31,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<User> getAll() { return userRepository.findAll(); }
+    public Collection<User> getAll() {
+        return userRepository.findAll();
+    }
 
     @Override
-    public Optional<User> findById(Long id) { return userRepository.findById(id);}
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 
     @Override
-    public void delete(Long id) { userRepository.deleteById(id);}
+    public void delete(Long id) {
+        userRepository.deleteById(id);
+    }
 
     @Override
     public User findByEmail(String email) {
@@ -45,18 +51,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmailAndPassword(String email, String password) { return userRepository.findByEmailAndPassword(email, password);}
+    public User findByEmailAndPassword(String email, String password) {
+        return userRepository.findByEmailAndPassword(email, password);
+    }
 
-    public LoginReturnDTO getUserForLogIn(LoginDTO loginDTO) {
-        LoginReturnDTO loginReturnDTO = new LoginReturnDTO();
-        User user=this.findByEmailAndPassword(loginDTO.getEmail(),loginDTO.getPassword());
-        if(user!=null){
-            loginReturnDTO.setId(user.getId());
-            loginReturnDTO.setFirstName(user.getFirstName());
-            loginReturnDTO.setLastName(user.getLastName());
-            loginReturnDTO.setEmail(user.getEmail());
-            loginReturnDTO.setRole(user.getRole());
-            return loginReturnDTO;
+    public UserTokenDTO getUserForLogIn(LoginDTO loginDTO) {
+        User user = userRepository.findByEmail(loginDTO.getEmail());
+        if (user != null) {
+            UserTokenDTO userTokenDTO = new UserTokenDTO();
+            userTokenDTO.setId(user.getId());
+            userTokenDTO.setFirstName(user.getFirstName());
+            userTokenDTO.setLastName(user.getLastName());
+            userTokenDTO.setEmail(user.getEmail());
+            userTokenDTO.setRole(user.getRole());
+            return userTokenDTO;
         }
         return null;
     }

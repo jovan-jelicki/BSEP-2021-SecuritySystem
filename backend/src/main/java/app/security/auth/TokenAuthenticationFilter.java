@@ -2,6 +2,8 @@ package app.security.auth;
 
 import app.model.Role;
 import app.security.TokenUtils;
+import app.service.impl.FilterUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,10 +17,8 @@ import java.io.IOException;
 
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private TokenUtils tokenUtils;
-
-    private UserDetailsService userDetailsService;
-
+    private final TokenUtils tokenUtils;
+    private final UserDetailsService userDetailsService;
 
     public TokenAuthenticationFilter(TokenUtils tokenHelper, UserDetailsService userDetailsService) {
         this.tokenUtils = tokenHelper;
@@ -28,15 +28,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         String email;
-        Long id;
-        Role type;
         String authToken = tokenUtils.getToken(httpServletRequest);
 
         if (authToken != null) {
 
-            email = tokenUtils.getEmailFromToken(authToken);
-            id = tokenUtils.getIdFromToken(authToken);
-            type = tokenUtils.getTypeFromToken(authToken);
+            email = tokenUtils.getUsernameFromToken(authToken);
             if (email != null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 

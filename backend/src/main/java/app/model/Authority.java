@@ -19,13 +19,13 @@ public class Authority implements GrantedAuthority {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @JsonIgnore
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 }
