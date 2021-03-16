@@ -16,22 +16,26 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter  {
-
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private FilterUserDetailsService jwtUserDetailsService;
-
     @Autowired
     private RestAuthenticationEntryPoint restAuthenticationEntryPoint;
-
     @Autowired
     private TokenUtils tokenUtils;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     @Override
@@ -71,9 +75,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter  {
     @Override
     public void configure(WebSecurity web) throws Exception {
         // TokenAuthenticationFilter ce ignorisati sve ispod navedene putanje
-        web.ignoring().antMatchers(HttpMethod.POST, "/auth/login" );
-        web.ignoring().antMatchers(HttpMethod.GET,  "/", "/webjars/**", "/*.html", "/favicon.ico", "/**/*.html",
+        web.ignoring().antMatchers(HttpMethod.POST, "/auth/login");
+        web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "/favicon.ico", "/**/*.html",
                 "/**/*.css", "/**/*.js");
-        web.ignoring().antMatchers(HttpMethod.PUT,"/api/email/**");
+        web.ignoring().antMatchers(HttpMethod.PUT, "/api/email/**");
     }
 }

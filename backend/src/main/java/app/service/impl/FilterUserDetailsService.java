@@ -1,8 +1,5 @@
 package app.service.impl;
 
-import app.dtos.LoginDTO;
-import app.dtos.LoginReturnDTO;
-import app.model.User;
 import app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,8 +9,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FilterUserDetailsService implements UserDetailsService {
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public FilterUserDetailsService(UserService userService){
+        this.userService = userService;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {

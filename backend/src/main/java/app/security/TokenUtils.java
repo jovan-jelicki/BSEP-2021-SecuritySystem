@@ -1,59 +1,49 @@
 package app.security;
 
-import app.model.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import app.model.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class TokenUtils {
 
+    // Moguce je generisati JWT za razlicite klijente (npr. web i mobilni klijenti nece imati isto trajanje JWT, JWT za mobilne klijente ce trajati duze jer se mozda aplikacija redje koristi na taj nacin)
+    private static final String AUDIENCE_UNKNOWN = "unknown";
+    private static final String AUDIENCE_WEB = "web";
+    private static final String AUDIENCE_MOBILE = "mobile";
+    private static final String AUDIENCE_TABLET = "tablet";
+    // Tajna koju samo backend aplikacija treba da zna kako bi mogla da generise i proveri JWT https://jwt.io/
+    @Value("somesecret")
+    public String SECRET;
+    // Izdavac tokena
     @Value("spring-security-example")
     private String APP_NAME;
-
-    @Value("]s[RqhwWhs$l]Lm")
-    public String SECRET;
-
-    @Value("30000000")
+    // Period vazenja
+    @Value("9000000") // default je 30000 ali je to za razvoj prekratko
     private int EXPIRES_IN;
-
+    // Naziv headera kroz koji ce se prosledjivati JWT u komunikaciji server-klijent
     @Value("Authorization")
     private String AUTH_HEADER;
+    // Algoritam za potpisivanje JWT
+    private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
-    private static final String AUDIENCE_WEB = "web";
-
-    private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
-
-    public String generateToken(String email, Long id, Role type) {
+    // Funkcija za generisanje JWT token
+    public String generateToken(String username, Long id) {
         return Jwts.builder()
                 .setIssuer(APP_NAME)
-                //.setSubject(username)
-                .setAudience(AUDIENCE_WEB)
+                .setSubject(username)
+                .setId(id.toString())
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate())
-                .claim("email", email)
-                .claim("id", id)
-                .claim("type", type)
                 .signWith(SIGNATURE_ALGORITHM, SECRET).compact();
-    }
-
-    public String getToken(HttpServletRequest request) {
-         String authHeader = getAuthHeaderFromHeader(request);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-
-        return null;
-    }
-
-    public String getAuthHeaderFromHeader(HttpServletRequest request) {
-        return request.getHeader(AUTH_HEADER);
     }
 
 
@@ -61,6 +51,7 @@ public class TokenUtils {
         return new Date(new Date().getTime() + EXPIRES_IN);
     }
 
+    // Funkcija za refresh JWT tokena
     public String refreshToken(String token) {
         String refreshedToken;
         try {
@@ -76,28 +67,52 @@ public class TokenUtils {
         return refreshedToken;
     }
 
-    private Claims getAllClaimsFromToken(String token) {
-        Claims claims;
-        try {
-            claims = Jwts.parser()
-                    .setSigningKey(SECRET)
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            claims = null;
-        }
-        return claims;
+    public boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
+        final Date created = this.getIssuedAtDateFromToken(token);
+        return (!(this.isCreatedBeforeLastPasswordReset(created, lastPasswordReset))
+                && (!(this.isTokenExpired(token)) || this.ignoreTokenExpiration(token)));
     }
 
+    // Funkcija za validaciju JWT tokena
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getEmailFromToken(token);
-        return (username != null && username.equals(userDetails.getUsername())
-                && !isTokenExpired(token));
+        User user = (User) userDetails;
+        final String username = getUsernameFromToken(token);
+        final Date created = getIssuedAtDateFromToken(token);
+
+        return (username != null && username.equals(userDetails.getUsername()));
     }
 
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = this.getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+    public String getUsernameFromToken(String token) {
+        String username;
+        try {
+            final Claims claims = this.getAllClaimsFromToken(token);
+            username = claims.getSubject();
+        } catch (Exception e) {
+            username = null;
+        }
+        return username;
+    }
+
+    public Date getIssuedAtDateFromToken(String token) {
+        Date issueAt;
+        try {
+            final Claims claims = this.getAllClaimsFromToken(token);
+            issueAt = claims.getIssuedAt();
+        } catch (Exception e) {
+            issueAt = null;
+        }
+        return issueAt;
+    }
+
+    public String getAudienceFromToken(String token) {
+        String audience;
+        try {
+            final Claims claims = this.getAllClaimsFromToken(token);
+            audience = claims.getAudience();
+        } catch (Exception e) {
+            audience = null;
+        }
+        return audience;
     }
 
     public Date getExpirationDateFromToken(String token) {
@@ -110,47 +125,65 @@ public class TokenUtils {
         }
         return expiration;
     }
-    public String getEmailFromToken(String token) {
-        String email;
+
+    public UUID getUserIdFromToken(String token) {
+        String userId;
         try {
             final Claims claims = this.getAllClaimsFromToken(token);
-            email = (String) claims.get("email");
+            userId = claims.getId();
         } catch (Exception e) {
-            email = null;
+            userId = null;
         }
-        return email;
-    }
-    public Long getIdFromToken(String token) {
-        Long id;
-        try {
-            final Claims claims = this.getAllClaimsFromToken(token);
-            id = Long.valueOf("" + claims.get("id"));
-        } catch (Exception e) {
-            id = null;
-        }
-        return id;
-    }
-    public Role getTypeFromToken(String token) {
-        Role type;
-        try {
-            final Claims claims = this.getAllClaimsFromToken(token);
-            type = Role.valueOf("" + claims.get("type"));
-        } catch (Exception e) {
-            type = null;
-        }
-        return type;
-    }
-    public Date getIssuedAtDateFromToken(String token) {
-        Date issueAt;
-        try {
-            final Claims claims = this.getAllClaimsFromToken(token);
-            issueAt = claims.getIssuedAt();
-        } catch (Exception e) {
-            issueAt = null;
-        }
-        return issueAt;
+        return UUID.fromString(userId);
     }
 
+    public int getExpiredIn() {
+        return EXPIRES_IN;
+    }
 
+    // Funkcija za preuzimanje JWT tokena iz zahteva
+    public String getToken(HttpServletRequest request) {
+        String authHeader = getAuthHeaderFromHeader(request);
+
+        // JWT se prosledjuje kroz header Authorization u formatu:
+        // Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        return null;
+    }
+
+    public String getAuthHeaderFromHeader(HttpServletRequest request) {
+        return request.getHeader(AUTH_HEADER);
+    }
+
+    private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
+        return (lastPasswordReset != null && created.before(lastPasswordReset));
+    }
+
+    private Boolean isTokenExpired(String token) {
+        final Date expiration = this.getExpirationDateFromToken(token);
+        return expiration.before(new Date());
+    }
+
+    private Boolean ignoreTokenExpiration(String token) {
+        String audience = this.getAudienceFromToken(token);
+        return (audience.equals(AUDIENCE_TABLET) || audience.equals(AUDIENCE_MOBILE));
+    }
+
+    // Funkcija za citanje svih podataka iz JWT tokena
+    private Claims getAllClaimsFromToken(String token) {
+        Claims claims;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(SECRET)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            claims = null;
+        }
+        return claims;
+    }
 
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
-    private CertificateRepository certificateRepository;
+    private final CertificateRepository certificateRepository;
 
     @Autowired
     public CertificateServiceImpl(CertificateRepository certificateRepository) {
@@ -19,14 +19,22 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Certificate save(Certificate entity) { return certificateRepository.save(entity); }
+    public Certificate save(Certificate entity) {
+        return certificateRepository.save(entity);
+    }
 
     @Override
-    public Collection<Certificate> getAll() { return certificateRepository.findAll(); }
+    public Collection<Certificate> getAll() {
+        return certificateRepository.findAll();
+    }
 
     @Override
-    public Optional<Certificate> findById(Long id) { return certificateRepository.findById(id);}
+    public Optional<Certificate> findById(Long id) {
+        return certificateRepository.findById(id);
+    }
 
     @Override
-    public void delete(Long id) { certificateRepository.deleteById(id);}
+    public void delete(Long id) {
+        certificateRepository.deleteById(id);
+    }
 }
