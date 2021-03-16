@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Button, Form, } from "react-bootstrap";
+import axios from "axios";
 
 export default class StartPage extends React.Component {
     constructor() {
@@ -21,19 +22,21 @@ export default class StartPage extends React.Component {
                         <Form.Control
                             autoFocus
                             type="email"
+                            name="email"
                             value={this.state.email}
-                            onChange={this.handleInputChange}
+                            onChange={e => this.handleInputChange(e)}
                         />
                     </Form.Group>
                     <Form.Group size="lg" controlId="password">
                         <Form.Label>Password</Form.Label>
                         <Form.Control
+                            name="password"
                             type="password"
                             value={this.state.password}
-                            onChange={this.handleInputChange}
+                            onChange={e => this.handleInputChange(e)}
                         />
                     </Form.Group>
-                    <Button block size="lg" disabled={!this.validateForm}>
+                    <Button block size="lg" disabled={!this.validateForm} onClick={this.handleSubmit}>
                         Login
                     </Button>
                 </Form>
@@ -55,12 +58,23 @@ export default class StartPage extends React.Component {
 
     }
 
-    handleInputChange = () => {
-
+    handleInputChange = (event) => {
+        const target = event.target;
+        this.setState({
+            [target.name] : target.value,
+        })
     }
 
     handleSubmit = () => {
-
+        axios
+            .post('http://localhost:8080/auth/login', {
+                email : this.state.email,
+                password: this.state.password
+            })
+            .then(res => {
+                localStorage.setItem("user", JSON.stringify(res.data))
+            })
+            .catch(res => alert("Bad request!"));
     }
 
 }
