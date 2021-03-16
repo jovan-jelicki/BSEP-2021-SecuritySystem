@@ -1,6 +1,7 @@
 import './App.css';
 import * as React from "react";
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
+import StartPage from "./pages/StartPage";
 
 
 export default class App extends React.Component {
@@ -19,8 +20,8 @@ export default class App extends React.Component {
     return (
         <BrowserRouter>
           <Switch>
-     {/*       <Route exact path="/"  render={(props) => <IndexPage {...props} role={role} /> } />
-            <Route path="/patient-profile" render={(props) => <PatientProfilePage {...props} role={role} /> } />*/}
+           <Route exact path="/"  render={(props) => <StartPage {...props} role={role} /> } />
+            {/*      <Route path="/patient-profile" render={(props) => <PatientProfilePage {...props} role={role} /> } />*/}
           </Switch>
         </BrowserRouter>
     );
