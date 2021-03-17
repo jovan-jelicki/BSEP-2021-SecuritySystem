@@ -1,5 +1,6 @@
 package app.service.impl;
 
+import app.dtos.CertificateDTO;
 import app.model.CertificateCustom;
 import app.model.data.IssuerData;
 import app.model.data.SubjectData;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyPair;
 import java.security.KeyStoreException;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +43,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public List<Certificate> findAllInKeystores() {
+    public List<CertificateDTO> findAllInKeystores() {
         return certificateKeystoreRepository.findAll();
     }
 
@@ -59,6 +59,8 @@ public class CertificateServiceImpl implements CertificateService {
         //Generise se sertifikat za subjekta, potpisan od strane issuer-a
         CertificateGenerator cg = new CertificateGenerator();
         X509Certificate cert = cg.generateCertificate(subjectData, issuerData);
+
+        System.out.println(cert);
 
         UUID alias = UUID.randomUUID();
         certificateRepository.save(new CertificateCustom(alias, true));

@@ -1,6 +1,6 @@
 package app.controller;
 
-import app.model.CertificateCustom;
+import app.dtos.CertificateDTO;
 import app.service.CertificateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.cert.Certificate;
 import java.security.KeyStoreException;
 import java.util.Calendar;
 import java.util.List;
@@ -32,16 +31,16 @@ public class CertificateControllerImpl {
 
     @PreAuthorize("hasRole('ROLE_admin')")
     @GetMapping()
-    public ResponseEntity<List<CertificateCustom>> getAllCertificates() {
+    public ResponseEntity<List<CertificateDTO>> getAllCertificates() {
         logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
 
-        // List<Certificate> certificates = certificateService.findAllInKeystores();
-        List<CertificateCustom> certificateCustoms = (List<CertificateCustom>) certificateService.getAll();
+        List<CertificateDTO> certificates = certificateService.findAllInKeystores();
+        // List<CertificateCustom> certificateCustoms = (List<CertificateCustom>) certificateService.getAll();
 
         logger.info("{} - Retrieved all available certificates", Calendar.getInstance().getTime());
 
-        return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
-        // return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
+        //return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
+        return new ResponseEntity<>(certificates, HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")

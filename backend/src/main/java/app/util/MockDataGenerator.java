@@ -5,12 +5,23 @@ import app.model.data.SubjectData;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
+import java.math.BigInteger;
 import java.security.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 public class MockDataGenerator {
+    // Koriste se za serijske brojeve
+    private static final int serialNumberLimit = new BigInteger("2500000").bitLength();
+
+    private static String generateSerialNumber() {
+        Random randNum = new Random();
+        BigInteger serialNumber = new BigInteger(serialNumberLimit, randNum);
+        return serialNumber.toString();
+    }
+
     public static IssuerData generateIssuerData(PrivateKey issuerKey) {
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
         builder.addRDN(BCStyle.CN, "Nikola Luburic");
@@ -33,8 +44,6 @@ public class MockDataGenerator {
             Date startDate = iso8601Formater.parse("2017-12-31");
             Date endDate = iso8601Formater.parse("2022-12-31");
 
-            //Serijski broj sertifikata
-            String sn = "1";
             //klasa X500NameBuilder pravi X500Name objekat koji predstavlja podatke o vlasniku
             X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
             builder.addRDN(BCStyle.CN, "Goran Sladic");
@@ -52,7 +61,7 @@ public class MockDataGenerator {
             // - podatke o vlasniku
             // - serijski broj sertifikata
             // - od kada do kada vazi sertifikat
-            return new SubjectData(publicKey, builder.build(), sn, startDate, endDate);
+            return new SubjectData(publicKey, builder.build(), generateSerialNumber(), startDate, endDate);
         } catch (ParseException e) {
             e.printStackTrace();
         }
