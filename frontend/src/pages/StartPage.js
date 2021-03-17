@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Button, Form, } from "react-bootstrap";
+import {Button, Form, Modal,} from "react-bootstrap";
 import axios from "axios";
+import RegistrationPage from "./RegistrationPage";
 
 export default class StartPage extends React.Component {
     constructor() {
@@ -8,7 +9,8 @@ export default class StartPage extends React.Component {
         this.state = {
             password : '',
             email : '',
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {}
+            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
+            showModal : false,
         }
     }
 
@@ -44,8 +46,19 @@ export default class StartPage extends React.Component {
                 <br/>
                 <div style={{display : " table"}}>
                     <p style={{display: "table-cell"}}>Don't have account?</p>
-                    <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.registration}>Registrate</a>
+                    <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.handleModal}>Registrate</a>
                 </div>
+
+                <Modal show={this.state.showModal} onHide={this.closeModal}  style={{'height':650}} >
+                    <Modal.Header closeButton style={{'background':'silver'}}>
+                        <Modal.Title>Registration</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body style={{'background':'silver'}}>
+                        <RegistrationPage/>
+                    </Modal.Body>
+                </Modal>
+
+
             </div>
         )
     }
@@ -54,9 +67,18 @@ export default class StartPage extends React.Component {
         return this.state.email.length > 0 && this.state.password.length > 0;
     }
 
-    registration = () => {
-
+    handleModal=()=>{
+        this.setState({
+            showModal: !this.state.showModal,
+        });
     }
+
+    closeModal=()=>{
+        this.setState({
+            showModal : !this.state.showModal
+        });
+    }
+
 
     handleInputChange = (event) => {
         const target = event.target;
