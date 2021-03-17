@@ -2,6 +2,7 @@ package app.controller;
 
 import app.dtos.LoginDTO;
 import app.dtos.UserTokenDTO;
+import app.model.User;
 import app.security.TokenUtils;
 import app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,13 @@ public class AuthenticationController {
         String jwt = tokenUtils.generateToken(user.getEmail(), user.getId());
 
         return ResponseEntity.ok(new UserTokenDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(), jwt));
+    }
+
+    @PostMapping(value="/save", consumes = "application/json")
+    public ResponseEntity<User> save(@RequestBody User entity) {
+        if(userService.save(entity)==null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(userService.save(entity), HttpStatus.CREATED);
     }
 }

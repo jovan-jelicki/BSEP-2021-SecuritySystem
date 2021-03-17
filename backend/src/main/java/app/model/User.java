@@ -20,6 +20,8 @@ import java.util.Collection;
 @AllArgsConstructor
 public class User implements UserDetails {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
+    @SequenceGenerator(name="user_generator", sequenceName = "user_seq", allocationSize=50, initialValue = 1000)
     private Long id;
 
     @Column(nullable = false)
@@ -32,7 +34,6 @@ public class User implements UserDetails {
     private String email;
 
     @Column(nullable = false)
-    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.ORDINAL)
