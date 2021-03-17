@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, FormControl} from "react-bootstrap";
+import {Alert, Button, FormControl} from "react-bootstrap";
 import axios from "axios";
 
 export default class RegistrationPage extends React.Component{
@@ -24,26 +24,29 @@ export default class RegistrationPage extends React.Component{
             },
             validForm: false,
             submitted: false,
+            successfullyReg:false,
+            disabled: false,
+            errorMessage:false
         }
     }
 
     handleInputChange = (event) => {
-        console.log(event.target.value)
+        //console.log(event.target.value)
         const { name, value } = event.target;
         const user = this.state.user;
         user[name] = value;
 
         this.setState({ user });
-        console.log(this.state.user.password)
+       // console.log(this.state.user.password)
 
         this.validationErrorMessage(event);
     }
 
     handlePassChange = (event) => {
-        console.log("dosao")
-        console.log(event.target.value)
+       // console.log("dosao")
+       // console.log(event.target.value)
         this.state.rePassword=event.target.value;
-        console.log(this.state.rePassword)
+        //console.log(this.state.rePassword)
         this.validationErrorMessage(event);
     }
 
@@ -100,7 +103,7 @@ export default class RegistrationPage extends React.Component{
     validateForm = (errors) => {
         let valid = true;
         Object.entries(errors.user).forEach(item => {
-            console.log(item)
+            //console.log(item)
             item && item[1].length > 0 && (valid = false)
         })
         return valid;
@@ -116,8 +119,14 @@ export default class RegistrationPage extends React.Component{
                 'password' : this.state.user.password,
             })
             .then(res => {
+                this.setState({ errorMessage:false });
+                this.setState({ successfullyReg:true });
+                this.setState( {disabled: !this.state.disabled} )
+            }).catch(res => {
+            this.setState({ errorMessage:true });
+        })
 
-            });
+        ;
     }
 
     render() {
@@ -126,7 +135,7 @@ export default class RegistrationPage extends React.Component{
                 <div className="row">
                     <label className="col-sm-2 col-form-label">Name</label>
                     <div className="col-sm-5 mb-2">
-                        <input type="text" value={this.state.user.firstName} name="firstName" onChange={(e) => {
+                        <input  disabled = {(this.state.disabled)? "disabled" : ""} type="text" value={this.state.user.firstName} name="firstName" onChange={(e) => {
                             this.handleInputChange(e)
                         }} className="form-control" placeholder="First Name"/>
                         {this.state.submitted && this.state.errors.user.firstName.length > 0 &&
@@ -134,7 +143,7 @@ export default class RegistrationPage extends React.Component{
 
                     </div>
                     <div className="col-sm-5 mb-2">
-                        <input type="text" value={this.state.lastName} name="lastName" onChange={(e) => {this.handleInputChange(e) }} className="form-control" placeholder="Last Name"/>
+                        <input  disabled = {(this.state.disabled)? "disabled" : ""}  type="text" value={this.state.lastName} name="lastName" onChange={(e) => {this.handleInputChange(e) }} className="form-control" placeholder="Last Name"/>
                         {this.state.submitted && this.state.errors.user.lastName.length > 0 && <span className="text-danger">{this.state.errors.user.lastName}</span>}
 
                     </div>
@@ -144,7 +153,7 @@ export default class RegistrationPage extends React.Component{
                 <div className="row"style={{marginTop: '1rem'}}>
                     <label  className="col-sm-2 col-form-label">Email</label>
                     <div className="col-sm-6 mb-2">
-                        <input type="email" value={this.state.user.email} name="email" onChange={(e) => {this.handleInputChange(e)}}className="form-control" id="email" placeholder="example@gmail.com" />
+                        <input  disabled = {(this.state.disabled)? "disabled" : ""}   type="email" value={this.state.user.email} name="email" onChange={(e) => {this.handleInputChange(e)}}className="form-control" id="email" placeholder="example@gmail.com" />
                         {this.state.submitted && this.state.errors.user.email.length > 0 && <span className="text-danger">{this.state.errors.user.email}</span>}
 
                     </div>
@@ -154,7 +163,7 @@ export default class RegistrationPage extends React.Component{
                 <div className="row"style={{marginTop: '1rem'}}>
                     <label className="col-sm-2 col-form-label">Password</label>
                     <div className="col-sm-6 mb-2">
-                        <FormControl name="password" type="password" placeholder="Password"  value={this.state.user.password} onChange={(e) => {this.handleInputChange(e)}}/>
+                        <FormControl  disabled = {(this.state.disabled)? "disabled" : ""}  name="password" type="password" placeholder="Password"  value={this.state.user.password} onChange={(e) => {this.handleInputChange(e)}}/>
                         {this.state.submitted && this.state.errors.user.password.length > 0 &&  <span className="text-danger">{this.state.errors.user.password}</span>}
 
                     </div>
@@ -165,7 +174,7 @@ export default class RegistrationPage extends React.Component{
                 <div className="row" style={{marginTop: '1rem'}}>
                     <label  className="col-sm-2 col-form-label">Repeat password</label>
                     <div className="col-sm-6 mb-2">
-                        <FormControl name="rePassword" type="password" placeholder="Repeat new Password" value={this.state.rePassword} onChange={(e) => {this.handlePassChange(e)}}/>
+                        <FormControl  disabled = {(this.state.disabled)? "disabled" : ""}  name="rePassword" type="password" placeholder="Repeat new Password" value={this.state.rePassword} onChange={(e) => {this.handlePassChange(e)}}/>
                         {this.state.submitted && this.state.errors.user.rePassword.length > 0 &&  <span className="text-danger">{this.state.errors.user.rePassword}</span>}
 
                     </div>
@@ -173,14 +182,27 @@ export default class RegistrationPage extends React.Component{
                     </div>
                 </div>
 
-                <div className="row" style={{marginTop: '1rem'}}>
-                    <div className="col-sm-5 mb-2">
+                {
+                    this.state.successfullyReg ?
+                        <Alert variant='success' show={true}  style={({textAlignVertical: "center", textAlign: "center"})}>
+                            Successfully registered please login.
+                        </Alert>
+                        :
+                    <div className="row" style={{marginTop: '1rem'}}>
+                        <div className="col-sm-5 mb-2">
+                        </div>
+                        <div className="col-sm-4">
+                            <Button variant="success" onClick={this.submitForm}>Confirm</Button>
+                        </div>
                     </div>
-                    <div className="col-sm-4">
-                        <Button  variant="success" onClick={this.submitForm}>Confirm</Button>
-                    </div>
+                }
 
-                </div>
+                {
+                    this.state.errorMessage &&
+                        <Alert variant='danger' show={true}  style={({textAlignVertical: "center", textAlign: "center"})}>
+                            The e-mail address must be unique! Please try again
+                        </Alert>
+                }
             </div>
         );
     }

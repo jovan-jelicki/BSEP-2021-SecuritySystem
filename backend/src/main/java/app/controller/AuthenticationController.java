@@ -52,6 +52,9 @@ public class AuthenticationController {
 
     @PostMapping(value="/save", consumes = "application/json")
     public ResponseEntity<User> save(@RequestBody User entity) {
+        if(userService.save(entity)==null){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(userService.save(entity), HttpStatus.CREATED);
     }
 }
