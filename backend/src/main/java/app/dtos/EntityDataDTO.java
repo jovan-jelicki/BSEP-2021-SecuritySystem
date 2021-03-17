@@ -15,4 +15,5 @@ public class EntityDataDTO {
     private String name;
     private String organization;
     private String country;
+    private String alias;
 }

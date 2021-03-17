@@ -1,6 +1,7 @@
 package app.controller;
 
 import app.dtos.CertificateDTO;
+import app.dtos.CertificateDataDTO;
 import app.service.CertificateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateEncodingException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,13 +46,19 @@ public class CertificateControllerImpl {
 
     @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping("/issue")
-    public ResponseEntity<Void> issueCertificate() {
+    public ResponseEntity<Void> issueCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
 
         try {
-            certificateService.saveToKeystore();
+            certificateService.saveToKeystoreIssuer(certificateDataDTO);
         } catch (KeyStoreException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (UnrecoverableKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
         }
 
         logger.info("{} - Issuing a certificate was successful", Calendar.getInstance().getTime());

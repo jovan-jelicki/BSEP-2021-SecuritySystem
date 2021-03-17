@@ -15,10 +15,8 @@ import java.io.*;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Repository
 public class CertificateKeystoreRepository {
@@ -130,19 +128,32 @@ public class CertificateKeystoreRepository {
     }
 
     public PrivateKey getPrivateKey(String alias) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
-        Key key = keyStore.getKey(alias, keystorePassword);
-        return (PrivateKey) key;
+       try {
+           Key key = keyStore.getKey(alias, certificatePassword);
+           return (PrivateKey) key;
+       } catch (UnrecoverableKeyException e){
+           throw new UnrecoverableKeyException();
+       }catch (NoSuchAlgorithmException e) {
+           throw  new NoSuchAlgorithmException();
+       }catch (KeyStoreException e) {
+           throw new KeyStoreException();
+       }catch (Exception e) {
+           throw new Error();
+       }
+
     }
 
     public EntityDataDTO convertX500Name(X500Name x500Name) {
         RDN nameRDN = x500Name.getRDNs(BCStyle.CN)[0];
         RDN organizationRDN = x500Name.getRDNs(BCStyle.O)[0];
         RDN countryRDN = x500Name.getRDNs(BCStyle.C)[0];
+        RDN aliasRDN = x500Name.getRDNs(BCStyle.UID)[0];
         String name = IETFUtils.valueToString(nameRDN.getFirst().getValue());
         String organization = IETFUtils.valueToString(organizationRDN.getFirst().getValue());
         String country = IETFUtils.valueToString(countryRDN.getFirst().getValue());
+        String alias = IETFUtils.valueToString(aliasRDN.getFirst().getValue());
 
-        return new EntityDataDTO(name, organization, country);
+        return new EntityDataDTO(name, organization, country, alias);
     }
 
     public void save(UUID alias, PrivateKey privateKey, Certificate cert) throws KeyStoreException {
