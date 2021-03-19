@@ -1,9 +1,8 @@
 import './App.css';
 import * as React from "react";
 import {BrowserRouter, Switch, Route} from 'react-router-dom';
-import StartPage from "./pages/StartPage";
-import RegistrationPage from "./pages/RegistrationPage";
-import ProfilePage from "./pages/ProfilePage";
+import LogInPage from "./pages/LogInPage";
+import IndexPage from "./pages/IndexPage";
 
 
 export default class App extends React.Component {
@@ -16,14 +15,12 @@ export default class App extends React.Component {
     }
   };
   render() {
-    const role = "Admin";
-    const Id = this.state.Id;
-    //document.title = "Certificates"
+    document.title = "Certificates"
     return (
         <BrowserRouter>
           <Switch>
-           <Route exact path="/"  render={(props) => <StartPage {...props} role={role} /> } />
-           <Route path="/profile" render={(props) => <ProfilePage {...props}/>}/>
+           <Route exact path="/"  render={(props) => <LogInPage {...props} /> } />
+           <Route path="/profile" render={(props) => <IndexPage {...props} />} />
           </Switch>
         </BrowserRouter>
     );

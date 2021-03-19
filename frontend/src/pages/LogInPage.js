@@ -3,7 +3,7 @@ import {Button, Form, Modal,} from "react-bootstrap";
 import axios from "axios";
 import RegistrationPage from "./RegistrationPage";
 
-export default class StartPage extends React.Component {
+export default class LogInPage extends React.Component {
     constructor() {
         super();
         this.state = {
@@ -94,7 +94,10 @@ export default class StartPage extends React.Component {
                 password: this.state.password
             })
             .then(res => {
-                localStorage.setItem("user", JSON.stringify(res.data))
+                localStorage.setItem("user", JSON.stringify(res.data));
+                this.props.history.push({
+                    pathname: "/profile"
+                });
             })
             .catch(res => alert("Bad request!"));
     }

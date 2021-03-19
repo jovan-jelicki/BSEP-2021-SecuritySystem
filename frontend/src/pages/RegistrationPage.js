@@ -131,7 +131,8 @@ export default class RegistrationPage extends React.Component{
 
     render() {
         return (
-            <div className="App">
+            <div  className="App">
+                {/*<h2 id="createCertifiacate"> Create certificate </h2>*/}
                 <div className="row">
                     <label className="col-sm-2 col-form-label">Name</label>
                     <div className="col-sm-5 mb-2">
