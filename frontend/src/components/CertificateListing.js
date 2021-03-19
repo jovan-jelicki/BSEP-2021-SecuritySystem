@@ -1,6 +1,6 @@
 import * as React from "react";
 import moment from "moment";
-import {Button, Table} from "react-bootstrap";
+import {Button, Modal, Table} from "react-bootstrap";
 import axios from "axios";
 
 
@@ -10,7 +10,9 @@ export default class CertificateListing extends React.Component {
         this.state = {
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             certificates : [],
-            search : []
+            search : [],
+            showModal : false,
+            certificate : {}
         }
     }
     componentDidMount() {
@@ -39,7 +41,7 @@ export default class CertificateListing extends React.Component {
                 <td>{certificate.issuerData.name}</td>
                 <td>{moment(certificate.validFrom).format('DD.MM.YYYY')}</td>
                 <td>{moment(certificate.validTo).format('DD.MM.YYYY ')}</td>
-                <td> <Button onClick={() => this.showDetails(certificate)}>Details</Button></td>
+                <td> <Button onClick={() => this.handleModal(certificate)}>Details</Button></td>
                 {this.state.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate)}> Invalidate </Button></td>}
             </tr>
         );
@@ -61,7 +63,7 @@ export default class CertificateListing extends React.Component {
                             {this.state.user.role === "ROLE_admin" && <th> Invalidate </th> }
                         </tr>
                         {Certificates}
-                          {/*{this.showModal()}*/}
+                          {this.showModal()}
                         </tbody>
                     </Table>
                 </div>
@@ -69,8 +71,28 @@ export default class CertificateListing extends React.Component {
         );
     }
 
-    showDetails = () => {
+    showModal = () => {
+        return (
+            <Modal show={this.state.showModal} onClick={() => this.setState({showModal : false, certificate : {}})}  >
+                <Modal.Header closeButton style={{'background':'gray'}}>
+                    <Modal.Title>Medication specification</Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{'background':'gray'}}>
+                </Modal.Body>
+                <Modal.Footer style={{'background':'gray'}}>
+                    <Button variant="primary" onClick={() => this.setState({showModal : false, certificate : {}})}>
+                        Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
 
+    handleModal=(certificate)=>{
+        this.setState({
+            showModal : !this.state.showModal,
+            certificate : certificate
+        });
     }
 
     invalidate = () => {
