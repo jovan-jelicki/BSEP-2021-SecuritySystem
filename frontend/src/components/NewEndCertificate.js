@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import axios from "axios";
 
 
-export default class NewInterCertificate extends React.Component {
+export default class NewEndCertificate extends React.Component {
     constructor(props) {
         super(props);
         this.state={
@@ -12,8 +12,8 @@ export default class NewInterCertificate extends React.Component {
                 issuer:'',
                 country: '',
                 stateProvince:'',
-                organizationName:'',
-                organizationalUnit:'',
+                surname:'',
+                givenName:'',
                 commonName:'',
                 email:'',
                 startDate:'',
@@ -24,13 +24,15 @@ export default class NewInterCertificate extends React.Component {
             errors:{
                 country: 'Please enter country name',
                 stateProvince: 'Please enter state or province name',
-                organizationName: 'Please enter organization name',
-                organizationalUnit: 'Please enter organizational unit',
+                surname: 'Please enter surname',
+                givenName: 'Please enter given name',
                 commonName:'Please enter common name',
                 email:'Please enter email address',
                 startDate: 'Please choose certificate start date',
                 endDate:'Please choose certificate end date',
                 purpose:'Please enter certificate purpose'
+
+
             },
             dateStart:'',
             dateEnd:'',
@@ -66,7 +68,7 @@ export default class NewInterCertificate extends React.Component {
                 this.setState({
                     certificateIssuers : res.data,
                 })
-               // console.log(this.state.certificateIssuers)
+                // console.log(this.state.certificateIssuers)
                 //alert(this.state.certificateIssuers)
             })
             .catch(res => {
@@ -94,11 +96,11 @@ export default class NewInterCertificate extends React.Component {
             case 'stateProvince':
                 errors.stateProvince = value.length < 1 ? 'Enter State or Province Name' : '';
                 break;
-            case 'organizationName':
-                errors.organizationName = value.length < 1 ? 'Enter Organization Name' : '';
+            case 'surname':
+                errors.surname = value.length < 1 ? 'Enter surname' : '';
                 break;
-            case 'organizationalUnit':
-                errors.organizationalUnit = value.length < 1 ? 'Enter Organizational Unit' : '';
+            case 'givenName':
+                errors.givenName = value.length < 1 ? 'Enter Given Name' : '';
                 break;
             case 'commonName':
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
@@ -183,7 +185,7 @@ export default class NewInterCertificate extends React.Component {
             }
         })
 
-      //  this.state.certificate.issuer=value;
+        //  this.state.certificate.issuer=value;
         console.log(this.state.certificate)
     }
 
@@ -250,17 +252,17 @@ export default class NewInterCertificate extends React.Component {
                     </tr>
 
                     <tr>
-                        <td> Organization Name</td>
+                        <td>Surname</td>
                         <td>
-                            <input type="text" value={this.state.certificate.organizationName} name="organizationName" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="company" />
-                            {this.state.submitted && this.state.errors.organizationName.length > 0 && <span className="text-danger">{this.state.errors.organizationName}</span>}
+                            <input type="text" value={this.state.certificate.surname} name="surname" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="surname" placeholder="surname" />
+                            {this.state.submitted && this.state.errors.surname.length > 0 && <span className="text-danger">{this.state.errors.surname}</span>}
                         </td>
                     </tr>
                     <tr>
-                        <td>  Organizational Unit Name</td>
+                        <td>Given Name</td>
                         <td>
-                            <input type="text" value={this.state.certificate.organizationalUnit} name="organizationalUnit" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="section" />
-                            {this.state.submitted && this.state.errors.organizationalUnit.length > 0 && <span className="text-danger">{this.state.errors.organizationalUnit}</span>}
+                            <input type="text" value={this.state.certificate.givenName} name="givenName" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="given name" />
+                            {this.state.submitted && this.state.errors.givenName.length > 0 && <span className="text-danger">{this.state.errors.givenName}</span>}
                         </td>
                     </tr>
                     <tr>

@@ -13,12 +13,12 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor      
+@AllArgsConstructor
 public class CertificateDataDTO {
     private String issuerAlias;
     private String cn;
     private String surname;
-    private String givenname;
+    private String givenName;
     private String o;
     private String ou;
     private String c;
@@ -27,5 +27,6 @@ public class CertificateDataDTO {
     private UUID subjectAlias;
     private String startDate;
     private String endDate;
+    private String purpose;
 
 }

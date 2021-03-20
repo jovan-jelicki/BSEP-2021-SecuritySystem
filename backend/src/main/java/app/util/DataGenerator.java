@@ -63,7 +63,7 @@ public class DataGenerator {
             X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
             builder.addRDN(BCStyle.CN, certificateDataDTO.getCn());
             builder.addRDN(BCStyle.SURNAME, certificateDataDTO.getSurname());
-            builder.addRDN(BCStyle.GIVENNAME, certificateDataDTO.getGivenname());
+            builder.addRDN(BCStyle.GIVENNAME, certificateDataDTO.getGivenName());
             builder.addRDN(BCStyle.O, certificateDataDTO.getO());
             builder.addRDN(BCStyle.OU, certificateDataDTO.getOu());
             builder.addRDN(BCStyle.C, certificateDataDTO.getC());

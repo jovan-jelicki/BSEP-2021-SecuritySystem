@@ -1,16 +1,15 @@
 import * as React from "react";
-import ProfilePage from "../pages/ProfilePage";
-import CertificateListing from "./CertificateListing";
-import RegistrationPage from "../pages/RegistrationPage";
-import {Button, Form, FormControl, Nav, Navbar} from "react-bootstrap";
 import NewRootCertificate from "./NewRootCertificate";
 import NewInterCertificate from "./NewInterCertificate";
+import NewEndCertificate from "./NewEndCertificate";
 
 export default class NewCertificate extends React.Component {
     constructor(props) {
         super(props);
         this.state={
             navbar : "root",
+            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
+
         }
     }
     renderNavbar = () => {
@@ -24,7 +23,7 @@ export default class NewCertificate extends React.Component {
             );
         else if (this.state.navbar === "end")
             return (
-                <NewRootCertificate/>
+                <NewEndCertificate/>
             );
     }
 
@@ -42,7 +41,7 @@ export default class NewCertificate extends React.Component {
         return (
             <div className="App" >
                 <div style={{textAlign:"center",display:"inline-block", width:650}}>
-                    <h2 id={"createCertifiacate"}> Create certificate</h2>
+                    <h2 id={"createCertificate"}> Create certificate</h2>
                     <ul className="nav justify-content-center">
                         <li className="nav-item">
                             <a className="nav-link active"  onClick={this.handleChange} name="root">New Root Certificate</a>
