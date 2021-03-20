@@ -3,6 +3,7 @@ import ProfilePage from "./ProfilePage";
 import LogInPage from "./LogInPage";
 import RegistrationPage from "./RegistrationPage";
 import CertificateListing from "../components/CertificateListing";
+import NewCertificate from "../components/NewCertificate";
 
 export default class IndexPage extends React.Component {
     constructor(props) {
@@ -17,7 +18,7 @@ export default class IndexPage extends React.Component {
                     <br/>
                     <br/>
                     <br/>
-                    <RegistrationPage></RegistrationPage>
+                    <NewCertificate></NewCertificate>
                 </ProfilePage>
             </div>
         );

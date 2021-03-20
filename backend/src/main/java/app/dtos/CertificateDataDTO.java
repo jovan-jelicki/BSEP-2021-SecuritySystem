@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor      
 public class CertificateDataDTO {
     private String issuerAlias;
     private String cn;

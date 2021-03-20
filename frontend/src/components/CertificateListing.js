@@ -48,7 +48,7 @@ export default class CertificateListing extends React.Component {
                 <br/>
                 <h2 id={"certificates"}> Certificates </h2>
                 <br/>
-                <div style={{overflowY: "auto", height : "300px"}}>
+                <div style={{overflowY: "auto", height : "500px"}}>
                     <Table style={{"borderWidth":"1px", 'borderColor':"#aaaaaa", 'borderStyle':'solid'}} responsive striped bordered hover size="sm" variant="dark" >
                         <tbody>
                         <tr>
