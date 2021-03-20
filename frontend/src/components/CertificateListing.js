@@ -2,6 +2,8 @@ import * as React from "react";
 import moment from "moment";
 import {Button, Modal, Table} from "react-bootstrap";
 import axios from "axios";
+import CertificateDetails from "./CertificateDetails";
+import CertificatePath from "./CertificatePath";
 
 
 export default class CertificateListing extends React.Component {
@@ -12,7 +14,8 @@ export default class CertificateListing extends React.Component {
             certificates : [],
             search : [],
             showModal : false,
-            certificate : {}
+            certificate : {},
+            modalTab : "details"
         }
     }
     componentDidMount() {
@@ -73,14 +76,19 @@ export default class CertificateListing extends React.Component {
 
     showModal = () => {
         return (
-            <Modal show={this.state.showModal} onClick={() => this.setState({showModal : false, certificate : {}})}  >
-                <Modal.Header closeButton style={{'background':'gray'}}>
-                    <Modal.Title>Medication specification</Modal.Title>
+            <Modal show={this.state.showModal}   >
+                <Modal.Header closeButton onClick={() => this.setState({showModal : false, modalTab : "", certificate : {}})} style={{'background':'gray'}}>
+                    <Modal.Title>Certificate details</Modal.Title>
                 </Modal.Header>
-                <Modal.Body style={{'background':'gray'}}>
+                <Modal.Body style={{'background':'lightgray'}}>
+                    <Button variant={"secondary"} onClick={this.showDetails}>Details </Button>
+                    <Button variant={"secondary"} onClick={this.showPath}>Certification path </Button>
+                    <hr className="mt-2 mb-4"/>
+                    {this.state.modalTab === "details" && <CertificateDetails certificate={this.state.certificate}></CertificateDetails>}
+                    {this.state.modalTab === "path" && <CertificatePath></CertificatePath>}
                 </Modal.Body>
                 <Modal.Footer style={{'background':'gray'}}>
-                    <Button variant="primary" onClick={() => this.setState({showModal : false, certificate : {}})}>
+                    <Button variant="primary" onClick={() => this.setState({showModal : false, modalTab : "" , certificate : {}})}>
                         Close
                     </Button>
                 </Modal.Footer>
@@ -88,10 +96,26 @@ export default class CertificateListing extends React.Component {
         );
     }
 
+    showDetails = () => {
+        this.setState({
+            modalTab : "details",
+            showModal : true,
+            certificate : this.state.certificate
+        })
+    }
+
+    showPath = () => {
+        this.setState({
+            modalTab : "path",
+            showModal : true,
+            certificate : this.state.certificate
+        })
+    }
     handleModal=(certificate)=>{
         this.setState({
             showModal : !this.state.showModal,
-            certificate : certificate
+            certificate : certificate,
+            modalTab : "details"
         });
     }
 
