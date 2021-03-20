@@ -36,15 +36,9 @@ export default class NewInterCertificate extends React.Component {
             dateEnd:'',
             validForm: false,
             submitted: false,
-            certificateIssuers:[
-                {
-                    alias:'',
-                    serialNumber:'',
-                    validFrom:'',
-                    validTo:'',
-                }
-            ],
+            certificateIssuers:[],
             purposes:[],
+
 
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
 
@@ -130,8 +124,8 @@ export default class NewInterCertificate extends React.Component {
     }
 
     submitForm =  (event) => {
-        this.state.certificate.startDate=this.state.dateStart;
-        this.state.certificate.endDate=this.state.dateEnd;
+       // this.state.certificate.startDate=this.state.dateStart;
+       // this.state.certificate.endDate=this.state.dateEnd;
         this.setState({ submitted: true });
         const certificate = this.state.certificate;
         console.log(this.state.certificate)
@@ -148,14 +142,20 @@ export default class NewInterCertificate extends React.Component {
 
     setStartDate = (date) => {
         this.setState({
-            dateStart : date
+            certificate : {
+                ...this.state.certificate,
+                startDate : date
+            }
         })
         this.validationDateMessage('start',date)
     }
 
     setEndDate = (date) => {
         this.setState({
-            dateEnd : date
+            certificate : {
+                ...this.state.certificate,
+                endDate : date
+            }
         })
         this.validationDateMessage('end',date)
     }
@@ -182,9 +182,29 @@ export default class NewInterCertificate extends React.Component {
                 issuer : value
             }
         })
-
-      //  this.state.certificate.issuer=value;
+        this.setStartAndEndDate();
         console.log(this.state.certificate)
+    }
+
+    setStartAndEndDate=()=>{
+        for (var j = 0, l = this.state.certificateIssuers.length; j < l; j++) {
+            if(this.state.certificateIssuers[j].alias===this.state.certificate.issuer){
+                //this.setState({
+                //    dateStart:this.state.certificateIssuers[j].validFrom,
+                //    dateEnd:this.state.certificateIssuers[j].validTo
+                //})
+                this.state.dateStart=this.state.certificateIssuers[j].validFrom;
+                this.state.dateEnd=this.state.certificateIssuers[j].validTo;
+            }
+        }
+/*
+        let dateNow=new Date();
+        if(new Date()> new Date(this.state.dateStart)){
+            this.setState({
+                dateStart : dateNow,
+            })
+        }
+*/
     }
 
     onTypeChange=(event) => {
@@ -220,11 +240,12 @@ export default class NewInterCertificate extends React.Component {
 
     render() {
         return (
-            <div >
+            <div>
+                <h5 style={{color:'#455A64'}}>New Intermediate certificate</h5>
                 <Table  hover variant="dark">
                     <tbody>
                     <tr>
-                        <td> Certificate issuer </td>
+                        <td style={{width:200}}>  Certificate issuer </td>
                         <td>
                             <Form.Control placeholder="Certificates" as={"select"} value={this.state.certificate.issuer}  onChange={this.handleSelectedIssuer} >
                                 <option disabled={true}  selected="selected">Choose by serial number</option>
@@ -280,7 +301,8 @@ export default class NewInterCertificate extends React.Component {
                     <tr>
                         <td>Start date </td>
                         <td>
-                            <DatePicker selected={this.state.dateStart}  name="dateStart" minDate={new Date()}  onChange={(e) => {this.setStartDate(e)}}  />
+                            <DatePicker selected={this.state.certificate.startDate}  name="date1" minDate={new Date(this.state.dateStart)}  onChange={(e) => {this.setStartDate(e)}} />
+                            {this.state.dateStart}
                             {this.state.submitted && this.state.errors.startDate.length > 0 && <span className="text-danger">{this.state.errors.startDate}</span>}
 
                         </td>
@@ -288,18 +310,18 @@ export default class NewInterCertificate extends React.Component {
                     <tr>
                         <td>End date </td>
                         <td>
-                            <DatePicker  selected={this.state.dateEnd}  name="dateEnd" minDate={this.state.dateStart}  onChange={(e) => {this.setEndDate(e)}}/>
+                            <DatePicker  selected={this.state.certificate.endDate}  name="date2" maxDate={new Date(this.state.dateEnd)}  onChange={(e) => {this.setEndDate(e)}}/>
                             {this.state.submitted && this.state.errors.endDate.length > 0 && <span className="text-danger">{this.state.errors.endDate}</span>}
 
                         </td>
                     </tr>
                     <tr>
-                        <td>Purpose</td>
+                        <td>Purposes</td>
                         <td>
                             <fieldset>
                                 <Form >
                                     <Form.Group as={Col}  >
-                                        <Row sm={35} style={{'marginLeft':'1rem'}} >
+                                        <Row sm={35} >
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Proves your identity to a remote computer" value={"Proves your identity to a remote computer"} name="purpose" id="1" onChange={this.onTypeChange} />
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures the identity of a remote computer" value={"Ensures the identity of a remote computer"} name="purpose" id="2" onChange={this.onTypeChange} />
                                             <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures software came from software publisher" value={"Ensures software came from software publisher"}  name="purpose" id="3" onChange={this.onTypeChange} />

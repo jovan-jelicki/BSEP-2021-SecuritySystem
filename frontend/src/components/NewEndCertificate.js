@@ -223,10 +223,11 @@ export default class NewEndCertificate extends React.Component {
     render() {
         return (
             <div >
+                <h5 style={{color:'#455A64'}}>New End-Entity certificate</h5>
                 <Table  hover variant="dark">
                     <tbody>
                     <tr>
-                        <td> Certificate issuer </td>
+                        <td style={{width:200}}> Certificate issuer </td>
                         <td>
                             <Form.Control placeholder="Certificates" as={"select"} value={this.state.certificate.issuer}  onChange={this.handleSelectedIssuer} >
                                 <option disabled={true}  selected="selected">Choose by serial number</option>
@@ -296,12 +297,12 @@ export default class NewEndCertificate extends React.Component {
                         </td>
                     </tr>
                     <tr>
-                        <td>Purpose</td>
+                        <td>Purposes</td>
                         <td>
                             <fieldset>
                                 <Form >
                                     <Form.Group as={Col}  >
-                                        <Row sm={35} style={{'marginLeft':'1rem'}} >
+                                        <Row sm={10} >
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Proves your identity to a remote computer" value={"Proves your identity to a remote computer"} name="purpose" id="1" onChange={this.onTypeChange} />
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures the identity of a remote computer" value={"Ensures the identity of a remote computer"} name="purpose" id="2" onChange={this.onTypeChange} />
                                             <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures software came from software publisher" value={"Ensures software came from software publisher"}  name="purpose" id="3" onChange={this.onTypeChange} />

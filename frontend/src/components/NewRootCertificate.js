@@ -170,11 +170,12 @@ export default class NewRootCertificate extends React.Component {
 
         render() {
         return (
-            <div >
+            <div>
+                <h5 style={{color:'#455A64'}} >New Root certificate</h5>
                 <Table  hover variant="dark">
                     <tbody>
                     <tr>
-                        <td>Country Name </td>
+                        <td style={{width:200}}>Country Name </td>
                         <td>
                             <input type="text" value={this.state.certificate.country} name="country" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="2 letter code" />
                             {this.state.submitted && this.state.errors.country.length > 0 && <span className="text-danger">{this.state.errors.country}</span>}
@@ -233,12 +234,12 @@ export default class NewRootCertificate extends React.Component {
                         </td>
                     </tr>
                     <tr>
-                        <td>Purpose</td>
+                        <td>Purposes</td>
                         <td>
                             <fieldset>
                                 <Form >
                                     <Form.Group as={Col}  >
-                                        <Row sm={35} style={{'marginLeft':'1rem'}} >
+                                        <Row sm={20} >
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Proves your identity to a remote computer" value={"Proves your identity to a remote computer"} name="purpose" id="1" onChange={this.onTypeChange} />
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures the identity of a remote computer" value={"Ensures the identity of a remote computer"} name="purpose" id="2" onChange={this.onTypeChange} />
                                             <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures software came from software publisher" value={"Ensures software came from software publisher"}  name="purpose" id="3" onChange={this.onTypeChange} />
