@@ -2,6 +2,7 @@ import * as React from "react";
 import {Button, Col, Form, FormControl, Modal, Row, Table} from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from "axios";
+import moment from "moment";
 
 
 export default class NewInterCertificate extends React.Component {
@@ -38,8 +39,7 @@ export default class NewInterCertificate extends React.Component {
             submitted: false,
             certificateIssuers:[],
             purposes:[],
-
-
+            boolDates:false,
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
 
         }
@@ -47,8 +47,15 @@ export default class NewInterCertificate extends React.Component {
 
     async componentDidMount() {
         this.fetchCertificates()
+       // this.fetchDates()
+        console.log(this.state.boolDates)
     }
 
+    fetchDates=()=>{
+        this.setState({
+            boolDates : false,
+        })
+    }
     fetchCertificates=()=>{
         axios
             .get("http://localhost:8080/api/certificate",
@@ -60,12 +67,30 @@ export default class NewInterCertificate extends React.Component {
                 this.setState({
                     certificateIssuers : res.data,
                 })
-               // console.log(this.state.certificateIssuers)
-                //alert(this.state.certificateIssuers)
             })
             .catch(res => {
                 alert("Something went wrong!")
             })
+    }
+
+    sendData=()=>{
+     /*   axios
+            .get("http://localhost:8080/api/certificate",
+                {  headers: {
+                        'Content-Type': 'application/json',
+                        Authorization : 'Bearer ' + this.state.user.jwtToken
+                    }})
+            .then(res => {
+                this.setState({
+                    certificates : res.data,
+                    search : res.data
+                })
+            })
+            .catch(res => {
+                alert("Something went wrong!")
+            })
+
+      */
     }
 
     handleInputChange = (event) => {
@@ -124,8 +149,6 @@ export default class NewInterCertificate extends React.Component {
     }
 
     submitForm =  (event) => {
-       // this.state.certificate.startDate=this.state.dateStart;
-       // this.state.certificate.endDate=this.state.dateEnd;
         this.setState({ submitted: true });
         const certificate = this.state.certificate;
         console.log(this.state.certificate)
@@ -133,11 +156,11 @@ export default class NewInterCertificate extends React.Component {
         event.preventDefault();
         if (this.validateForm(this.state.errors)) {
             console.info('Valid Form')
+            this.sendData();
         } else {
             console.log('Invalid Form')
         }
         console.log(this.state.certificate)
-
     }
 
     setStartDate = (date) => {
@@ -175,36 +198,44 @@ export default class NewInterCertificate extends React.Component {
         const target = event.target;
         let value = event.target.value;
 
-        console.log(value)
         this.setState({
             certificate : {
                 ...this.state.certificate,
                 issuer : value
-            }
+            },
+            boolDates: false
         })
-        this.setStartAndEndDate();
-        console.log(this.state.certificate)
     }
 
-    setStartAndEndDate=()=>{
-        for (var j = 0, l = this.state.certificateIssuers.length; j < l; j++) {
-            if(this.state.certificateIssuers[j].alias===this.state.certificate.issuer){
-                //this.setState({
-                //    dateStart:this.state.certificateIssuers[j].validFrom,
-                //    dateEnd:this.state.certificateIssuers[j].validTo
-                //})
-                this.state.dateStart=this.state.certificateIssuers[j].validFrom;
-                this.state.dateEnd=this.state.certificateIssuers[j].validTo;
-            }
-        }
-/*
-        let dateNow=new Date();
-        if(new Date()> new Date(this.state.dateStart)){
-            this.setState({
-                dateStart : dateNow,
-            })
-        }
-*/
+      setStartAndEndDate=(event)=>{
+         if (this.state.certificateIssuers.length) {
+             this.state.certificateIssuers.forEach(v => {
+                 if(v.alias===this.state.certificate.issuer) {
+                     if (new Date(v.validFrom)> new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
+                         this.setState({
+                             boolDates: true,
+                             dateStart: v.validFrom,
+                             dateEnd: v.validTo
+                         });
+                     }else if (new Date(v.validFrom) < new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
+                         this.setState({
+                             boolDates: true,
+                             dateStart:String(new Date()),
+                             dateEnd: v.validTo
+                         });
+                     }else if(new Date(v.validFrom)< new Date() && new Date(v.validTo)< new Date()) {
+                         this.setState({
+                             boolDates: true,
+                             dateStart: moment(new Date()).format('DD.MM.YYYY'),
+                             dateEnd: moment(new Date()).format('DD.MM.YYYY')
+                         });
+                     }
+                 }
+             });
+         }
+
+         console.log(this.state.dateStart)
+         console.log(this.state.dateEnd)
     }
 
     onTypeChange=(event) => {
@@ -298,23 +329,44 @@ export default class NewInterCertificate extends React.Component {
                             {this.state.submitted && this.state.errors.email.length > 0 && <span className="text-danger">{this.state.errors.email}</span>}
                         </td>
                     </tr>
+                    { !this.state.boolDates &&
+                        <tr>
+                            <td> Choose period</td>
+                            <td>
+                                <Button onClick={this.setStartAndEndDate}>Choose</Button>
+                            </td>
+                        </tr>
+                    }
+                    { this.state.boolDates &&
+                        <tr>
+                            <td>Start date</td>
+                            <td>
+
+                                <DatePicker selected={this.state.certificate.startDate} name="date1"
+                                            minDate={new Date(this.state.dateStart)} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
+                                    this.setStartDate(e)
+                                }}/>
+                                {this.state.submitted && this.state.errors.startDate.length > 0 &&
+                                <span className="text-danger">{this.state.errors.startDate}</span>}
+
+                            </td>
+                        </tr>
+                    }
+                    {this.state.boolDates &&
                     <tr>
-                        <td>Start date </td>
+                        <td>End date</td>
                         <td>
-                            <DatePicker selected={this.state.certificate.startDate}  name="date1" minDate={new Date(this.state.dateStart)}  onChange={(e) => {this.setStartDate(e)}} />
-                            {this.state.dateStart}
-                            {this.state.submitted && this.state.errors.startDate.length > 0 && <span className="text-danger">{this.state.errors.startDate}</span>}
+                            <DatePicker selected={this.state.certificate.endDate} name="date2"
+                                        minDate={new Date(this.state.dateStart)} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
+                                this.setEndDate(e)
+                            }}/>
+                            {this.state.endDate}
+                            {this.state.submitted && this.state.errors.endDate.length > 0 &&
+                            <span className="text-danger">{this.state.errors.endDate}</span>}
 
                         </td>
                     </tr>
-                    <tr>
-                        <td>End date </td>
-                        <td>
-                            <DatePicker  selected={this.state.certificate.endDate}  name="date2" maxDate={new Date(this.state.dateEnd)}  onChange={(e) => {this.setEndDate(e)}}/>
-                            {this.state.submitted && this.state.errors.endDate.length > 0 && <span className="text-danger">{this.state.errors.endDate}</span>}
-
-                        </td>
-                    </tr>
+                    }
                     <tr>
                         <td>Purposes</td>
                         <td>
