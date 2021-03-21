@@ -18,11 +18,12 @@ public class CertificateDataDTO {
     private String issuerAlias;
     private String cn;
     private String surname;
-    private String givenname;
+    private String givenName;
     private String o;
     private String ou;
     private String c;
     private String e;
+    private String s;
     @JsonIgnore
     private UUID subjectAlias;
     private String startDate;

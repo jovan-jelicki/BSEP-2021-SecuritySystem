@@ -8,19 +8,17 @@ import app.model.data.SubjectData;
 import app.repository.CertificateKeystoreRepository;
 import app.repository.CertificateRepository;
 import app.service.CertificateService;
+import app.service.DataGenerator;
 import app.util.CertificateGenerator;
-import app.util.DataGenerator;
-import app.util.MockDataGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.KeyPair;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +28,15 @@ import java.util.UUID;
 public class CertificateServiceImpl implements CertificateService {
     private final CertificateRepository certificateRepository;
     private final CertificateKeystoreRepository certificateKeystoreRepository;
-    private final DataGenerator dataGenerator;
+    private final CertificateGenerator certificateGenerator;
+    private DataGenerator dataGenerator;
 
     @Autowired
-    public CertificateServiceImpl(CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
+    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
         this.certificateRepository = certificateRepository;
         this.certificateKeystoreRepository = certificateKeystoreRepository;
-        this.dataGenerator = new DataGenerator();
+        this.certificateGenerator = new CertificateGenerator();
+        this.dataGenerator = dataGenerator;
     }
 
     @Override
@@ -54,40 +54,41 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateKeystoreRepository.findAll();
     }
 
+    @Override
+    public void setDataGenerator(DataGenerator dataGenerator) {
+        this.dataGenerator = dataGenerator;
+    }
+
+
     @Transactional(rollbackFor = {KeyStoreException.class})
     @Override
-    public void saveToKeystore() throws KeyStoreException {
+    public void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws IllegalArgumentException, KeyStoreException, UnrecoverableKeyException, CertificateEncodingException, NoSuchAlgorithmException, ParseException {
         UUID alias = UUID.randomUUID();
-        KeyPair keyPairSubject = MockDataGenerator.generateKeyPair();
-        SubjectData subjectData = MockDataGenerator.generateSubjectData(keyPairSubject.getPublic());
-
-        KeyPair keyPairIssuer = MockDataGenerator.generateKeyPair();
-        IssuerData issuerData = MockDataGenerator.generateIssuerData(keyPairIssuer.getPrivate());
-
-        //Generise se sertifikat za subjekta, potpisan od strane issuer-a
-        CertificateGenerator cg = new CertificateGenerator();
-        X509Certificate cert = cg.generateCertificate(subjectData, issuerData);
+        KeyPair keyPairSubject = generateKeyPair();
+        certificateDataDTO.setSubjectAlias(alias);
+        SubjectData subjectData = dataGenerator.generateSubjectData(keyPairSubject.getPublic(), certificateDataDTO);
+        IssuerData issuerData;
+        try {
+            issuerData = dataGenerator.generateIssuerData(certificateDataDTO);
+        }catch (Exception e ){
+            throw e;
+        }
+        X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate());
 
         certificateRepository.save(new CertificateCustom(alias, true));
         certificateKeystoreRepository.save(alias, keyPairSubject.getPrivate(), cert);
     }
 
-    @Transactional(rollbackFor = {KeyStoreException.class})
-    @Override
-    public void saveToKeystoreIssuer(CertificateDataDTO certificateDataDTO) throws KeyStoreException, UnrecoverableKeyException, CertificateEncodingException, NoSuchAlgorithmException {
-        UUID alias = UUID.randomUUID();
-        KeyPair keyPairSubject = dataGenerator.generateKeyPair();
-        certificateDataDTO.setSubjectAlias(alias);
-        SubjectData subjectData = dataGenerator.generateSubjectData(keyPairSubject.getPublic(), certificateDataDTO);
-
-        IssuerData issuerData = dataGenerator.generateIssuerData(certificateDataDTO.getIssuerAlias());
-
-        //Generise se sertifikat za subjekta, potpisan od strane issuer-a
-        CertificateGenerator cg = new CertificateGenerator();
-        X509Certificate cert = cg.generateCertificate(subjectData, issuerData);
-
-        certificateRepository.save(new CertificateCustom(alias, true));
-        certificateKeystoreRepository.save(alias, keyPairSubject.getPrivate(), cert);
+    public static KeyPair generateKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(2048, random);
+            return keyGen.generateKeyPair();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
