@@ -14,6 +14,7 @@ export default class NewEndCertificate extends React.Component {
                 country: '',
                 stateProvince:'',
                 surname:'',
+                organizationName:'',
                 givenName:'',
                 commonName:'',
                 email:'',
@@ -25,6 +26,7 @@ export default class NewEndCertificate extends React.Component {
             errors:{
                 country: 'Please enter country name',
                 stateProvince: 'Please enter state or province name',
+                organizationName: 'Please enter organization name',
                 surname: 'Please enter surname',
                 givenName: 'Please enter givenName',
                 commonName:'Please enter common name',
@@ -81,6 +83,7 @@ export default class NewEndCertificate extends React.Component {
                     'issuerAlias':this.state.certificate.issuer,
                     'c':this.state.certificate.country,
                     's':this.state.certificate.stateProvince,
+                    'o':this.state.certificate.organizationName,
                     'surname':this.state.certificate.surname,
                     'givenName':this.state.certificate.givenName,
                     'cn':this.state.certificate.commonName,
@@ -93,7 +96,8 @@ export default class NewEndCertificate extends React.Component {
                         Authorization : 'Bearer ' + this.state.user.jwtToken
                     }})
             .then(res => {
-                alert("Success!")
+                alert("Successfully!")
+                window.location = '/profile';
             })
             .catch(res => {
                 alert("Something went wrong!")
@@ -122,6 +126,9 @@ export default class NewEndCertificate extends React.Component {
             case 'stateProvince':
                 errors.stateProvince = value.length < 1 ? 'Enter State or Province Name' : '';
                 break;
+            case 'organizationName':
+                errors.organizationName = value.length < 1 ? 'Enter Organization Name' : '';
+                break;
             case 'surname':
                 errors.surname = value.length < 1 ? 'Enter Surname' : '';
                 break;
@@ -147,6 +154,14 @@ export default class NewEndCertificate extends React.Component {
     isValidEmail = (value) => {
         return !(value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,64}$/i.test(value))
     }
+    checkDates=()=>{
+        let errors = this.state.errors;
+        if(this.state.certificate.startDate>this.state.certificate.endDate){
+            errors.endDate =  'The End Date must come after the Start Date';
+            return false;
+        }
+        return true;
+    }
 
     validateForm = (errors) => {
         let valid = true;
@@ -163,7 +178,7 @@ export default class NewEndCertificate extends React.Component {
         console.log(this.state.certificate)
 
         event.preventDefault();
-        if (this.validateForm(this.state.errors)) {
+        if (this.validateForm(this.state.errors) && this.checkDates()) {
             console.info('Valid Form')
             this.sendData();
         } else {
@@ -197,11 +212,12 @@ export default class NewEndCertificate extends React.Component {
         if(type=='start') {
             errors.startDate = date.length < 1 ? 'Choose certificate start date' : '';
         }else{
-            errors.endDate = date.length < 1 ? 'Choose certificate end date' : '';
+            errors.endDate = date.length<1 ? 'Choose certificate end date' : '';
         }
         this.setState({ errors });
 
     }
+
 
     handleSelectedIssuer =  (event) => {
         const target = event.target;
@@ -288,7 +304,7 @@ export default class NewEndCertificate extends React.Component {
                         <td style={{width:200}}>  Certificate issuer </td>
                         <td>
                             <Form.Control placeholder="Certificates" as={"select"} value={this.state.certificate.issuer}  onChange={this.handleSelectedIssuer} >
-                                <option disabled={true}  selected="selected">Choose by serial number</option>
+                                <option disabled={false}  selected="selected">Choose by serial number</option>
                                 {this.state.certificateIssuers.map(certificate =>
                                     <option key={certificate.alias} value={certificate.alias}>{certificate.serialNumber}</option>
                                 )}
@@ -309,7 +325,13 @@ export default class NewEndCertificate extends React.Component {
                             {this.state.submitted && this.state.errors.stateProvince.length > 0 && <span className="text-danger">{this.state.errors.stateProvince}</span>}
                         </td>
                     </tr>
-
+                    <tr>
+                        <td>Organization Name</td>
+                        <td>
+                            <input type="text" value={this.state.certificate.organizationName} name="organizationName" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="company" />
+                            {this.state.submitted && this.state.errors.organizationName.length > 0 && <span className="text-danger">{this.state.errors.organizationName}</span>}
+                        </td>
+                    </tr>
                     <tr>
                         <td> Surname</td>
                         <td>
@@ -366,7 +388,7 @@ export default class NewEndCertificate extends React.Component {
                         <td>End date</td>
                         <td>
                             <DatePicker selected={this.state.certificate.endDate} name="date2"
-                                        minDate={new Date(this.state.dateStart)} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
+                                        minDate={this.state.certificate.startDate} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
                                 this.setEndDate(e)
                             }}/>
                             {this.state.endDate}

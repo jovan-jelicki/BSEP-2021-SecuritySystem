@@ -92,7 +92,9 @@ export default class NewInterCertificate extends React.Component {
                         Authorization : 'Bearer ' + this.state.user.jwtToken
                     }})
             .then(res => {
-                alert("Success!")
+                alert("Successfully!")
+                window.location = '/profile';
+                //href="/profile"
                // this.props.history.push('/profile');
 
             })
@@ -149,6 +151,15 @@ export default class NewInterCertificate extends React.Component {
         return !(value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,64}$/i.test(value))
     }
 
+    checkDates=()=>{
+        let errors = this.state.errors;
+        if(this.state.certificate.startDate>this.state.certificate.endDate){
+            errors.endDate =  'The End Date must come after the Start Date';
+            return false;
+        }
+        return true;
+    }
+
     validateForm = (errors) => {
         let valid = true;
         Object.entries(errors).forEach(item => {
@@ -164,7 +175,7 @@ export default class NewInterCertificate extends React.Component {
         console.log(this.state.certificate)
 
         event.preventDefault();
-        if (this.validateForm(this.state.errors)) {
+        if (this.validateForm(this.state.errors) && this.checkDates()) {
             console.info('Valid Form')
             this.sendData();
         } else {
@@ -289,7 +300,7 @@ export default class NewInterCertificate extends React.Component {
                         <td style={{width:200}}>  Certificate issuer </td>
                         <td>
                             <Form.Control placeholder="Certificates" as={"select"} value={this.state.certificate.issuer}  onChange={this.handleSelectedIssuer} >
-                                <option disabled={true}  selected="selected">Choose by serial number</option>
+                                <option disabled={false}  selected="selected">Choose by serial number</option>
                                 {this.state.certificateIssuers.map(certificate =>
                                     <option key={certificate.alias} value={certificate.alias}>{certificate.serialNumber}</option>
                                 )}
@@ -367,7 +378,7 @@ export default class NewInterCertificate extends React.Component {
                         <td>End date</td>
                         <td>
                             <DatePicker selected={this.state.certificate.endDate} name="date2"
-                                        minDate={new Date(this.state.dateStart)} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
+                                        minDate={this.state.certificate.startDate} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
                                 this.setEndDate(e)
                             }}/>
                             {this.state.endDate}

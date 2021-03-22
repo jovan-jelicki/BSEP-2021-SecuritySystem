@@ -60,7 +60,6 @@ export default class NewRootCertificate extends React.Component {
             case 'stateProvince':
                 errors.stateProvince = value.length < 1 ? 'Enter State or Province Name' : '';
                 break;
-
             case 'organizationName':
                 errors.organizationName = value.length < 1 ? 'Enter Organization Name' : '';
                 break;
@@ -131,7 +130,8 @@ export default class NewRootCertificate extends React.Component {
                            Authorization : 'Bearer ' + this.state.user.jwtToken
                        }})
                .then(res => {
-                   alert("Success!")
+                   alert("Successfully!")
+                   window.location = '/profile';
                })
                .catch(res => {
                    alert("Something went wrong!")
@@ -214,7 +214,6 @@ export default class NewRootCertificate extends React.Component {
                             {this.state.submitted && this.state.errors.stateProvince.length > 0 && <span className="text-danger">{this.state.errors.stateProvince}</span>}
                         </td>
                     </tr>
-
                     <tr>
                         <td>Organization Name</td>
                         <td>

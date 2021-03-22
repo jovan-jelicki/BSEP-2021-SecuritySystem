@@ -38,7 +38,6 @@ public class EndEntityDataGenerator implements DataGenerator {
     @Override
     public SubjectData generateSubjectData(PublicKey publicKey, CertificateDataDTO certificateDataDTO) {
         try {
-
             Date startDate = iso8601Formater.parse(certificateDataDTO.getStartDate());
             Date endDate = iso8601Formater.parse(certificateDataDTO.getEndDate());
 
@@ -46,10 +45,12 @@ public class EndEntityDataGenerator implements DataGenerator {
             builder.addRDN(BCStyle.CN, certificateDataDTO.getCn());
             builder.addRDN(BCStyle.SURNAME, certificateDataDTO.getSurname());
             builder.addRDN(BCStyle.GIVENNAME, certificateDataDTO.getGivenName());
+            builder.addRDN(BCStyle.O, certificateDataDTO.getO());
             builder.addRDN(BCStyle.C, certificateDataDTO.getC());
             builder.addRDN(BCStyle.E, certificateDataDTO.getE());
             builder.addRDN(BCStyle.ST, certificateDataDTO.getS());
             builder.addRDN(BCStyle.UID, certificateDataDTO.getSubjectAlias().toString());
+            builder.addRDN(BCStyle.PSEUDONYM, "endEntity");
 
             return new SubjectData(publicKey, builder.build(), generateSerialNumber(), startDate, endDate);
         } catch (ParseException e) {
