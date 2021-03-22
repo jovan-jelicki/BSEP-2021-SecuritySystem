@@ -2,6 +2,7 @@ import * as React from "react";
 import {Button, CardColumns, Col, Form, Nav, Navbar, Row, Table} from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
 
 export default class NewRootCertificate extends React.Component {
     constructor(props) {
@@ -105,11 +106,36 @@ export default class NewRootCertificate extends React.Component {
         event.preventDefault();
         if (this.validateForm(this.state.errors)) {
             console.info('Valid Form')
+            this.sendData();
         } else {
             console.log('Invalid Form')
         }
         console.log(this.state.certificate)
 
+    }
+
+    sendData=()=>{
+           axios
+               .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
+                    'c':this.state.certificate.country,
+                    's':this.state.certificate.stateProvince,
+                    'o':this.state.certificate.organizationName,
+                    'ou':this.state.certificate.organizationalUnit,
+                    'cn':this.state.certificate.commonName,
+                    'e':this.state.certificate.email,
+                    'startDate':this.state.certificate.startDate,
+                    'endDate':this.state.certificate.endDate,
+                   },
+                   {  headers: {
+                           'Content-Type': 'application/json',
+                           Authorization : 'Bearer ' + this.state.user.jwtToken
+                       }})
+               .then(res => {
+                   alert("Success!")
+               })
+               .catch(res => {
+                   alert("Something went wrong!")
+               })
     }
 
     setStartDate = (date) => {

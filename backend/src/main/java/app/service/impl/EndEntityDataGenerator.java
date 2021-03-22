@@ -46,8 +46,6 @@ public class EndEntityDataGenerator implements DataGenerator {
             builder.addRDN(BCStyle.CN, certificateDataDTO.getCn());
             builder.addRDN(BCStyle.SURNAME, certificateDataDTO.getSurname());
             builder.addRDN(BCStyle.GIVENNAME, certificateDataDTO.getGivenName());
-            builder.addRDN(BCStyle.O, certificateDataDTO.getO());
-            builder.addRDN(BCStyle.OU, certificateDataDTO.getOu());
             builder.addRDN(BCStyle.C, certificateDataDTO.getC());
             builder.addRDN(BCStyle.E, certificateDataDTO.getE());
             builder.addRDN(BCStyle.ST, certificateDataDTO.getS());

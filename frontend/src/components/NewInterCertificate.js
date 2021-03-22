@@ -56,6 +56,7 @@ export default class NewInterCertificate extends React.Component {
             boolDates : false,
         })
     }
+
     fetchCertificates=()=>{
         axios
             .get("http://localhost:8080/api/certificate",
@@ -74,23 +75,32 @@ export default class NewInterCertificate extends React.Component {
     }
 
     sendData=()=>{
-     /*   axios
-            .get("http://localhost:8080/api/certificate",
+        axios
+            .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
+                    'issuerAlias':this.state.certificate.issuer,
+                    'c':this.state.certificate.country,
+                    's':this.state.certificate.stateProvince,
+                    'o':this.state.certificate.organizationName,
+                    'ou':this.state.certificate.organizationalUnit,
+                    'cn':this.state.certificate.commonName,
+                    'e':this.state.certificate.email,
+                    'startDate':this.state.certificate.startDate,
+                    'endDate':this.state.certificate.endDate,
+                },
                 {  headers: {
                         'Content-Type': 'application/json',
                         Authorization : 'Bearer ' + this.state.user.jwtToken
                     }})
             .then(res => {
-                this.setState({
-                    certificates : res.data,
-                    search : res.data
-                })
+                alert("Success!")
+               // this.props.history.push('/profile');
+
             })
             .catch(res => {
                 alert("Something went wrong!")
             })
 
-      */
+
     }
 
     handleInputChange = (event) => {
@@ -211,7 +221,7 @@ export default class NewInterCertificate extends React.Component {
          if (this.state.certificateIssuers.length) {
              this.state.certificateIssuers.forEach(v => {
                  if(v.alias===this.state.certificate.issuer) {
-                     if (new Date(v.validFrom)> new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
+                     if (new Date(v.validFrom)>= new Date()) {//new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
                          this.setState({
                              boolDates: true,
                              dateStart: v.validFrom,

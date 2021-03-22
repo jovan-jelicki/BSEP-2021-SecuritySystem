@@ -2,6 +2,7 @@ import * as React from "react";
 import {Button, Col, Form, FormControl, Modal, Row, Table} from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import axios from "axios";
+import moment from "moment";
 
 
 export default class NewEndCertificate extends React.Component {
@@ -25,29 +26,20 @@ export default class NewEndCertificate extends React.Component {
                 country: 'Please enter country name',
                 stateProvince: 'Please enter state or province name',
                 surname: 'Please enter surname',
-                givenName: 'Please enter given name',
+                givenName: 'Please enter givenName',
                 commonName:'Please enter common name',
                 email:'Please enter email address',
                 startDate: 'Please choose certificate start date',
                 endDate:'Please choose certificate end date',
                 purpose:'Please enter certificate purpose'
-
-
             },
             dateStart:'',
             dateEnd:'',
             validForm: false,
             submitted: false,
-            certificateIssuers:[
-                {
-                    alias:'',
-                    serialNumber:'',
-                    validFrom:'',
-                    validTo:'',
-                }
-            ],
+            certificateIssuers:[],
             purposes:[],
-
+            boolDates:false,
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
 
         }
@@ -55,8 +47,15 @@ export default class NewEndCertificate extends React.Component {
 
     async componentDidMount() {
         this.fetchCertificates()
+        // this.fetchDates()
+        console.log(this.state.boolDates)
     }
 
+    fetchDates=()=>{
+        this.setState({
+            boolDates : false,
+        })
+    }
     fetchCertificates=()=>{
         axios
             .get("http://localhost:8080/api/certificate",
@@ -68,12 +67,39 @@ export default class NewEndCertificate extends React.Component {
                 this.setState({
                     certificateIssuers : res.data,
                 })
-                // console.log(this.state.certificateIssuers)
-                //alert(this.state.certificateIssuers)
             })
             .catch(res => {
                 alert("Something went wrong!")
             })
+    }
+
+    sendData=()=>{
+        console.log(this.state.certificate)
+
+        axios
+            .post("http://localhost:8080/api/certificate/issueEndEntity",{
+                    'issuerAlias':this.state.certificate.issuer,
+                    'c':this.state.certificate.country,
+                    's':this.state.certificate.stateProvince,
+                    'surname':this.state.certificate.surname,
+                    'givenName':this.state.certificate.givenName,
+                    'cn':this.state.certificate.commonName,
+                    'e':this.state.certificate.email,
+                    'startDate':this.state.certificate.startDate,
+                    'endDate':this.state.certificate.endDate,
+                },
+                {  headers: {
+                        'Content-Type': 'application/json',
+                        Authorization : 'Bearer ' + this.state.user.jwtToken
+                    }})
+            .then(res => {
+                alert("Success!")
+            })
+            .catch(res => {
+                alert("Something went wrong!")
+            })
+
+
     }
 
     handleInputChange = (event) => {
@@ -97,10 +123,10 @@ export default class NewEndCertificate extends React.Component {
                 errors.stateProvince = value.length < 1 ? 'Enter State or Province Name' : '';
                 break;
             case 'surname':
-                errors.surname = value.length < 1 ? 'Enter surname' : '';
+                errors.surname = value.length < 1 ? 'Enter Surname' : '';
                 break;
             case 'givenName':
-                errors.givenName = value.length < 1 ? 'Enter Given Name' : '';
+                errors.givenName = value.length < 1 ? 'Enter givenName' : '';
                 break;
             case 'commonName':
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
@@ -132,8 +158,6 @@ export default class NewEndCertificate extends React.Component {
     }
 
     submitForm =  (event) => {
-        this.state.certificate.startDate=this.state.dateStart;
-        this.state.certificate.endDate=this.state.dateEnd;
         this.setState({ submitted: true });
         const certificate = this.state.certificate;
         console.log(this.state.certificate)
@@ -141,23 +165,29 @@ export default class NewEndCertificate extends React.Component {
         event.preventDefault();
         if (this.validateForm(this.state.errors)) {
             console.info('Valid Form')
+            this.sendData();
         } else {
             console.log('Invalid Form')
         }
         console.log(this.state.certificate)
-
     }
 
     setStartDate = (date) => {
         this.setState({
-            dateStart : date
+            certificate : {
+                ...this.state.certificate,
+                startDate : date
+            }
         })
         this.validationDateMessage('start',date)
     }
 
     setEndDate = (date) => {
         this.setState({
-            dateEnd : date
+            certificate : {
+                ...this.state.certificate,
+                endDate : date
+            }
         })
         this.validationDateMessage('end',date)
     }
@@ -177,16 +207,44 @@ export default class NewEndCertificate extends React.Component {
         const target = event.target;
         let value = event.target.value;
 
-        console.log(value)
         this.setState({
             certificate : {
                 ...this.state.certificate,
                 issuer : value
-            }
+            },
+            boolDates: false
         })
+    }
 
-        //  this.state.certificate.issuer=value;
-        console.log(this.state.certificate)
+    setStartAndEndDate=(event)=>{
+        if (this.state.certificateIssuers.length) {
+            this.state.certificateIssuers.forEach(v => {
+                if(v.alias===this.state.certificate.issuer) {
+                    if (new Date(v.validFrom)> new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
+                        this.setState({
+                            boolDates: true,
+                            dateStart: v.validFrom,
+                            dateEnd: v.validTo
+                        });
+                    }else if (new Date(v.validFrom) < new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
+                        this.setState({
+                            boolDates: true,
+                            dateStart:String(new Date()),
+                            dateEnd: v.validTo
+                        });
+                    }else if(new Date(v.validFrom)< new Date() && new Date(v.validTo)< new Date()) {
+                        this.setState({
+                            boolDates: true,
+                            dateStart: moment(new Date()).format('DD.MM.YYYY'),
+                            dateEnd: moment(new Date()).format('DD.MM.YYYY')
+                        });
+                    }
+                }
+            });
+        }
+
+        console.log(this.state.dateStart)
+        console.log(this.state.dateEnd)
     }
 
     onTypeChange=(event) => {
@@ -222,12 +280,12 @@ export default class NewEndCertificate extends React.Component {
 
     render() {
         return (
-            <div >
-                <h5 style={{color:'#455A64'}}>New End-Entity certificate</h5>
+            <div>
+                <h5 style={{color:'#455A64'}}>New End-Entity Certificate</h5>
                 <Table  hover variant="dark">
                     <tbody>
                     <tr>
-                        <td style={{width:200}}> Certificate issuer </td>
+                        <td style={{width:200}}>  Certificate issuer </td>
                         <td>
                             <Form.Control placeholder="Certificates" as={"select"} value={this.state.certificate.issuer}  onChange={this.handleSelectedIssuer} >
                                 <option disabled={true}  selected="selected">Choose by serial number</option>
@@ -253,16 +311,16 @@ export default class NewEndCertificate extends React.Component {
                     </tr>
 
                     <tr>
-                        <td>Surname</td>
+                        <td> Surname</td>
                         <td>
-                            <input type="text" value={this.state.certificate.surname} name="surname" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="surname" placeholder="surname" />
+                            <input type="text" value={this.state.certificate.surname} name="surname" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="surname" />
                             {this.state.submitted && this.state.errors.surname.length > 0 && <span className="text-danger">{this.state.errors.surname}</span>}
                         </td>
                     </tr>
                     <tr>
-                        <td>Given Name</td>
+                        <td>  Given Name</td>
                         <td>
-                            <input type="text" value={this.state.certificate.givenName} name="givenName" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="given name" />
+                            <input type="text" value={this.state.certificate.givenName} name="givenName" onChange={(e) => {this.handleInputChange(e)}} className="form-control" id="cn" placeholder="givenName" />
                             {this.state.submitted && this.state.errors.givenName.length > 0 && <span className="text-danger">{this.state.errors.givenName}</span>}
                         </td>
                     </tr>
@@ -280,29 +338,51 @@ export default class NewEndCertificate extends React.Component {
                             {this.state.submitted && this.state.errors.email.length > 0 && <span className="text-danger">{this.state.errors.email}</span>}
                         </td>
                     </tr>
+                    { !this.state.boolDates &&
                     <tr>
-                        <td>Start date </td>
+                        <td> Choose period</td>
                         <td>
-                            <DatePicker selected={this.state.dateStart}  name="dateStart" minDate={new Date()}  onChange={(e) => {this.setStartDate(e)}}  />
-                            {this.state.submitted && this.state.errors.startDate.length > 0 && <span className="text-danger">{this.state.errors.startDate}</span>}
+                            <Button onClick={this.setStartAndEndDate}>Choose</Button>
+                        </td>
+                    </tr>
+                    }
+                    { this.state.boolDates &&
+                    <tr>
+                        <td>Start date</td>
+                        <td>
+
+                            <DatePicker selected={this.state.certificate.startDate} name="date1"
+                                        minDate={new Date(this.state.dateStart)} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
+                                this.setStartDate(e)
+                            }}/>
+                            {this.state.submitted && this.state.errors.startDate.length > 0 &&
+                            <span className="text-danger">{this.state.errors.startDate}</span>}
 
                         </td>
                     </tr>
+                    }
+                    {this.state.boolDates &&
                     <tr>
-                        <td>End date </td>
+                        <td>End date</td>
                         <td>
-                            <DatePicker  selected={this.state.dateEnd}  name="dateEnd" minDate={this.state.dateStart}  onChange={(e) => {this.setEndDate(e)}}/>
-                            {this.state.submitted && this.state.errors.endDate.length > 0 && <span className="text-danger">{this.state.errors.endDate}</span>}
+                            <DatePicker selected={this.state.certificate.endDate} name="date2"
+                                        minDate={new Date(this.state.dateStart)} maxDate={new Date(this.state.dateEnd)} onChange={(e) => {
+                                this.setEndDate(e)
+                            }}/>
+                            {this.state.endDate}
+                            {this.state.submitted && this.state.errors.endDate.length > 0 &&
+                            <span className="text-danger">{this.state.errors.endDate}</span>}
 
                         </td>
                     </tr>
+                    }
                     <tr>
                         <td>Purposes</td>
                         <td>
                             <fieldset>
                                 <Form >
                                     <Form.Group as={Col}  >
-                                        <Row sm={10} >
+                                        <Row sm={35} >
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Proves your identity to a remote computer" value={"Proves your identity to a remote computer"} name="purpose" id="1" onChange={this.onTypeChange} />
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures the identity of a remote computer" value={"Ensures the identity of a remote computer"} name="purpose" id="2" onChange={this.onTypeChange} />
                                             <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures software came from software publisher" value={"Ensures software came from software publisher"}  name="purpose" id="3" onChange={this.onTypeChange} />
