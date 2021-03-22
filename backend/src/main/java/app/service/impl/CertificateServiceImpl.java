@@ -10,6 +10,7 @@ import app.repository.CertificateRepository;
 import app.service.CertificateService;
 import app.service.DataGenerator;
 import app.util.CertificateGenerator;
+import org.bouncycastle.jce.X509KeyUsage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.*;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
@@ -80,7 +79,12 @@ public class CertificateServiceImpl implements CertificateService {
             throw e;
         }
         X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate());
-
+        boolean[] proba = new boolean[] {};
+        try {
+            proba = cert.getKeyUsage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         certificateRepository.save(new CertificateCustom(alias, true));
         certificateKeystoreRepository.save(alias, keyPairSubject.getPrivate(), cert);
     }

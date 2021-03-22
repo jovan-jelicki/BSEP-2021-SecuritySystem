@@ -9,10 +9,12 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+@Service
 public class ValidationServiceImpl implements ValidationService {
     private final CertificateKeystoreRepository certificateKeystoreRepository;
     private final CertificateRepository certificateRepository;
@@ -31,8 +33,9 @@ public class ValidationServiceImpl implements ValidationService {
 
     public Boolean verifyCertificate(X509Certificate certificate) throws Exception {
         try {
-            if(!checkInterval(certificate))
-                return false;
+            if(!checkInterval(certificate)) {
+               return invalidate(certificate);
+            }
             X500Name issuerData = new JcaX509CertificateHolder(certificate).getIssuer();
             RDN aliasRDN = issuerData.getRDNs(BCStyle.UID)[0];
             String issuerAlias = IETFUtils.valueToString(aliasRDN.getFirst().getValue());
@@ -40,10 +43,18 @@ public class ValidationServiceImpl implements ValidationService {
                 return true;
             X509Certificate issuerCertificate = (X509Certificate) certificateKeystoreRepository.readCertificate(issuerAlias);
             certificate.verify(issuerCertificate.getPublicKey());
-            return verifyCertificate(issuerCertificate);
+            if(verifyCertificate(issuerCertificate))
+                return true;
+            return invalidate(certificate);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            return invalidate(certificate);
         }
+    }
+
+
+    public Boolean invalidate(X509Certificate certificate){
+        System.out.println("Kaze igor da ispisem nesto!"  + certificate.getSubjectDN().getName());
+        return false;
     }
 }
