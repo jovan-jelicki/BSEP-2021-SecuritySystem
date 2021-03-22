@@ -60,7 +60,7 @@ export default class NewEndCertificate extends React.Component {
     }
     fetchCertificates=()=>{
         axios
-            .get("http://localhost:8080/api/certificate",
+            .get("http://localhost:8080/api/certificate/getRootInter",
                 {  headers: {
                         'Content-Type': 'application/json',
                         Authorization : 'Bearer ' + this.state.user.jwtToken
@@ -405,16 +405,8 @@ export default class NewEndCertificate extends React.Component {
                                 <Form >
                                     <Form.Group as={Col}  >
                                         <Row sm={35} >
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Proves your identity to a remote computer" value={"Proves your identity to a remote computer"} name="purpose" id="1" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures the identity of a remote computer" value={"Ensures the identity of a remote computer"} name="purpose" id="2" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures software came from software publisher" value={"Ensures software came from software publisher"}  name="purpose" id="3" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Protects software from alteration after publication" value={"Protects software from alteration after publication"} name="purpose" id="4" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Protects e-mail messages" value={"Protects e-mail messages"} name="purpose" id="5" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Allows data on disk to be encrypted" value={"Allows data on disk to be encrypted"}  name="purpose" id="6" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="2.23.140.1.2.2" value={"2.23.140.1.2.2"} name="purpose" id="8" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="2.16.840.1.114412.1.1" value={"2.16.840.1.114412.1.1"}  name="purpose" id="7" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="All issuance policies" value={"All issuance policies"} name="purpose" id="9" onChange={this.onTypeChange} />
-
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="1" value={"1"} name="purpose" id="1" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="2" value={"2"} name="purpose" id="2" onChange={this.onTypeChange} />
                                         </Row>
                                     </Form.Group>
                                 </Form>

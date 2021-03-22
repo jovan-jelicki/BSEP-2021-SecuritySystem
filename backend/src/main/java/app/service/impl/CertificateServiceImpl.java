@@ -55,6 +55,12 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
+    public List<CertificateDTO> findAllRootInterCertificates() {
+        return certificateKeystoreRepository.findAllRootInterCertificates();
+
+    }
+
+    @Override
     public void setDataGenerator(DataGenerator dataGenerator) {
         this.dataGenerator = dataGenerator;
     }

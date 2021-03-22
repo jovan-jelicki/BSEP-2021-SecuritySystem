@@ -13,10 +13,7 @@ import java.util.List;
 
 public interface CertificateService extends CRUDService<CertificateCustom> {
     List<CertificateDTO> findAllInKeystores();
-
- //   void saveToKeystore() throws KeyStoreException;
-
+    List<CertificateDTO> findAllRootInterCertificates();
     void setDataGenerator(DataGenerator dataGenerator);
-
     void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws KeyStoreException, UnrecoverableKeyException, CertificateEncodingException, NoSuchAlgorithmException, ParseException;
     }

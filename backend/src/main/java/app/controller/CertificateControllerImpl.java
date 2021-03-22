@@ -48,6 +48,19 @@ public class CertificateControllerImpl {
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")
+    @GetMapping("/getRootInter")
+    public ResponseEntity<List<CertificateDTO>> getAllRootInterCertificates() {
+        logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
+
+        List<CertificateDTO> certificates = certificateService.findAllRootInterCertificates();
+
+        logger.info("{} - Retrieved all available certificates", Calendar.getInstance().getTime());
+
+        //return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
+        return new ResponseEntity<>(certificates, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping("/issueRootIntermediate")
     public ResponseEntity<Void> issueRootIntermediateCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
