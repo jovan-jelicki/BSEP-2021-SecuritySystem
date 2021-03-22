@@ -103,21 +103,12 @@ public class CertificateKeystoreRepository {
             Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
-
                 X509Certificate cert = (X509Certificate) readCertificate(alias);
+
                 if (cert != null) {
                     CertificateDTO certificateDTO = new CertificateDTO();
-                    certificateDTO.setSerialNumber(cert.getSerialNumber().toString());
-                    certificateDTO.setPublicKey(Base64Utility.encode(cert.getPublicKey().getEncoded()));
-                    certificateDTO.setAlias(alias);
-                    certificateDTO.setValidFrom(cert.getNotBefore());
-                    certificateDTO.setValidTo(cert.getNotAfter());
                     X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
-                    certificateDTO.setSubjectData(convertX500Name(subjectData));
-                    X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
-                    certificateDTO.setIssuerData(convertX500Name(issuerData));
-
-                    certificates.add(certificateDTO);
+                    setCertificateParams(certificates, alias, cert, certificateDTO, subjectData);
                 }
             }
         } catch (KeyStoreException | CertificateEncodingException e) {
@@ -126,8 +117,6 @@ public class CertificateKeystoreRepository {
 
         return certificates;
     }
-
-
 
     public List<CertificateDTO> findAllRootInterCertificates() {
         List<CertificateDTO> certificates = new ArrayList<>();
@@ -138,32 +127,35 @@ public class CertificateKeystoreRepository {
             Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
-
                 X509Certificate cert = (X509Certificate) readCertificate(alias);
+
                 if (cert != null) {
                     CertificateDTO certificateDTO = new CertificateDTO();
                     X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
                     String pseudonym=IETFUtils.valueToString(subjectData.getRDNs(BCStyle.PSEUDONYM)[0].getFirst().getValue());
 
                     if(pseudonym.equals("rootIntermediate")){
-                        certificateDTO.setSerialNumber(cert.getSerialNumber().toString());
-                        certificateDTO.setPublicKey(Base64Utility.encode(cert.getPublicKey().getEncoded()));
-                        certificateDTO.setAlias(alias);
-                        certificateDTO.setValidFrom(cert.getNotBefore());
-                        certificateDTO.setValidTo(cert.getNotAfter());
-                        certificateDTO.setSubjectData(convertX500Name(subjectData));
-                        X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
-                        certificateDTO.setIssuerData(convertX500Name(issuerData));
-                        certificates.add(certificateDTO);
+                        setCertificateParams(certificates, alias, cert, certificateDTO, subjectData);
                     }
                 }
-
             }
         } catch (KeyStoreException | CertificateEncodingException e) {
             e.printStackTrace();
         }
 
         return certificates;
+    }
+
+    private void setCertificateParams(List<CertificateDTO> certificates, String alias, X509Certificate cert, CertificateDTO certificateDTO, X500Name subjectData) throws CertificateEncodingException {
+        certificateDTO.setSerialNumber(cert.getSerialNumber().toString());
+        certificateDTO.setPublicKey(Base64Utility.encode(cert.getPublicKey().getEncoded()));
+        certificateDTO.setAlias(alias);
+        certificateDTO.setValidFrom(cert.getNotBefore());
+        certificateDTO.setValidTo(cert.getNotAfter());
+        certificateDTO.setSubjectData(convertX500Name(subjectData));
+        X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
+        certificateDTO.setIssuerData(convertX500Name(issuerData));
+        certificates.add(certificateDTO);
     }
 
     public List<CertificateDTO> checkCertificates(X509Certificate cert, String alias) throws CertificateEncodingException {
@@ -176,15 +168,7 @@ public class CertificateKeystoreRepository {
             if(!pseudonym.equals("rootIntermediate")){
                return null;
             }
-            certificateDTO.setSerialNumber(cert.getSerialNumber().toString());
-            certificateDTO.setPublicKey(Base64Utility.encode(cert.getPublicKey().getEncoded()));
-            certificateDTO.setAlias(alias);
-            certificateDTO.setValidFrom(cert.getNotBefore());
-            certificateDTO.setValidTo(cert.getNotAfter());
-            certificateDTO.setSubjectData(convertX500Name(subjectData));
-            X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
-            certificateDTO.setIssuerData(convertX500Name(issuerData));
-            certificates.add(certificateDTO);
+            setCertificateParams(certificates, alias, cert, certificateDTO, subjectData);
 
         }
         return certificates;
