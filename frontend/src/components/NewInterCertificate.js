@@ -75,6 +75,8 @@ export default class NewInterCertificate extends React.Component {
     }
 
     sendData=()=>{
+        console.log(this.state.certificate.startDate)
+        console.log(this.state.certificate.endDate)
         axios
             .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
                     'issuerAlias':this.state.certificate.issuer,
