@@ -2,6 +2,10 @@ package app.util;
 
 import app.model.data.IssuerData;
 import app.model.data.SubjectData;
+import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -10,10 +14,16 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.cert.X509Extension;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class CertificateGenerator {
     public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData, PrivateKey privateKey) {
@@ -40,6 +50,12 @@ public class CertificateGenerator {
                     subjectData.getX500name(),
                     subjectData.getPublicKey());
             //Generise se sertifikat
+        //    KeyUsage usage = new KeyUsage(KeyUsage.keyCertSign | KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.cRLSign);
+            ArrayList<Boolean> booleans = new ArrayList<Boolean>(Arrays.asList(false, true, true, false,true, true,false,true,false)) {};
+            int sum = ExtensionsUtil.convertKeyUsageArrayToInt(booleans);
+            KeyUsage usage = new KeyUsage(sum);
+            certGen.addExtension(Extension.keyUsage, false, usage);
+
             X509CertificateHolder certHolder = certGen.build(contentSigner);
 
             //Builder generise sertifikat kao objekat klase X509CertificateHolder
@@ -50,6 +66,8 @@ public class CertificateGenerator {
             //Konvertuje objekat u sertifikat
             return certConverter.getCertificate(certHolder);
         } catch (IllegalArgumentException | IllegalStateException | OperatorCreationException | CertificateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
