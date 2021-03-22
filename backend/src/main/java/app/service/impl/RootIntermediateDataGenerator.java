@@ -84,9 +84,11 @@ public class RootIntermediateDataGenerator implements DataGenerator {
     }
 
     public Boolean checkDates(X509Certificate certificate, CertificateDataDTO certificateDataDTO) throws ParseException {
-        if(certificate.getNotAfter().before(iso8601Formater.parse(certificateDataDTO.getStartDate()))
-                || certificate.getNotBefore().after(iso8601Formater.parse(certificateDataDTO.getEndDate()))
-                || iso8601Formater.parse(certificateDataDTO.getStartDate()).before(iso8601Formater.parse(certificateDataDTO.getEndDate())))
+        if(certificate.getNotAfter().before(iso8601Formater.parse(certificateDataDTO.getEndDate())))
+            return false;
+        if( certificate.getNotBefore().after(iso8601Formater.parse(certificateDataDTO.getStartDate())))
+            return false;
+        if(iso8601Formater.parse(certificateDataDTO.getEndDate()).before(iso8601Formater.parse(certificateDataDTO.getStartDate())))
             return false;
         return true;
     }
