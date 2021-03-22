@@ -46,7 +46,6 @@ public class DataGenerator {
         builder.addRDN(BCStyle.OU, IETFUtils.valueToString(subjectData.getRDNs(BCStyle.OU)[0].getFirst().getValue()));
         builder.addRDN(BCStyle.C, IETFUtils.valueToString(subjectData.getRDNs(BCStyle.C)[0].getFirst().getValue()));
         builder.addRDN(BCStyle.E, IETFUtils.valueToString(subjectData.getRDNs(BCStyle.E)[0].getFirst().getValue()));
-      //TODO : proveriti da li ovde staviti alias
         builder.addRDN(BCStyle.UID, alias);
 
         return new IssuerData(builder.build(), certificateKeystoreRepository.getPrivateKey(alias));
@@ -78,15 +77,5 @@ public class DataGenerator {
     }
 
 
-    public static KeyPair generateKeyPair() {
-        try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
-            keyGen.initialize(2048, random);
-            return keyGen.generateKeyPair();
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+
 }

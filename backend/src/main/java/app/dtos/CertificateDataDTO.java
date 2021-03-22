@@ -23,6 +23,7 @@ public class CertificateDataDTO {
     private String ou;
     private String c;
     private String e;
+    private String s;
     @JsonIgnore
     private UUID subjectAlias;
     private String startDate;

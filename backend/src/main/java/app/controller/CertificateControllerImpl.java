@@ -3,6 +3,8 @@ package app.controller;
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
 import app.service.CertificateService;
+import app.service.impl.EndEntityDataGenerator;
+import app.service.impl.RootIntermediateDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateEncodingException;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,22 +48,31 @@ public class CertificateControllerImpl {
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")
-    @PostMapping("/issue")
-    public ResponseEntity<Void> issueCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
+    @PostMapping("/issueRootIntermediate")
+    public ResponseEntity<Void> issueRootIntermediateCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
-
+        certificateService.setDataGenerator(new RootIntermediateDataGenerator());
         try {
-            certificateService.saveToKeystoreIssuer(certificateDataDTO);
-        } catch (KeyStoreException e) {
+            certificateService.saveToKeyStore(certificateDataDTO);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (UnrecoverableKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateEncodingException e) {
-            e.printStackTrace();
         }
 
+        logger.info("{} - Issuing a certificate was successful", Calendar.getInstance().getTime());
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PostMapping("/issueEndEntity")
+    public ResponseEntity<Void> issueEndEntityCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
+        logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
+        certificateService.setDataGenerator(new EndEntityDataGenerator());
+        try {
+            certificateService.saveToKeyStore(certificateDataDTO);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         logger.info("{} - Issuing a certificate was successful", Calendar.getInstance().getTime());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
