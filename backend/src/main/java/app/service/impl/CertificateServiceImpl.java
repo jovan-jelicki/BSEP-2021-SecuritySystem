@@ -91,6 +91,7 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             issuerData = dataGenerator.generateIssuerData(certificateDataDTO);
         }catch (Exception e ){
+            e.printStackTrace();
             throw e;
         }
         X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate());

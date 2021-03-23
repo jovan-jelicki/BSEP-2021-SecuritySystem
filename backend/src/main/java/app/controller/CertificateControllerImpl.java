@@ -43,15 +43,13 @@ public class CertificateControllerImpl {
         logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
 
         List<CertificateDTO> certificates = certificateService.findAllInKeystores();
-        // List<CertificateCustom> certificateCustoms = (List<CertificateCustom>) certificateService.getAll();
 
         logger.info("{} - Retrieved all available certificates", Calendar.getInstance().getTime());
 
-        //return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
         return new ResponseEntity<>(certificates, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_user')")
+    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
     @PostMapping("/download")
     public ResponseEntity<Resource> downloadCertificate(@RequestBody DownloadRequestDTO downloadRequest) {
         logger.info("{} - Downloading certificate {}", Calendar.getInstance().getTime(), downloadRequest.getCertificateAlias());
