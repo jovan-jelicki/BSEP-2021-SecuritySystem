@@ -442,14 +442,14 @@ export default class NewInterCertificate extends React.Component {
                                 <Form >
                                     <Form.Group as={Col}  >
                                         <Row sm={35} >
-                                            {this.state.keyUsages[0] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[1] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"  name="purpose" id="1" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[2] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="2" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[3] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement"  name="purpose" id="3" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[4] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"  name="purpose" id="4" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[5] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[6] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"  name="purpose" id="6" onChange={this.onTypeChange} />}
-                                            {this.state.keyUsages[7] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[7] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[6] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"  name="purpose" id="1" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[5] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="2" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[4] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement"  name="purpose" id="3" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[3] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"  name="purpose" id="4" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[2] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[1] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"  name="purpose" id="6" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[0] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />}
                                       </Row>
                                     </Form.Group>
                                 </Form>
