@@ -24,7 +24,7 @@ public class DataGenerator {
     private static final int serialNumberLimit = new BigInteger("2500000").bitLength();
     private CertificateKeystoreRepository certificateKeystoreRepository;
 
-    public DataGenerator() {
+ /*   public DataGenerator() {
         this.certificateKeystoreRepository = new CertificateKeystoreRepository();
     }
 
@@ -33,8 +33,8 @@ public class DataGenerator {
         BigInteger serialNumber = new BigInteger(serialNumberLimit, randNum);
         return serialNumber.toString();
     }
-
-    public IssuerData generateIssuerData(String alias) throws CertificateEncodingException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
+*/
+ /*   public IssuerData generateIssuerData(String alias) throws CertificateEncodingException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
         X509Certificate issuerCertificate = (X509Certificate) certificateKeystoreRepository.readCertificate(alias);
         X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
         X500Name subjectData = new JcaX509CertificateHolder(issuerCertificate).getSubject();
@@ -75,7 +75,7 @@ public class DataGenerator {
         }
         return null;
     }
-
+*/
 
 
 }

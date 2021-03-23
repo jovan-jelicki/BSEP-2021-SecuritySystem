@@ -20,7 +20,7 @@ public class ValidationServiceImpl implements ValidationService {
     private final CertificateRepository certificateRepository;
 
     @Autowired
-    public ValidationServiceImpl(CertificateKeystoreRepository certificateKeystoreRepository, CertificateRepository certificateRepository) {
+    public ValidationServiceImpl( CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
         this.certificateKeystoreRepository = certificateKeystoreRepository;
         this.certificateRepository = certificateRepository;
     }
@@ -31,6 +31,7 @@ public class ValidationServiceImpl implements ValidationService {
         return true;
     }
 
+    @Override
     public Boolean verifyCertificate(X509Certificate certificate) throws Exception {
         try {
             if(!checkInterval(certificate)) {
@@ -52,7 +53,7 @@ public class ValidationServiceImpl implements ValidationService {
         }
     }
 
-
+    @Override
     public Boolean invalidate(X509Certificate certificate){
         System.out.println("Kaze igor da ispisem nesto!"  + certificate.getSubjectDN().getName());
         return false;

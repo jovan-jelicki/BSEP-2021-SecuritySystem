@@ -15,5 +15,5 @@ public interface CertificateService extends CRUDService<CertificateCustom> {
     List<CertificateDTO> findAllInKeystores();
     List<CertificateDTO> findAllRootInterCertificates();
     void setDataGenerator(DataGenerator dataGenerator);
-    void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws KeyStoreException, UnrecoverableKeyException, CertificateEncodingException, NoSuchAlgorithmException, ParseException;
+    void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws Exception;
     }

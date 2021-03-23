@@ -2,22 +2,21 @@ package app.controller;
 
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
+import app.repository.CertificateRepository;
 import app.service.CertificateService;
+import app.service.DataGenerator;
 import app.service.impl.EndEntityDataGenerator;
 import app.service.impl.RootIntermediateDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateEncodingException;
-import java.text.ParseException;
+import javax.xml.crypto.Data;
 import java.util.Calendar;
 import java.util.List;
 
@@ -27,10 +26,14 @@ public class CertificateControllerImpl {
     private static final Logger logger = LoggerFactory.getLogger(CertificateControllerImpl.class);
 
     private final CertificateService certificateService;
+    private final DataGenerator endEntityDataGenerator;
+    private final DataGenerator rootIntermediateDataGenerator;
 
     @Autowired
-    public CertificateControllerImpl(CertificateService certificateService) {
+    public CertificateControllerImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGeneratorEndEntity,@Qualifier("rootIntermediateDataGenerator") DataGenerator dataGeneratorRoot, CertificateService certificateService) {
         this.certificateService = certificateService;
+        this.endEntityDataGenerator = dataGeneratorEndEntity;
+        this.rootIntermediateDataGenerator = dataGeneratorRoot;
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")
@@ -64,7 +67,7 @@ public class CertificateControllerImpl {
     @PostMapping("/issueRootIntermediate")
     public ResponseEntity<Void> issueRootIntermediateCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
-        certificateService.setDataGenerator(new RootIntermediateDataGenerator());
+        certificateService.setDataGenerator(rootIntermediateDataGenerator);
         try {
             certificateService.saveToKeyStore(certificateDataDTO);
         } catch (Exception e) {
@@ -80,7 +83,7 @@ public class CertificateControllerImpl {
     @PostMapping("/issueEndEntity")
     public ResponseEntity<Void> issueEndEntityCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
-        certificateService.setDataGenerator(new EndEntityDataGenerator());
+        certificateService.setDataGenerator(endEntityDataGenerator);
         try {
             certificateService.saveToKeyStore(certificateDataDTO);
         } catch (Exception e) {

@@ -6,6 +6,7 @@ import app.model.data.IssuerData;
 import app.model.data.SubjectData;
 import app.repository.CertificateKeystoreRepository;
 import app.service.DataGenerator;
+import app.service.ValidationService;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -30,9 +31,12 @@ public class RootIntermediateDataGenerator implements DataGenerator {
     private final CertificateKeystoreRepository certificateKeystoreRepository;
     private static final int serialNumberLimit = new BigInteger("2500000").bitLength();
     private final SimpleDateFormat iso8601Formater;
+    private final ValidationService validationService;
 
-    public RootIntermediateDataGenerator() {
-        this.certificateKeystoreRepository = new CertificateKeystoreRepository();
+
+    public RootIntermediateDataGenerator(ValidationService validationService, CertificateKeystoreRepository certificateKeystoreRepository) {
+        this.validationService = validationService;
+        this.certificateKeystoreRepository = certificateKeystoreRepository;
         this.iso8601Formater = new SimpleDateFormat("yyyy-MM-dd");
     }
 
@@ -61,15 +65,15 @@ public class RootIntermediateDataGenerator implements DataGenerator {
     }
 
     @Override
-    public IssuerData generateIssuerData(CertificateDataDTO certificateDataDTO) throws CertificateEncodingException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, ParseException {
+    public IssuerData generateIssuerData(CertificateDataDTO certificateDataDTO) throws Exception {
         if(certificateDataDTO.getIssuerAlias() == null || certificateDataDTO.getIssuerAlias().equals(""))
             return generateRootIssuer(certificateDataDTO);
         return generateIntermediateIssuer(certificateDataDTO);
     }
 
-    private IssuerData generateIntermediateIssuer(CertificateDataDTO certificateDataDTO) throws CertificateEncodingException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, ParseException {
+    private IssuerData generateIntermediateIssuer(CertificateDataDTO certificateDataDTO) throws Exception {
         X509Certificate issuerCertificate = (X509Certificate) certificateKeystoreRepository.readCertificate(certificateDataDTO.getIssuerAlias());
-        if(checkDates(issuerCertificate, certificateDataDTO)) {
+        if(checkDates(issuerCertificate, certificateDataDTO) && validationService.verifyCertificate(issuerCertificate)) {
             X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
             X500Name subjectData = new JcaX509CertificateHolder(issuerCertificate).getSubject();
 

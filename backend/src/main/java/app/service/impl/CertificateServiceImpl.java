@@ -9,18 +9,15 @@ import app.repository.CertificateKeystoreRepository;
 import app.repository.CertificateRepository;
 import app.service.CertificateService;
 import app.service.DataGenerator;
+import app.service.ValidationService;
 import app.util.CertificateGenerator;
-import org.bouncycastle.jce.X509KeyUsage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.*;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.util.*;
 
 @Service
@@ -29,13 +26,15 @@ public class CertificateServiceImpl implements CertificateService {
     private final CertificateKeystoreRepository certificateKeystoreRepository;
     private final CertificateGenerator certificateGenerator;
     private DataGenerator dataGenerator;
+    private final ValidationService validationService;
 
     @Autowired
-    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
+    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, ValidationService validationService ,CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
         this.certificateRepository = certificateRepository;
         this.certificateKeystoreRepository = certificateKeystoreRepository;
         this.certificateGenerator = new CertificateGenerator();
         this.dataGenerator = dataGenerator;
+        this.validationService = validationService;
     }
 
     @Override
@@ -50,13 +49,26 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public List<CertificateDTO> findAllInKeystores() {
-        return certificateKeystoreRepository.findAll();
+        return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAll());
     }
 
     @Override
     public List<CertificateDTO> findAllRootInterCertificates() {
-        return certificateKeystoreRepository.findAllRootInterCertificates();
+        return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAllRootInterCertificates());
+    }
 
+    public Collection<CertificateDTO> returnValidCertificates(Collection<CertificateDTO> certificateDTOS) {
+        Collection<CertificateDTO> retVal = new ArrayList<CertificateDTO>();
+        for(CertificateDTO cert : certificateDTOS){
+            try {
+                if(validationService.verifyCertificate((X509Certificate) certificateKeystoreRepository.readCertificate(cert.getAlias()))){
+                    retVal.add(cert);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return retVal;
     }
 
     @Override
@@ -67,7 +79,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Transactional(rollbackFor = {KeyStoreException.class})
     @Override
-    public void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws IllegalArgumentException, KeyStoreException, UnrecoverableKeyException, CertificateEncodingException, NoSuchAlgorithmException, ParseException {
+    public void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws Exception {
         UUID alias = UUID.randomUUID();
         KeyPair keyPairSubject = generateKeyPair();
         certificateDataDTO.setSubjectAlias(alias);

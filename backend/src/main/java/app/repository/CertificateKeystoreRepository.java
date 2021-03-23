@@ -3,6 +3,7 @@ package app.repository;
 import app.dtos.CertificateDTO;
 import app.dtos.EntityDataDTO;
 import app.model.data.IssuerData;
+import app.service.ValidationService;
 import app.util.Base64Utility;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -28,6 +29,7 @@ public class CertificateKeystoreRepository {
 
     public CertificateKeystoreRepository() {
         try {
+
             keyStore = KeyStore.getInstance("JKS", "SUN");
             cf = CertificateFactory.getInstance("X.509");
         } catch (KeyStoreException | NoSuchProviderException | CertificateException e) {
@@ -67,6 +69,8 @@ public class CertificateKeystoreRepository {
                 return cert;
             }
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

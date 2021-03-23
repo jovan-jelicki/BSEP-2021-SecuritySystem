@@ -14,5 +14,5 @@ import java.text.ParseException;
 
 public interface DataGenerator {
     SubjectData generateSubjectData(PublicKey publicKey, CertificateDataDTO certificateDataDTO);
-    IssuerData generateIssuerData(CertificateDataDTO certificateDataDTO) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, CertificateEncodingException, ParseException;
+    IssuerData generateIssuerData(CertificateDataDTO certificateDataDTO) throws Exception;
 }
