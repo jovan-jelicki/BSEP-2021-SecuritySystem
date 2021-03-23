@@ -2,9 +2,11 @@ package app.service.impl;
 
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
+import app.dtos.DownloadRequestDTO;
 import app.model.CertificateCustom;
 import app.model.data.IssuerData;
 import app.model.data.SubjectData;
+import app.model.exceptions.ActionNotAllowedException;
 import app.repository.CertificateKeystoreRepository;
 import app.repository.CertificateRepository;
 import app.service.CertificateService;
@@ -13,6 +15,7 @@ import app.service.ValidationService;
 import app.util.CertificateGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,6 +102,19 @@ public class CertificateServiceImpl implements CertificateService {
         }
         certificateRepository.save(new CertificateCustom(alias, true));
         certificateKeystoreRepository.save(alias, keyPairSubject.getPrivate(), cert);
+    }
+
+    @Override
+    public Resource prepareCertificateForDownload(DownloadRequestDTO downloadRequest) throws Exception {
+        String email = certificateKeystoreRepository.extractEmailFromCertificate(downloadRequest.getCertificateAlias().toString());
+        if(!downloadRequest.getUserEmail().equals(email)) throw new ActionNotAllowedException("You are not allowed to download this certificate.");
+
+        try{
+            Resource resource = certificateKeystoreRepository.getDownloadData(downloadRequest.getCertificateAlias().toString());
+            return resource;
+        }catch(Exception e){
+            throw new Exception("Something went wrong.");
+        }
     }
 
     public static KeyPair generateKeyPair() {
