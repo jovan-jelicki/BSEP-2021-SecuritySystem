@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "api/certificate")
@@ -78,6 +79,23 @@ public class CertificateControllerImpl {
 
         //return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
         return new ResponseEntity<>(certificates, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PostMapping("/invalidate/{alias}")
+    public ResponseEntity<List<Void>> invalidateCertificate(@PathVariable UUID alias) {
+        logger.info("{} - Invalidating certificate {}", Calendar.getInstance().getTime(), alias.toString());
+
+        boolean invalidated = certificateService.invalidateCertificate(alias);
+
+        if (invalidated){
+            logger.info("{} - Invalidated certificate {}", Calendar.getInstance().getTime(), alias.toString());
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            logger.info("{} - Failed to invalidate certificate {}", Calendar.getInstance().getTime(), alias.toString());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")

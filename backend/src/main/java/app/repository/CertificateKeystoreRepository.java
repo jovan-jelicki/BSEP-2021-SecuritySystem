@@ -96,6 +96,11 @@ public class CertificateKeystoreRepository {
         return email;
     }
 
+    public String extractAliasFromCertificate(Certificate cert) throws KeyStoreException {
+        loadKeyStore();
+        return keyStore.getCertificateAlias(cert);
+    }
+
     public Resource getDownloadData(String alias){
         loadKeyStore();
 
@@ -114,6 +119,12 @@ public class CertificateKeystoreRepository {
 
     public void writeCertificate(String alias, PrivateKey privateKey, Certificate certificate) throws KeyStoreException {
         keyStore.setKeyEntry(alias, privateKey, certificatePassword, new Certificate[]{certificate});
+    }
+
+    public void deleteCertificate(String alias) throws KeyStoreException {
+        loadKeyStore();
+        keyStore.deleteEntry(alias);
+        saveKeyStore();
     }
 
     public IssuerData readIssuerFromStore(String alias) {
@@ -149,6 +160,36 @@ public class CertificateKeystoreRepository {
                     X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
                     setCertificateParams(alias, cert, certificateDTO, subjectData);
                     certificates.add(certificateDTO);
+                }
+            }
+        } catch (KeyStoreException | CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return certificates;
+    }
+
+    public List<X509Certificate> findAllChildren(String parentAlias) {
+        List<X509Certificate> certificates = new ArrayList<>();
+
+        loadKeyStore();
+
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                X509Certificate cert = (X509Certificate) readCertificate(alias);
+                X500Name subject = new JcaX509CertificateHolder(cert).getSubject();
+                RDN pseudonymRDN = subject.getRDNs(BCStyle.PSEUDONYM)[0];
+                String pseudonym = IETFUtils.valueToString(pseudonymRDN.getFirst().getValue());
+
+                if(pseudonym.equals("endEntity")) return new ArrayList<>();
+
+                if (cert != null) {
+                    X500Name issuer = new JcaX509CertificateHolder(cert).getIssuer();
+                    RDN issuerAliasRDN = issuer.getRDNs(BCStyle.UID)[0];
+                    String issuerAlias = IETFUtils.valueToString(issuerAliasRDN.getFirst().getValue());
+                    if(issuerAlias.equals(parentAlias)) certificates.add(cert);
                 }
             }
         } catch (KeyStoreException | CertificateEncodingException e) {

@@ -4,6 +4,7 @@ import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
 import app.dtos.DownloadRequestDTO;
 import app.model.CertificateCustom;
+import app.model.InvalidationReason;
 import app.model.data.IssuerData;
 import app.model.data.SubjectData;
 import app.model.exceptions.ActionNotAllowedException;
@@ -60,6 +61,12 @@ public class CertificateServiceImpl implements CertificateService {
         return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAllRootInterCertificates());
     }
 
+    @Override
+    public boolean invalidateCertificate(UUID alias) {
+        X509Certificate certificate = (X509Certificate) certificateKeystoreRepository.readCertificate(alias.toString());
+        return !validationService.invalidate(certificate, InvalidationReason.revoked);
+    }
+
     public Collection<CertificateDTO> returnValidCertificates(Collection<CertificateDTO> certificateDTOS) {
         Collection<CertificateDTO> retVal = new ArrayList<CertificateDTO>();
         for(CertificateDTO cert : certificateDTOS){
@@ -101,7 +108,7 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        certificateRepository.save(new CertificateCustom(alias, true));
+        certificateRepository.save(new CertificateCustom(alias, false, InvalidationReason.none));
         certificateKeystoreRepository.save(alias, keyPairSubject.getPrivate(), cert);
     }
 
