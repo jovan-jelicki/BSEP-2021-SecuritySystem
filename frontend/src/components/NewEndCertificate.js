@@ -33,7 +33,9 @@ export default class NewEndCertificate extends React.Component {
                 email:'Please enter email address',
                 startDate: 'Please choose certificate start date',
                 endDate:'Please choose certificate end date',
-                purpose:'Please enter certificate purpose'
+                purpose:'Please choose certificate purpose',
+                issuer:'Please choose certificate issuer'
+
             },
             dateStart:'',
             dateEnd:'',
@@ -143,7 +145,7 @@ export default class NewEndCertificate extends React.Component {
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
                 break;
             case 'purpose':
-                errors.purpose = value.length < 1 ? 'Choose certificate purpose' : '';
+                errors.purpose = value.length < 1 ? 'Choose certificate key usages' : '';
                 break;
             case 'email':
                 errors.email = this.isValidEmail(value) ? '' : 'Email is not valid!';
@@ -176,13 +178,18 @@ export default class NewEndCertificate extends React.Component {
         return valid;
     }
 
+    validateIssuer=()=>{
+        let errors = this.state.errors;
+        errors.issuer = this.state.certificate.issuer.length < 1 ? 'Choose certificate issuer' : '';
+    }
+
     submitForm =  (event) => {
         this.setState({ submitted: true });
         const certificate = this.state.certificate;
         console.log(this.state.certificate)
 
         event.preventDefault();
-        if (this.validateForm(this.state.errors) && this.checkDates()) {
+        if (this.validateIssuer() && this.validateForm(this.state.errors) && this.checkDates()) {
             console.info('Valid Form')
             this.sendData();
         } else {
@@ -334,6 +341,7 @@ export default class NewEndCertificate extends React.Component {
                                     <option key={certificate.alias} value={certificate.alias}>{certificate.serialNumber}</option>
                                 )}
                             </Form.Control>
+                            {this.state.submitted && this.state.errors.issuer.length > 0 && <span className="text-danger">{this.state.errors.issuer}</span>}
                         </td>
                     </tr>
                     <tr>
@@ -389,7 +397,7 @@ export default class NewEndCertificate extends React.Component {
                     <tr>
                         <td> Choose period and key usages</td>
                         <td>
-                            <Button onClick={this.setStartAndEndDate}>Choose</Button>
+                            <Button variant="outline-primary" onClick={this.setStartAndEndDate}>Choose</Button>
                         </td>
                     </tr>
                     }
@@ -425,7 +433,7 @@ export default class NewEndCertificate extends React.Component {
                     }
                     { this.state.boolPurposes &&
                     <tr>
-                        <td>Purposes</td>
+                        <td>Key usages</td>
                         <td>
                             <fieldset>
                                 <Form >

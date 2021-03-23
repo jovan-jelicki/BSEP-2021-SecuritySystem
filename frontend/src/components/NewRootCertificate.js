@@ -28,7 +28,7 @@ export default class NewRootCertificate extends React.Component {
                     email:'Please enter email address',
                     startDate: 'Please choose certificate start date',
                     endDate:'Please choose certificate end date',
-                    purpose:'Please choose certificate purpose'
+                    purpose:'Please choose certificate key usages'
             },
             dateStart:'',
             dateEnd:'',
@@ -71,7 +71,7 @@ export default class NewRootCertificate extends React.Component {
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
                 break;
             case 'purpose':
-                errors.purpose = value.length < 1 ? 'Choose certificate purpose' : '';
+                errors.purpose = value.length < 1 ? 'Choose certificate key usage' : '';
                 break;
             case 'email':
                 errors.email = this.isValidEmail(value) ? '' : 'Email is not valid!';
@@ -276,7 +276,7 @@ export default class NewRootCertificate extends React.Component {
                         </td>
                     </tr>
                     <tr>
-                        <td>Purposes</td>
+                        <td>Key usages</td>
                         <td>
                             <fieldset>
                                 <Form >
@@ -290,7 +290,6 @@ export default class NewRootCertificate extends React.Component {
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />
                                             <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"   name="purpose" id="6" onChange={this.onTypeChange} />
                                             <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />
-
                                             </Row>
                                     </Form.Group>
                                 </Form>

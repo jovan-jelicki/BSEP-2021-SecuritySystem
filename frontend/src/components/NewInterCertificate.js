@@ -31,7 +31,8 @@ export default class NewInterCertificate extends React.Component {
                 email:'Please enter email address',
                 startDate: 'Please choose certificate start date',
                 endDate:'Please choose certificate end date',
-                purpose:'Please enter certificate purpose'
+                purpose:'Please choose certificate key usages',
+                issuer:'Please choose certificate issuer'
             },
             dateStart:'',
             dateEnd:'',
@@ -129,6 +130,7 @@ export default class NewInterCertificate extends React.Component {
             case 'country':
                 errors.country = value.length != 2 ? 'Enter Country Name (2 letter code)' : '';
                 break;
+
             case 'stateProvince':
                 errors.stateProvince = value.length < 1 ? 'Enter State or Province Name' : '';
                 break;
@@ -142,7 +144,7 @@ export default class NewInterCertificate extends React.Component {
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
                 break;
             case 'purpose':
-                errors.purpose = value.length < 1 ? 'Choose certificate purpose' : '';
+                errors.purpose = value.length < 1 ? 'Choose certificate key usages' : '';
                 break;
             case 'email':
                 errors.email = this.isValidEmail(value) ? '' : 'Email is not valid!';
@@ -152,6 +154,10 @@ export default class NewInterCertificate extends React.Component {
         }
 
         this.setState({ errors });
+    }
+    validateIssuer=()=>{
+        let errors = this.state.errors;
+        errors.issuer = this.state.certificate.issuer.length < 1 ? 'Choose certificate issuer' : '';
     }
 
     isValidEmail = (value) => {
@@ -182,7 +188,7 @@ export default class NewInterCertificate extends React.Component {
         console.log(this.state.certificate)
 
         event.preventDefault();
-        if (this.validateForm(this.state.errors) && this.checkDates()) {
+        if (this.validateIssuer() && this.validateForm(this.state.errors) && this.checkDates()) {
             console.info('Valid Form')
             this.sendData();
         } else {
@@ -234,10 +240,11 @@ export default class NewInterCertificate extends React.Component {
             boolDates: false,
             boolPurposes:false
         })
+        let errors = this.state.errors;
     }
 
       setStartAndEndDate=(event)=>{
-         if (this.state.certificateIssuers.length) {
+         if (this.state.certificateIssuers.length && this.state.certificate.issuer!="") {
              this.state.certificateIssuers.forEach(v => {
                  if(v.alias===this.state.certificate.issuer) {
                      if (new Date(v.validFrom)>= new Date()) {//new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
@@ -268,6 +275,9 @@ export default class NewInterCertificate extends React.Component {
                      }
                  }
              });
+         }else{
+             let errors = this.state.errors;
+             errors.purpose = 'Choose certificate key usages';
          }
 
          console.log(this.state.dateStart)
@@ -334,6 +344,8 @@ export default class NewInterCertificate extends React.Component {
                                     <option key={certificate.alias} value={certificate.alias}>{certificate.serialNumber}</option>
                                 )}
                             </Form.Control>
+                            {this.state.submitted && this.state.errors.issuer.length > 0 && <span className="text-danger">{this.state.errors.issuer}</span>}
+
                         </td>
                     </tr>
                     <tr>
@@ -383,10 +395,15 @@ export default class NewInterCertificate extends React.Component {
                         <tr>
                             <td> Choose period and key usages</td>
                             <td>
-                                <Button onClick={this.setStartAndEndDate}>Choose</Button>
+                                <Button variant="outline-primary" onClick={this.setStartAndEndDate}>Choose</Button>
+                                <br/>
+                                {/* {this.state.errors.issuer.length > 0 && <span className="text-success">{this.state.errors.issuer}</span>}
+*/}
                             </td>
+
                         </tr>
                     }
+
                     { this.state.boolDates &&
                         <tr>
                             <td>Start date</td>
@@ -419,7 +436,7 @@ export default class NewInterCertificate extends React.Component {
                     }
                     { this.state.boolPurposes &&
                     <tr>
-                        <td>Purposes</td>
+                        <td>Key usages</td>
                         <td>
                             <fieldset>
                                 <Form >
