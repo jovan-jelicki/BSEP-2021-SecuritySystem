@@ -46,7 +46,6 @@ export default class CertificateListing extends React.Component {
                 <td>{moment(certificate.validTo).format('DD.MM.YYYY ')}</td>
                 <td> <Button onClick={() => this.handleModal(certificate)}>Details</Button></td>
                 {this.state.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate)}> Invalidate </Button></td>}
-                {this.state.user.role === "ROLE_user" && <td><Button onClick={() => this.download(certificate)}> Download </Button></td>}
             </tr>
         );
         return (
@@ -65,7 +64,6 @@ export default class CertificateListing extends React.Component {
                             <th>Valid to</th>
                             <th>Show details</th>
                             {this.state.user.role === "ROLE_admin" && <th> Invalidate </th> }
-                            {this.state.user.role === "ROLE_user" && <th> Download </th> }
 
                         </tr>
                         {Certificates}
@@ -125,9 +123,6 @@ export default class CertificateListing extends React.Component {
     invalidate = () => {
 
     }
-
-    download = () => {
-        
-    }
+    
 
 }
