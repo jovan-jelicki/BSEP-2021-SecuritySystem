@@ -52,7 +52,7 @@ public class RootIntermediateDataGenerator implements DataGenerator {
             builder.addRDN(BCStyle.O, certificateDataDTO.getO());
             builder.addRDN(BCStyle.OU, certificateDataDTO.getOu());
             builder.addRDN(BCStyle.C, certificateDataDTO.getC());
-            builder.addRDN(BCStyle.E, certificateDataDTO.getE());
+            builder.addRDN(BCStyle.E, certificateDataDTO.getE());   // email
             builder.addRDN(BCStyle.ST, certificateDataDTO.getS());
             builder.addRDN(BCStyle.UID, certificateDataDTO.getSubjectAlias().toString());
             builder.addRDN(BCStyle.PSEUDONYM, "rootIntermediate");

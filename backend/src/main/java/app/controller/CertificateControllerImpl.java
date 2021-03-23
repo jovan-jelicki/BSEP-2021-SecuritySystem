@@ -2,21 +2,22 @@ package app.controller;
 
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
-import app.repository.CertificateRepository;
+import app.dtos.DownloadRequestDTO;
+import app.model.exceptions.ActionNotAllowedException;
+import app.security.TokenUtils;
 import app.service.CertificateService;
 import app.service.DataGenerator;
-import app.service.impl.EndEntityDataGenerator;
-import app.service.impl.RootIntermediateDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.crypto.Data;
 import java.util.Calendar;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class CertificateControllerImpl {
     private final DataGenerator rootIntermediateDataGenerator;
 
     @Autowired
-    public CertificateControllerImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGeneratorEndEntity,@Qualifier("rootIntermediateDataGenerator") DataGenerator dataGeneratorRoot, CertificateService certificateService) {
+    public CertificateControllerImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGeneratorEndEntity, @Qualifier("rootIntermediateDataGenerator") DataGenerator dataGeneratorRoot, CertificateService certificateService) {
         this.certificateService = certificateService;
         this.endEntityDataGenerator = dataGeneratorEndEntity;
         this.rootIntermediateDataGenerator = dataGeneratorRoot;
@@ -42,12 +43,28 @@ public class CertificateControllerImpl {
         logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
 
         List<CertificateDTO> certificates = certificateService.findAllInKeystores();
-        // List<CertificateCustom> certificateCustoms = (List<CertificateCustom>) certificateService.getAll();
 
         logger.info("{} - Retrieved all available certificates", Calendar.getInstance().getTime());
 
-        //return new ResponseEntity<>(certificateCustoms, HttpStatus.OK);
         return new ResponseEntity<>(certificates, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    @PostMapping("/download")
+    public ResponseEntity<Resource> downloadCertificate(@RequestBody DownloadRequestDTO downloadRequest) {
+        logger.info("{} - Downloading certificate {}", Calendar.getInstance().getTime(), downloadRequest.getCertificateAlias());
+
+        Resource file = null;
+        try{
+           file = certificateService.prepareCertificateForDownload(downloadRequest);
+           return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"certificate.cer\"")
+                    .body(file);
+        } catch(Exception e){
+            return ResponseEntity.badRequest()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"null\"")
+                    .body(file);
+        }
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")

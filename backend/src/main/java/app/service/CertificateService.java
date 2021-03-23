@@ -2,13 +2,11 @@ package app.service;
 
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
+import app.dtos.DownloadRequestDTO;
 import app.model.CertificateCustom;
+import app.model.exceptions.ActionNotAllowedException;
+import org.springframework.core.io.Resource;
 
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateEncodingException;
-import java.text.ParseException;
 import java.util.List;
 
 public interface CertificateService extends CRUDService<CertificateCustom> {
@@ -16,4 +14,6 @@ public interface CertificateService extends CRUDService<CertificateCustom> {
     List<CertificateDTO> findAllRootInterCertificates();
     void setDataGenerator(DataGenerator dataGenerator);
     void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws Exception;
-    }
+
+    Resource prepareCertificateForDownload(DownloadRequestDTO downloadRequest) throws Exception;
+}
