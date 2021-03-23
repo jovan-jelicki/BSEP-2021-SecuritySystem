@@ -27,6 +27,22 @@ class CertificateService {
         return response
     }
 
+    async invalidateCertificate(alias, jwt) {
+        const headers = this.setupHeaders(jwt)
+        console.log(headers)
+        const response = this.apiClient
+            .post(`/invalidate/${alias}`, {
+                headers
+            })
+            .then(response => {
+                return response
+            })
+            .catch(err => {
+                return err.response
+            })
+        return response
+    }
+
 
     setupHeaders(jwt) {
         const headers = {
