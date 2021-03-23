@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.xml.crypto.Data;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -92,5 +93,11 @@ public class CertificateControllerImpl {
         logger.info("{} - Issuing a certificate was successful", Calendar.getInstance().getTime());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    @GetMapping("/getChain/{alias}")
+    public ResponseEntity<Collection<CertificateDTO>> getCertificateChain(@PathVariable String alias){
+        return new ResponseEntity<>(certificateService.getCertificateChain(alias), HttpStatus.OK);
     }
 }

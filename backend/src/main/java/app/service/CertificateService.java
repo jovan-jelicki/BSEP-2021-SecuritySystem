@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateEncodingException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 public interface CertificateService extends CRUDService<CertificateCustom> {
@@ -16,4 +17,5 @@ public interface CertificateService extends CRUDService<CertificateCustom> {
     List<CertificateDTO> findAllRootInterCertificates();
     void setDataGenerator(DataGenerator dataGenerator);
     void saveToKeyStore(CertificateDataDTO certificateDataDTO) throws Exception;
+    public ArrayList<CertificateDTO> getCertificateChain(String alias);
     }

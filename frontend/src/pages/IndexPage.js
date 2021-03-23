@@ -8,6 +8,9 @@ import NewCertificate from "../components/NewCertificate";
 export default class IndexPage extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
+        }
     }
 
     render() {
@@ -18,7 +21,7 @@ export default class IndexPage extends React.Component {
                     <br/>
                     <br/>
                     <br/>
-                    <NewCertificate></NewCertificate>
+                    {this.state.user.role === "ROLE_admin" && <NewCertificate></NewCertificate>}
                 </ProfilePage>
             </div>
         );

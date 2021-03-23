@@ -52,6 +52,10 @@ public class CertificateServiceImpl implements CertificateService {
         return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAll());
     }
 
+    public ArrayList<CertificateDTO> getCertificateChain(String alias){
+        return certificateKeystoreRepository.getCertificateChain(alias);
+    }
+
     @Override
     public List<CertificateDTO> findAllRootInterCertificates() {
         return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAllRootInterCertificates());
@@ -70,6 +74,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         return retVal;
     }
+
 
     @Override
     public void setDataGenerator(DataGenerator dataGenerator) {

@@ -46,6 +46,7 @@ export default class CertificateListing extends React.Component {
                 <td>{moment(certificate.validTo).format('DD.MM.YYYY ')}</td>
                 <td> <Button onClick={() => this.handleModal(certificate)}>Details</Button></td>
                 {this.state.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate)}> Invalidate </Button></td>}
+                {this.state.user.role === "ROLE_user" && <td><Button onClick={() => this.download(certificate)}> Download </Button></td>}
             </tr>
         );
         return (
@@ -64,6 +65,8 @@ export default class CertificateListing extends React.Component {
                             <th>Valid to</th>
                             <th>Show details</th>
                             {this.state.user.role === "ROLE_admin" && <th> Invalidate </th> }
+                            {this.state.user.role === "ROLE_user" && <th> Download </th> }
+
                         </tr>
                         {Certificates}
                           {this.showModal()}
@@ -85,7 +88,7 @@ export default class CertificateListing extends React.Component {
                     <Button variant={"secondary"} onClick={this.showPath}>Certification path </Button>
                     <hr className="mt-2 mb-4"/>
                     {this.state.modalTab === "details" && <CertificateDetails certificate={this.state.certificate}></CertificateDetails>}
-                    {this.state.modalTab === "path" && <CertificatePath></CertificatePath>}
+                    {this.state.modalTab === "path" && <CertificatePath certificate={this.state.certificate}></CertificatePath>}
                 </Modal.Body>
                 <Modal.Footer style={{'background':'gray'}}>
                     <Button variant="primary" onClick={() => this.setState({showModal : false, modalTab : "" , certificate : {}})}>
@@ -121,6 +124,10 @@ export default class CertificateListing extends React.Component {
 
     invalidate = () => {
 
+    }
+
+    download = () => {
+        
     }
 
 }

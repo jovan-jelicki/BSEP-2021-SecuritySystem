@@ -1,18 +1,36 @@
 import * as React from "react";
+import axios from "axios";
 
 export default class CertificatePath extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            check : ["prvi", "drugi", "treci"],
+            certificates : [],
+            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             marginLeft : 30
         }
     }
 
+    componentDidMount() {
+        axios.
+            get("http://localhost:8080/api/certificate/getChain/" + this.props.certificate.alias,
+            {  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization : 'Bearer ' + this.state.user.jwtToken
+                }
+            })
+            .then(res => {
+                this.setState({
+                    certificates : res.data
+                })
+            })
+            .catch(res => alert("Something gone wrong!"))
+    }
+
     render() {
-        const Checks = this.state.check.map((value, key ) =>
+        const Checks = this.state.certificates.reverse().map((value, key ) =>
             <div style={{marginLeft : this.state.marginLeft*key}}>
-                <p> {value} </p>
+                <p> {value.subjectData.name} </p>
             </div>
         );
         return(

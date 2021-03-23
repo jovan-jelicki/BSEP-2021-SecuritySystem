@@ -98,6 +98,27 @@ public class CertificateKeystoreRepository {
         return null;
     }
 
+    public ArrayList<CertificateDTO> getCertificateChain(String alias){
+        ArrayList<CertificateDTO> retVal = new ArrayList<>();
+        String issuerAlias = "";
+        try {
+            X509Certificate cert = (X509Certificate) readCertificate(alias);
+            if(cert != null){
+                CertificateDTO certificateDTO = new CertificateDTO();
+                X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
+                X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
+                issuerAlias = IETFUtils.valueToString(issuerData.getRDNs(BCStyle.UID)[0].getFirst().getValue());
+                setCertificateParams(retVal, alias, cert, certificateDTO, subjectData);
+            }
+        } catch (CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+        if(issuerAlias.equals("root"))
+            return retVal;
+        retVal.addAll(getCertificateChain(issuerAlias));
+        return retVal;
+    }
+
     public List<CertificateDTO> findAll() {
         List<CertificateDTO> certificates = new ArrayList<>();
 
