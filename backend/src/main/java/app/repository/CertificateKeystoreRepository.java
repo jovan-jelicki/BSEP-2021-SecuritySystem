@@ -169,6 +169,37 @@ public class CertificateKeystoreRepository {
         return certificates;
     }
 
+    public List<CertificateDTO> findAllUsersCertificate(String userEmail) {
+        List<CertificateDTO> certificates = new ArrayList<>();
+
+        loadKeyStore();
+
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                X509Certificate cert = (X509Certificate) readCertificate(alias);
+
+                if (cert != null) {
+                    CertificateDTO certificateDTO = new CertificateDTO();
+                    X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
+
+                    RDN emailRDN = subjectData.getRDNs(BCStyle.E)[0];
+                    String certEmail = IETFUtils.valueToString(emailRDN.getFirst().getValue());
+
+                    if(certEmail.equals(userEmail)){
+                        setCertificateParams(alias, cert, certificateDTO, subjectData);
+                        certificates.add(certificateDTO);
+                    }
+                }
+            }
+        } catch (KeyStoreException | CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return certificates;
+    }
+
     public List<X509Certificate> findAllChildren(String parentAlias) {
         List<X509Certificate> certificates = new ArrayList<>();
 
