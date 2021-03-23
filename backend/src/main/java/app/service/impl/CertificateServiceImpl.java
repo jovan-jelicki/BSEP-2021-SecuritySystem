@@ -1,5 +1,6 @@
 package app.service.impl;
 
+import app.controller.CertificateControllerImpl;
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
 import app.dtos.DownloadRequestDTO;
@@ -13,6 +14,8 @@ import app.service.CertificateService;
 import app.service.DataGenerator;
 import app.service.ValidationService;
 import app.util.CertificateGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
@@ -94,7 +97,7 @@ public class CertificateServiceImpl implements CertificateService {
             e.printStackTrace();
             throw e;
         }
-        X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate());
+        X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate(), certificateDataDTO.getKeyUsage());
         boolean[] proba = new boolean[] {};
         try {
             proba = cert.getKeyUsage();

@@ -31,7 +31,8 @@ export default class NewInterCertificate extends React.Component {
                 email:'Please enter email address',
                 startDate: 'Please choose certificate start date',
                 endDate:'Please choose certificate end date',
-                purpose:'Please enter certificate purpose'
+                purpose:'Please choose certificate key usages',
+                issuer:'Please choose certificate issuer'
             },
             dateStart:'',
             dateEnd:'',
@@ -40,6 +41,9 @@ export default class NewInterCertificate extends React.Component {
             certificateIssuers:[],
             purposes:[],
             boolDates:false,
+            boolPurposes:false,
+            keyUsages:[],
+            indexArray:[],
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
 
         }
@@ -88,6 +92,8 @@ export default class NewInterCertificate extends React.Component {
                     'e':this.state.certificate.email,
                     'startDate':this.state.certificate.startDate,
                     'endDate':this.state.certificate.endDate,
+                    'keyUsage':this.state.certificate.purpose,
+
                 },
                 {  headers: {
                         'Content-Type': 'application/json',
@@ -124,6 +130,7 @@ export default class NewInterCertificate extends React.Component {
             case 'country':
                 errors.country = value.length != 2 ? 'Enter Country Name (2 letter code)' : '';
                 break;
+
             case 'stateProvince':
                 errors.stateProvince = value.length < 1 ? 'Enter State or Province Name' : '';
                 break;
@@ -137,7 +144,7 @@ export default class NewInterCertificate extends React.Component {
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
                 break;
             case 'purpose':
-                errors.purpose = value.length < 1 ? 'Choose certificate purpose' : '';
+                errors.purpose = value.length < 1 ? 'Choose certificate key usages' : '';
                 break;
             case 'email':
                 errors.email = this.isValidEmail(value) ? '' : 'Email is not valid!';
@@ -147,6 +154,10 @@ export default class NewInterCertificate extends React.Component {
         }
 
         this.setState({ errors });
+    }
+    validateIssuer=()=>{
+        let errors = this.state.errors;
+        errors.issuer = this.state.certificate.issuer.length < 1 ? 'Choose certificate issuer' : '';
     }
 
     isValidEmail = (value) => {
@@ -177,7 +188,7 @@ export default class NewInterCertificate extends React.Component {
         console.log(this.state.certificate)
 
         event.preventDefault();
-        if (this.validateForm(this.state.errors) && this.checkDates()) {
+        if (this.validateIssuer() && this.validateForm(this.state.errors) && this.checkDates()) {
             console.info('Valid Form')
             this.sendData();
         } else {
@@ -226,69 +237,95 @@ export default class NewInterCertificate extends React.Component {
                 ...this.state.certificate,
                 issuer : value
             },
-            boolDates: false
+            boolDates: false,
+            boolPurposes:false
         })
+        let errors = this.state.errors;
     }
 
       setStartAndEndDate=(event)=>{
-         if (this.state.certificateIssuers.length) {
+         if (this.state.certificateIssuers.length && this.state.certificate.issuer!="") {
              this.state.certificateIssuers.forEach(v => {
                  if(v.alias===this.state.certificate.issuer) {
                      if (new Date(v.validFrom)>= new Date()) {//new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
                          this.setState({
                              boolDates: true,
                              dateStart: v.validFrom,
-                             dateEnd: v.validTo
+                             dateEnd: v.validTo,
+                             keyUsages: v.keyUsage,
+                             boolPurposes:true
+
                          });
                      }else if (new Date(v.validFrom) < new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
                          this.setState({
                              boolDates: true,
                              dateStart:String(new Date()),
-                             dateEnd: v.validTo
+                             dateEnd: v.validTo,
+                             keyUsages: v.keyUsage,
+                             boolPurposes:true
                          });
                      }else if(new Date(v.validFrom)< new Date() && new Date(v.validTo)< new Date()) {
                          this.setState({
                              boolDates: true,
                              dateStart: moment(new Date()).format('DD.MM.YYYY'),
-                             dateEnd: moment(new Date()).format('DD.MM.YYYY')
+                             dateEnd: moment(new Date()).format('DD.MM.YYYY'),
+                             keyUsages: v.keyUsage,
+                             boolPurposes:true
                          });
                      }
                  }
              });
+         }else{
+             let errors = this.state.errors;
+             errors.purpose = 'Choose certificate key usages';
          }
 
          console.log(this.state.dateStart)
          console.log(this.state.dateEnd)
+         console.log(this.state.keyUsages)
     }
 
     onTypeChange=(event) => {
         var option = event.target.id
-        console.log(event.target.checked)
-        //console.log(event.target.value)
+        console.log(option)
         let purp=[]
+        let index=[]
         purp=this.state.purposes
 
-        let final=[]
-
         if (event.target.checked===false){
-            purp.forEach(p => {
-                if(p!=event.target.value){
-                    final.push(p);
+            this.state.indexArray.forEach(p => {
+                if(p!=event.target.id){
+                    index.push(p);
+                }else{
+                    purp[p]=false;
                 }
             })
         }else {
-            final=this.state.purposes
-            final.push(event.target.value)
+            index=this.state.indexArray
+            index.push(event.target.id)
+        }
+
+
+        for (var i = 0, l=index.length;i<l ; i++)
+        {
+            for (var j = 0, l = 9; j < l; j++) {
+                if (j == index[i]) {
+                    purp[j] = true;
+                } else if(purp[j]!=true) {
+                    purp[j] = false;
+                }
+            }
         }
 
         this.setState({
             certificate : {
                 ...this.state.certificate,
-                purpose : final
-            }
+                purpose : purp
+            },
+            indexArray:index
         })
-        this.state.type = option;
         console.log(this.state.certificate)
+
         this.validationErrorMessage(event);
     }
 
@@ -307,6 +344,8 @@ export default class NewInterCertificate extends React.Component {
                                     <option key={certificate.alias} value={certificate.alias}>{certificate.serialNumber}</option>
                                 )}
                             </Form.Control>
+                            {this.state.submitted && this.state.errors.issuer.length > 0 && <span className="text-danger">{this.state.errors.issuer}</span>}
+
                         </td>
                     </tr>
                     <tr>
@@ -354,12 +393,17 @@ export default class NewInterCertificate extends React.Component {
                     </tr>
                     { !this.state.boolDates &&
                         <tr>
-                            <td> Choose period</td>
+                            <td> Choose period and key usages</td>
                             <td>
-                                <Button onClick={this.setStartAndEndDate}>Choose</Button>
+                                <Button variant="outline-primary" onClick={this.setStartAndEndDate}>Choose</Button>
+                                <br/>
+                                {/* {this.state.errors.issuer.length > 0 && <span className="text-success">{this.state.errors.issuer}</span>}
+*/}
                             </td>
+
                         </tr>
                     }
+
                     { this.state.boolDates &&
                         <tr>
                             <td>Start date</td>
@@ -390,22 +434,30 @@ export default class NewInterCertificate extends React.Component {
                         </td>
                     </tr>
                     }
+                    { this.state.boolPurposes &&
                     <tr>
-                        <td>Purposes</td>
+                        <td>Key usages</td>
                         <td>
                             <fieldset>
                                 <Form >
                                     <Form.Group as={Col}  >
                                         <Row sm={35} >
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="1" value={"1"} name="purpose" id="1" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="2" value={"2"} name="purpose" id="2" onChange={this.onTypeChange} />
-                                        </Row>
+                                            {this.state.keyUsages[0] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[1] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"  name="purpose" id="1" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[2] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="2" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[3] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement"  name="purpose" id="3" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[4] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"  name="purpose" id="4" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[5] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[6] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"  name="purpose" id="6" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[7] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />}
+                                      </Row>
                                     </Form.Group>
                                 </Form>
                             </fieldset>
                             {this.state.submitted && this.state.errors.purpose.length > 0 && <span className="text-danger">{this.state.errors.purpose}</span>}
                         </td>
                     </tr>
+                        }
                     </tbody>
                 </Table>
                 <div  style={{textAlign:"center",display:"inline-block", marginBottom:40}}>
