@@ -42,6 +42,9 @@ export default class NewEndCertificate extends React.Component {
             certificateIssuers:[],
             purposes:[],
             boolDates:false,
+            boolPurposes:false,
+            keyUsages:[],
+            indexArray:[],
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
 
         }
@@ -90,6 +93,7 @@ export default class NewEndCertificate extends React.Component {
                     'e':this.state.certificate.email,
                     'startDate':this.state.certificate.startDate,
                     'endDate':this.state.certificate.endDate,
+                    'keyUsage':this.state.certificate.purpose,
                 },
                 {  headers: {
                         'Content-Type': 'application/json',
@@ -228,7 +232,9 @@ export default class NewEndCertificate extends React.Component {
                 ...this.state.certificate,
                 issuer : value
             },
-            boolDates: false
+            boolDates: false,
+            boolPurposes:false
+
         })
     }
 
@@ -240,19 +246,25 @@ export default class NewEndCertificate extends React.Component {
                         this.setState({
                             boolDates: true,
                             dateStart: v.validFrom,
-                            dateEnd: v.validTo
+                            dateEnd: v.validTo,
+                            keyUsages: v.keyUsage,
+                            boolPurposes:true
                         });
                     }else if (new Date(v.validFrom) < new Date() && new Date(v.validTo) > new Date() && new Date(v.validFrom) < new Date(v.validTo)) {
                         this.setState({
                             boolDates: true,
                             dateStart:String(new Date()),
-                            dateEnd: v.validTo
+                            dateEnd: v.validTo,
+                            keyUsages: v.keyUsage,
+                            boolPurposes:true
                         });
                     }else if(new Date(v.validFrom)< new Date() && new Date(v.validTo)< new Date()) {
                         this.setState({
                             boolDates: true,
                             dateStart: moment(new Date()).format('DD.MM.YYYY'),
-                            dateEnd: moment(new Date()).format('DD.MM.YYYY')
+                            dateEnd: moment(new Date()).format('DD.MM.YYYY'),
+                            keyUsages: v.keyUsage,
+                            boolPurposes:true
                         });
                     }
                 }
@@ -265,32 +277,45 @@ export default class NewEndCertificate extends React.Component {
 
     onTypeChange=(event) => {
         var option = event.target.id
-        console.log(event.target.checked)
-        //console.log(event.target.value)
+        console.log(option)
         let purp=[]
+        let index=[]
         purp=this.state.purposes
 
-        let final=[]
-
         if (event.target.checked===false){
-            purp.forEach(p => {
-                if(p!=event.target.value){
-                    final.push(p);
+            this.state.indexArray.forEach(p => {
+                if(p!=event.target.id){
+                    index.push(p);
+                }else{
+                    purp[p]=false;
                 }
             })
         }else {
-            final=this.state.purposes
-            final.push(event.target.value)
+            index=this.state.indexArray
+            index.push(event.target.id)
+        }
+
+
+        for (var i = 0, l=index.length;i<l ; i++)
+        {
+            for (var j = 0, l = 9; j < l; j++) {
+                if (j == index[i]) {
+                    purp[j] = true;
+                } else if(purp[j]!=true) {
+                    purp[j] = false;
+                }
+            }
         }
 
         this.setState({
             certificate : {
                 ...this.state.certificate,
-                purpose : final
-            }
+                purpose : purp
+            },
+            indexArray:index
         })
-        this.state.type = option;
         console.log(this.state.certificate)
+
         this.validationErrorMessage(event);
     }
 
@@ -362,7 +387,7 @@ export default class NewEndCertificate extends React.Component {
                     </tr>
                     { !this.state.boolDates &&
                     <tr>
-                        <td> Choose period</td>
+                        <td> Choose period and key usages</td>
                         <td>
                             <Button onClick={this.setStartAndEndDate}>Choose</Button>
                         </td>
@@ -398,6 +423,7 @@ export default class NewEndCertificate extends React.Component {
                         </td>
                     </tr>
                     }
+                    { this.state.boolPurposes &&
                     <tr>
                         <td>Purposes</td>
                         <td>
@@ -405,8 +431,14 @@ export default class NewEndCertificate extends React.Component {
                                 <Form >
                                     <Form.Group as={Col}  >
                                         <Row sm={35} >
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="1" value={"1"} name="purpose" id="1" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="2" value={"2"} name="purpose" id="2" onChange={this.onTypeChange} />
+                                            {this.state.keyUsages[0] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[1] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"  name="purpose" id="1" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[2] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="2" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[3] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement"  name="purpose" id="3" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[4] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"  name="purpose" id="4" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[5] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[6] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"  name="purpose" id="6" onChange={this.onTypeChange} />}
+                                            {this.state.keyUsages[7] && <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />}
                                         </Row>
                                     </Form.Group>
                                 </Form>
@@ -414,6 +446,7 @@ export default class NewEndCertificate extends React.Component {
                             {this.state.submitted && this.state.errors.purpose.length > 0 && <span className="text-danger">{this.state.errors.purpose}</span>}
                         </td>
                     </tr>
+                    }
                     </tbody>
                 </Table>
                 <div  style={{textAlign:"center",display:"inline-block", marginBottom:40}}>

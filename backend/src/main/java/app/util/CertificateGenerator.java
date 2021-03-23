@@ -24,9 +24,10 @@ import java.security.cert.X509Extension;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public class CertificateGenerator {
-    public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData, PrivateKey privateKey) {
+    public X509Certificate generateCertificate(SubjectData subjectData, IssuerData issuerData, PrivateKey privateKey, ArrayList<Boolean> keyUsage) {
         try {
             JcaContentSignerBuilder builder = new JcaContentSignerBuilder("SHA256WithRSAEncryption");
             builder = builder.setProvider("BC");
@@ -43,7 +44,7 @@ public class CertificateGenerator {
                     subjectData.getEndDate(),
                     subjectData.getX500name(),
                     subjectData.getPublicKey());
-            ArrayList<Boolean> booleans = new ArrayList<Boolean>(Arrays.asList(false, true, true, false,true, true,false,true,false)) {};
+            ArrayList<Boolean> booleans =keyUsage;
             int sum = ExtensionsUtil.convertKeyUsageArrayToInt(booleans);
             KeyUsage usage = new KeyUsage(sum);
             certGen.addExtension(Extension.keyUsage, false, usage);

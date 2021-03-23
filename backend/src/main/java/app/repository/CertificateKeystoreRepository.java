@@ -157,6 +157,7 @@ public class CertificateKeystoreRepository {
         certificateDTO.setValidFrom(cert.getNotBefore());
         certificateDTO.setValidTo(cert.getNotAfter());
         certificateDTO.setSubjectData(convertX500Name(subjectData));
+        certificateDTO.setKeyUsage(cert.getKeyUsage());
         X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
         certificateDTO.setIssuerData(convertX500Name(issuerData));
         certificates.add(certificateDTO);

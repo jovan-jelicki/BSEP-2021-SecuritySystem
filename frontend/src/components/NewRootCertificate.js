@@ -115,7 +115,9 @@ export default class NewRootCertificate extends React.Component {
     }
 
     sendData=()=>{
-           axios
+        console.log(this.state.certificate)
+
+        axios
                .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
                     'c':this.state.certificate.country,
                     's':this.state.certificate.stateProvince,
@@ -125,6 +127,7 @@ export default class NewRootCertificate extends React.Component {
                     'e':this.state.certificate.email,
                     'startDate':this.state.certificate.startDate,
                     'endDate':this.state.certificate.endDate,
+                    'keyUsage':this.state.certificate.purpose,
                    },
                    {  headers: {
                            'Content-Type': 'application/json',
@@ -195,7 +198,6 @@ export default class NewRootCertificate extends React.Component {
                 }
             }
         }
-        console.log(purp)
 
         this.setState({
             certificate : {
@@ -204,7 +206,7 @@ export default class NewRootCertificate extends React.Component {
             },
             indexArray:index
         })
-        console.log(this.state.certificate.purpose)
+        console.log(this.state.certificate)
 
         this.validationErrorMessage(event);
     }
@@ -280,15 +282,14 @@ export default class NewRootCertificate extends React.Component {
                                 <Form >
                                     <Form.Group as={Col}  >
                                         <Row sm={20} >
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="decipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="1" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"   name="purpose" id="2" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="3" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement" name="purpose" id="4" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"   name="purpose" id="5" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="6" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"   name="purpose" id="7" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="8" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />
+                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"   name="purpose" id="1" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="2" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement" name="purpose" id="3" onChange={this.onTypeChange} />
+                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"   name="purpose" id="4" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />
+                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"   name="purpose" id="6" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />
 
                                             </Row>
                                     </Form.Group>
