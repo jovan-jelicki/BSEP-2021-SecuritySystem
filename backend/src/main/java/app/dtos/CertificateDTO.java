@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,4 +23,5 @@ public class CertificateDTO {
     private Date validFrom;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date validTo;
+    private boolean[] keyUsage;
 }
