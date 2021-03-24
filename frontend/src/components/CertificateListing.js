@@ -48,10 +48,14 @@ export default class CertificateListing extends React.Component {
 
     async invalidate(certificateAlias) {
         const response = await CertificateService.invalidateCertificate(certificateAlias, this.state.user.jwtToken)
-        if (response.status == 200)
-            alert(`Sucessfully invalidated ${certificateAlias}!`);
-        else
-            alert(`An error occurred while invalidating ${certificateAlias}.`)
+        if (response.status) {
+            if (response.status == 200)
+                alert(`Sucessfully invalidated ${certificateAlias}!`);
+            else
+                alert(`An error occurred while invalidating ${certificateAlias}.`)
+                
+            window.location.reload(true)
+        }
     }
 
     render() {
