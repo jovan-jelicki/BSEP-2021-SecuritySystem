@@ -18,8 +18,22 @@ class CertificateService {
                 headers
             })
             .then(response => {
-                console.log(response)
                 fileDownload(response.data, 'certificate.cer')
+            })
+            .catch(err => {
+                return err.response
+            })
+        return response
+    }
+
+    async invalidateCertificate(alias, jwt) {
+        const headers = this.setupHeaders(jwt)
+        const response = this.apiClient
+            .post(`/invalidate/${alias}`, null, {
+                headers
+            })
+            .then(response => {
+                return response
             })
             .catch(err => {
                 return err.response

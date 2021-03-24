@@ -44,7 +44,18 @@ export default class CertificateListing extends React.Component {
         const userEmail = JSON.parse(localStorage.getItem('user')).email;
         const downloadData = { userEmail, certificateAlias };
         const response = await CertificateService.downloadCertificate(downloadData, this.state.user.jwtToken)
-        console.log(response)
+    }
+
+    async invalidate(certificateAlias) {
+        const response = await CertificateService.invalidateCertificate(certificateAlias, this.state.user.jwtToken)
+        if (response.status) {
+            if (response.status == 200)
+                alert(`Sucessfully invalidated ${certificateAlias}!`);
+            else
+                alert(`An error occurred while invalidating ${certificateAlias}.`)
+                
+            window.location.reload(true)
+        }
     }
 
     render() {
@@ -57,7 +68,7 @@ export default class CertificateListing extends React.Component {
                 <td>{moment(certificate.validTo).format('DD.MM.YYYY ')}</td>
                 <td> <Button onClick={() => this.handleModal(certificate)}>Details</Button></td>
                 <td> <Button onClick={() => this.downloadCertificate(certificate.alias)}><FaDownload /></Button></td>
-                {this.state.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate)}> Invalidate </Button></td>}
+                {this.state.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate.alias)}> Invalidate </Button></td>}
             </tr>
         );
         return (
@@ -132,8 +143,6 @@ export default class CertificateListing extends React.Component {
         });
     }
 
-    invalidate = () => {
 
-    }
 
 }

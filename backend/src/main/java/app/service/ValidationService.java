@@ -1,8 +1,10 @@
 package app.service;
 
+import app.model.InvalidationReason;
+
 import java.security.cert.X509Certificate;
 
 public interface ValidationService {
-    public Boolean verifyCertificate(X509Certificate certificate) throws Exception;
-    public Boolean invalidate(X509Certificate certificate);
-    }
+    Boolean verifyCertificate(X509Certificate certificate) throws Exception;
+    Boolean invalidate(X509Certificate certificate, InvalidationReason reason);
+}
