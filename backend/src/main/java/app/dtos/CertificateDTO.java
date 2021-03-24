@@ -19,9 +19,7 @@ public class CertificateDTO {
     private EntityDataDTO subjectData;
     private EntityDataDTO issuerData;
     private String publicKey;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date validFrom;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date validTo;
     private boolean[] keyUsage;
 }

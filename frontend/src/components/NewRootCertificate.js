@@ -117,6 +117,37 @@ export default class NewRootCertificate extends React.Component {
     sendData=()=>{
         console.log(this.state.certificate)
 
+        let periodStart = this.state.certificate.startDate;
+        let day = periodStart.getDate();
+        let month = parseInt(periodStart.getMonth()) + 1;
+        if (month < 10)
+            month = "0" + month;
+        if (parseInt(day) < 10)
+            day = "0" + day;
+        let hours = parseInt(periodStart.getHours());
+        if (hours < 10)
+            hours = "0" + hours;
+        let minutes = parseInt(periodStart.getMinutes());
+        if (minutes < 10)
+            minutes = "0" + minutes;
+        let fullYearStart = periodStart.getFullYear() + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":00.000+01:00";
+
+        let periodEnd = this.state.certificate.endDate;
+        let dayEnd = periodEnd.getDate();
+        let monthEnd = parseInt(periodEnd.getMonth()) + 1;
+        if (monthEnd < 10)
+            monthEnd = "0" + monthEnd;
+        if (parseInt(dayEnd) < 10)
+            dayEnd = "0" + dayEnd;
+        let hoursEnd = parseInt(periodEnd.getHours());
+        if (hoursEnd < 10)
+            hoursEnd = "0" + hoursEnd;
+        let minutesEnd = parseInt(periodEnd.getMinutes());
+        if (minutesEnd < 10)
+            minutesEnd = "0" + minutesEnd;
+
+        let fullYearEnd = periodEnd.getFullYear() + "-" + monthEnd + "-" + dayEnd + " " + hoursEnd + ":" + minutesEnd + ":00.000+01:00";
+
         axios
                .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
                     'c':this.state.certificate.country,
@@ -125,8 +156,8 @@ export default class NewRootCertificate extends React.Component {
                     'ou':this.state.certificate.organizationalUnit,
                     'cn':this.state.certificate.commonName,
                     'e':this.state.certificate.email,
-                    'startDate':this.state.certificate.startDate,
-                    'endDate':this.state.certificate.endDate,
+                    'startDate':fullYearStart,
+                    'endDate':fullYearEnd,
                     'keyUsage':this.state.certificate.purpose,
                    },
                    {  headers: {
@@ -262,7 +293,7 @@ export default class NewRootCertificate extends React.Component {
                     <tr>
                         <td>Start date </td>
                         <td>
-                            <DatePicker selected={this.state.dateStart}  name="dateStart" minDate={new Date()}  onChange={(e) => {this.setStartDate(e)}}  />
+                            <DatePicker selected={this.state.dateStart}  format={"dd/MM/yyyy"}  name="dateStart" minDate={new Date()}  onChange={(e) => {this.setStartDate(e)}}  />
                             {this.state.submitted && this.state.errors.startDate.length > 0 && <span className="text-danger">{this.state.errors.startDate}</span>}
 
                         </td>
@@ -270,7 +301,7 @@ export default class NewRootCertificate extends React.Component {
                     <tr>
                         <td>End date </td>
                         <td>
-                            <DatePicker  selected={this.state.dateEnd}  name="dateEnd" minDate={this.state.dateStart}  onChange={(e) => {this.setEndDate(e)}}/>
+                            <DatePicker  selected={this.state.dateEnd} format={"dd/MM/yyyy"}  name="dateEnd" minDate={this.state.dateStart}  onChange={(e) => {this.setEndDate(e)}}/>
                             {this.state.submitted && this.state.errors.endDate.length > 0 && <span className="text-danger">{this.state.errors.endDate}</span>}
 
                         </td>
