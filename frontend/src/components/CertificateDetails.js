@@ -5,7 +5,7 @@ export default class CertificateDetails extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            details : "Proba"
+            details : ""
         }
     }
 
@@ -39,7 +39,10 @@ export default class CertificateDetails extends React.Component {
                             <td style={{whiteSpace : "nowrap"}}> Valid to</td>
                             <td>{this.props.certificate.validTo}</td>
                         </tr>
-
+                        <tr onClick={() => this.showKeyUsage(this.props.certificate.keyUsage)}>
+                            <td style={{whiteSpace : "nowrap"}}> KeyUsage</td>
+                            <td> </td>
+                        </tr>
 
                         </tbody>
                     </Table>
@@ -65,6 +68,30 @@ export default class CertificateDetails extends React.Component {
         }
         this.setState({
             details : Pom
+        })
+    }
+    showKeyUsage = (keyUsage) =>{
+        let Ret = "";
+        for(var j = 0, l = 9; j < l; j++){
+            if(j === 0 && keyUsage[j])
+                Ret += "digitalSignature, ";
+            else if(j === 1 && keyUsage[j])
+                Ret += "nonRepudiation, ";
+            else if(j === 2 && keyUsage[j])
+                Ret += "keyEncipherment, ";
+            else if(j === 3 && keyUsage[j])
+                Ret += "dataEncipherment, ";
+            else if(j === 4 && keyUsage[j])
+                Ret += "keyAgreement, ";
+            else if(j === 5 && keyUsage[j])
+                Ret += "keyCertSign, ";
+            else if(j === 6 && keyUsage[j])
+                Ret += "cRLSign, ";
+            else if(j === 7 && keyUsage[j])
+                Ret += "encipherOnly, ";
+        }
+        this.setState({
+            details : Ret
         })
     }
 

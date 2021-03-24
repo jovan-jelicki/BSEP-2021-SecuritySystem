@@ -46,7 +46,7 @@ export default class LogInPage extends React.Component {
                 <br/>
                 <div style={{display : " table"}}>
                     <p style={{display: "table-cell"}}>Don't have account?</p>
-                    <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.handleModal}>Registrate</a>
+                    <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.handleModal}>Register</a>
                 </div>
 
                 <Modal show={this.state.showModal} onHide={this.closeModal}  style={{'height':650}} >

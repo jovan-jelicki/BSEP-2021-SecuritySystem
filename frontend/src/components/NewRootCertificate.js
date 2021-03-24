@@ -28,13 +28,14 @@ export default class NewRootCertificate extends React.Component {
                     email:'Please enter email address',
                     startDate: 'Please choose certificate start date',
                     endDate:'Please choose certificate end date',
-                    purpose:'Please choose certificate purpose'
+                    purpose:'Please choose certificate key usages'
             },
             dateStart:'',
             dateEnd:'',
             validForm: false,
             submitted: false,
             purposes:[],
+            indexArray:[],
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
 
         }
@@ -70,7 +71,7 @@ export default class NewRootCertificate extends React.Component {
                 errors.commonName = value.length < 1 ? 'Enter Common Name' : '';
                 break;
             case 'purpose':
-                errors.purpose = value.length < 1 ? 'Choose certificate purpose' : '';
+                errors.purpose = value.length < 1 ? 'Choose certificate key usage' : '';
                 break;
             case 'email':
                 errors.email = this.isValidEmail(value) ? '' : 'Email is not valid!';
@@ -114,7 +115,40 @@ export default class NewRootCertificate extends React.Component {
     }
 
     sendData=()=>{
-           axios
+        console.log(this.state.certificate)
+
+        let periodStart = this.state.certificate.startDate;
+        let day = periodStart.getDate();
+        let month = parseInt(periodStart.getMonth()) + 1;
+        if (month < 10)
+            month = "0" + month;
+        if (parseInt(day) < 10)
+            day = "0" + day;
+        let hours = parseInt(periodStart.getHours());
+        if (hours < 10)
+            hours = "0" + hours;
+        let minutes = parseInt(periodStart.getMinutes());
+        if (minutes < 10)
+            minutes = "0" + minutes;
+        let fullYearStart = periodStart.getFullYear() + "-" + month + "-" + day + "T" + hours + ":" + minutes + ":00.000+01:00";
+
+        let periodEnd = this.state.certificate.endDate;
+        let dayEnd = periodEnd.getDate();
+        let monthEnd = parseInt(periodEnd.getMonth()) + 1;
+        if (monthEnd < 10)
+            monthEnd = "0" + monthEnd;
+        if (parseInt(dayEnd) < 10)
+            dayEnd = "0" + dayEnd;
+        let hoursEnd = parseInt(periodEnd.getHours());
+        if (hoursEnd < 10)
+            hoursEnd = "0" + hoursEnd;
+        let minutesEnd = parseInt(periodEnd.getMinutes());
+        if (minutesEnd < 10)
+            minutesEnd = "0" + minutesEnd;
+
+        let fullYearEnd = periodEnd.getFullYear() + "-" + monthEnd + "-" + dayEnd + " " + hoursEnd + ":" + minutesEnd + ":00.000+01:00";
+
+        axios
                .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
                     'c':this.state.certificate.country,
                     's':this.state.certificate.stateProvince,
@@ -122,8 +156,9 @@ export default class NewRootCertificate extends React.Component {
                     'ou':this.state.certificate.organizationalUnit,
                     'cn':this.state.certificate.commonName,
                     'e':this.state.certificate.email,
-                    'startDate':this.state.certificate.startDate,
-                    'endDate':this.state.certificate.endDate,
+                    'startDate':fullYearStart,
+                    'endDate':fullYearEnd,
+                    'keyUsage':this.state.certificate.purpose,
                    },
                    {  headers: {
                            'Content-Type': 'application/json',
@@ -165,30 +200,43 @@ export default class NewRootCertificate extends React.Component {
 
     onTypeChange=(event) => {
         var option = event.target.id
-        console.log(event.target.checked)
+        console.log(option)
         let purp=[]
+        let index=[]
         purp=this.state.purposes
 
-        let final=[]
-
         if (event.target.checked===false){
-            purp.forEach(p => {
-               if(p!=event.target.value){
-                   final.push(p);
+            this.state.indexArray.forEach(p => {
+               if(p!=event.target.id){
+                   index.push(p);
+               }else{
+                   purp[p]=false;
                }
             })
         }else {
-            final=this.state.purposes
-            final.push(event.target.value)
+            index=this.state.indexArray
+            index.push(event.target.id)
+        }
+
+
+        for (var i = 0, l=index.length;i<l ; i++)
+        {
+            for (var j = 0, l = 9; j < l; j++) {
+                if (j == index[i]) {
+                    purp[j] = true;
+                } else if(purp[j]!=true) {
+                    purp[j] = false;
+                }
+            }
         }
 
         this.setState({
             certificate : {
                 ...this.state.certificate,
-                purpose : final
-            }
+                purpose : purp
+            },
+            indexArray:index
         })
-        this.state.type = option;
         console.log(this.state.certificate)
 
         this.validationErrorMessage(event);
@@ -245,7 +293,7 @@ export default class NewRootCertificate extends React.Component {
                     <tr>
                         <td>Start date </td>
                         <td>
-                            <DatePicker selected={this.state.dateStart}  name="dateStart" minDate={new Date()}  onChange={(e) => {this.setStartDate(e)}}  />
+                            <DatePicker selected={this.state.dateStart}  format={"dd/MM/yyyy"}  name="dateStart" minDate={new Date()}  onChange={(e) => {this.setStartDate(e)}}  />
                             {this.state.submitted && this.state.errors.startDate.length > 0 && <span className="text-danger">{this.state.errors.startDate}</span>}
 
                         </td>
@@ -253,28 +301,26 @@ export default class NewRootCertificate extends React.Component {
                     <tr>
                         <td>End date </td>
                         <td>
-                            <DatePicker  selected={this.state.dateEnd}  name="dateEnd" minDate={this.state.dateStart}  onChange={(e) => {this.setEndDate(e)}}/>
+                            <DatePicker  selected={this.state.dateEnd} format={"dd/MM/yyyy"}  name="dateEnd" minDate={this.state.dateStart}  onChange={(e) => {this.setEndDate(e)}}/>
                             {this.state.submitted && this.state.errors.endDate.length > 0 && <span className="text-danger">{this.state.errors.endDate}</span>}
 
                         </td>
                     </tr>
                     <tr>
-                        <td>Purposes</td>
+                        <td>Key usages</td>
                         <td>
                             <fieldset>
                                 <Form >
                                     <Form.Group as={Col}  >
                                         <Row sm={20} >
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Proves your identity to a remote computer" value={"Proves your identity to a remote computer"} name="purpose" id="1" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures the identity of a remote computer" value={"Ensures the identity of a remote computer"} name="purpose" id="2" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Ensures software came from software publisher" value={"Ensures software came from software publisher"}  name="purpose" id="3" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Protects software from alteration after publication" value={"Protects software from alteration after publication"} name="purpose" id="4" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="Protects e-mail messages" value={"Protects e-mail messages"} name="purpose" id="5" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="Allows data on disk to be encrypted" value={"Allows data on disk to be encrypted"}  name="purpose" id="6" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="2.23.140.1.2.2" value={"2.23.140.1.2.2"} name="purpose" id="8" onChange={this.onTypeChange} />
-                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="2.16.840.1.114412.1.1" value={"2.16.840.1.114412.1.1"}  name="purpose" id="7" onChange={this.onTypeChange} />
-                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="All issuance policies" value={"All issuance policies"} name="purpose" id="9" onChange={this.onTypeChange} />
-
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="encipherOnly"  name="purpose" id="0" onChange={this.onTypeChange} />
+                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="cRLSign"   name="purpose" id="1" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyCertSign"  name="purpose" id="2" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyAgreement" name="purpose" id="3" onChange={this.onTypeChange} />
+                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="dataEncipherment"   name="purpose" id="4" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="keyEncipherment"  name="purpose" id="5" onChange={this.onTypeChange} />
+                                            <Form.Check multiple  style={{'marginLeft':'1rem'}} type="checkbox" label="nonRepudiation"   name="purpose" id="6" onChange={this.onTypeChange} />
+                                            <Form.Check multiple style={{'marginLeft':'1rem'}} type="checkbox" label="digitalSignature"  name="purpose" id="7" onChange={this.onTypeChange} />
                                             </Row>
                                     </Form.Group>
                                 </Form>

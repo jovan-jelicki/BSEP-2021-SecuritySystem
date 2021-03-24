@@ -2,17 +2,24 @@ package app.service.impl;
 
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
+import app.dtos.DownloadRequestDTO;
 import app.model.CertificateCustom;
+import app.model.InvalidationReason;
+import app.model.Role;
+import app.model.User;
 import app.model.data.IssuerData;
 import app.model.data.SubjectData;
+import app.model.exceptions.ActionNotAllowedException;
 import app.repository.CertificateKeystoreRepository;
 import app.repository.CertificateRepository;
 import app.service.CertificateService;
 import app.service.DataGenerator;
+import app.service.UserService;
 import app.service.ValidationService;
 import app.util.CertificateGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +34,14 @@ public class CertificateServiceImpl implements CertificateService {
     private final CertificateGenerator certificateGenerator;
     private DataGenerator dataGenerator;
     private final ValidationService validationService;
+    private final UserService userService;
+
 
     @Autowired
-    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, ValidationService validationService ,CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
+    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, UserService userService, ValidationService validationService, CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
         this.certificateRepository = certificateRepository;
         this.certificateKeystoreRepository = certificateKeystoreRepository;
+        this.userService = userService;
         this.certificateGenerator = new CertificateGenerator();
         this.dataGenerator = dataGenerator;
         this.validationService = validationService;
@@ -56,9 +66,19 @@ public class CertificateServiceImpl implements CertificateService {
         return certificateKeystoreRepository.getCertificateChain(alias);
     }
 
-    @Override
+    public List<CertificateDTO> findAllUsersCertificate(String userEmail) {
+        return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAllUsersCertificate(userEmail));
+    }
+
+        @Override
     public List<CertificateDTO> findAllRootInterCertificates() {
         return (List<CertificateDTO>) returnValidCertificates(certificateKeystoreRepository.findAllRootInterCertificates());
+    }
+
+    @Override
+    public boolean invalidateCertificate(UUID alias) {
+        X509Certificate certificate = (X509Certificate) certificateKeystoreRepository.readCertificate(alias.toString());
+        return !validationService.invalidate(certificate, InvalidationReason.revoked);
     }
 
     public Collection<CertificateDTO> returnValidCertificates(Collection<CertificateDTO> certificateDTOS) {
@@ -93,17 +113,32 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             issuerData = dataGenerator.generateIssuerData(certificateDataDTO);
         }catch (Exception e ){
+            e.printStackTrace();
             throw e;
         }
-        X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate());
+        X509Certificate cert = certificateGenerator.generateCertificate(subjectData, issuerData, keyPairSubject.getPrivate(), certificateDataDTO.getKeyUsage());
         boolean[] proba = new boolean[] {};
         try {
             proba = cert.getKeyUsage();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        certificateRepository.save(new CertificateCustom(alias, true));
+        certificateRepository.save(new CertificateCustom(alias, false, InvalidationReason.none));
         certificateKeystoreRepository.save(alias, keyPairSubject.getPrivate(), cert);
+    }
+
+    @Override
+    public Resource prepareCertificateForDownload(DownloadRequestDTO downloadRequest) throws Exception {
+        String email = certificateKeystoreRepository.extractEmailFromCertificate(downloadRequest.getCertificateAlias().toString());
+        User user = userService.findByEmail(downloadRequest.getUserEmail());
+        if(!downloadRequest.getUserEmail().equals(email) && user.getRole() != Role.ROLE_admin) throw new ActionNotAllowedException("You are not allowed to download this certificate.");
+
+        try{
+            Resource resource = certificateKeystoreRepository.getDownloadData(downloadRequest.getCertificateAlias().toString());
+            return resource;
+        }catch(Exception e){
+            throw new Exception("Something went wrong.");
+        }
     }
 
     public static KeyPair generateKeyPair() {

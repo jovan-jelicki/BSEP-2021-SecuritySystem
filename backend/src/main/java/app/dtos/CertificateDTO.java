@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,8 +19,7 @@ public class CertificateDTO {
     private EntityDataDTO subjectData;
     private EntityDataDTO issuerData;
     private String publicKey;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date validFrom;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date validTo;
+    private boolean[] keyUsage;
 }

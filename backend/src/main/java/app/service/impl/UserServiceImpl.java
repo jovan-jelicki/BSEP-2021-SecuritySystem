@@ -7,6 +7,7 @@ import app.model.User;
 import app.repository.UserRepository;
 import app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -15,16 +16,19 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public User save(User entity) {
         if (this.findByEmail(entity.getEmail()) == null) {
             entity.setRole(Role.ROLE_user);
+            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
             return userRepository.save(entity);
         }
         return null;

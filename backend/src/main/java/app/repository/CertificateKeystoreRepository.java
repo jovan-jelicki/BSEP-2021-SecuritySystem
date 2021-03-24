@@ -3,13 +3,14 @@ package app.repository;
 import app.dtos.CertificateDTO;
 import app.dtos.EntityDataDTO;
 import app.model.data.IssuerData;
-import app.service.ValidationService;
 import app.util.Base64Utility;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -17,7 +18,6 @@ import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.*;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 @Repository
 public class CertificateKeystoreRepository {
@@ -29,7 +29,6 @@ public class CertificateKeystoreRepository {
 
     public CertificateKeystoreRepository() {
         try {
-
             keyStore = KeyStore.getInstance("JKS", "SUN");
             cf = CertificateFactory.getInstance("X.509");
         } catch (KeyStoreException | NoSuchProviderException | CertificateException e) {
@@ -65,7 +64,12 @@ public class CertificateKeystoreRepository {
             keyStore.load(in, keystorePassword);
 
             if (keyStore.isKeyEntry(alias)) {
-                Certificate cert = keyStore.getCertificate(alias);
+                X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
+                if (cert != null) {
+                    CertificateDTO certificateDTO = new CertificateDTO();
+                    X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
+                    setCertificateParams(alias, cert, certificateDTO, subjectData);
+                }
                 return cert;
             }
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
@@ -77,8 +81,50 @@ public class CertificateKeystoreRepository {
         return null;
     }
 
+    public String extractEmailFromCertificate(String alias){
+        loadKeyStore();
+        String email = null;
+        try {
+            X509Certificate cert = (X509Certificate) readCertificate(alias);
+            X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
+            RDN emailRDN = subjectData.getRDNs(BCStyle.E)[0];
+            email = IETFUtils.valueToString(emailRDN.getFirst().getValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return email;
+    }
+
+    public String extractAliasFromCertificate(Certificate cert) throws KeyStoreException {
+        loadKeyStore();
+        return keyStore.getCertificateAlias(cert);
+    }
+
+    public Resource getDownloadData(String alias){
+        loadKeyStore();
+
+        try {
+            X509Certificate cert = (X509Certificate) readCertificate(alias);
+            String digitalSignature = Base64Utility.encode(cert.getEncoded());
+            String retVal = "-----BEGIN CERTIFICATE-----" + digitalSignature + "-----END CERTIFICATE-----";
+            ByteArrayResource resource = new ByteArrayResource(retVal.getBytes());
+            return resource;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public void writeCertificate(String alias, PrivateKey privateKey, Certificate certificate) throws KeyStoreException {
         keyStore.setKeyEntry(alias, privateKey, certificatePassword, new Certificate[]{certificate});
+    }
+
+    public void deleteCertificate(String alias) throws KeyStoreException {
+        loadKeyStore();
+        keyStore.deleteEntry(alias);
+        saveKeyStore();
     }
 
     public IssuerData readIssuerFromStore(String alias) {
@@ -108,7 +154,8 @@ public class CertificateKeystoreRepository {
                 X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
                 X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
                 issuerAlias = IETFUtils.valueToString(issuerData.getRDNs(BCStyle.UID)[0].getFirst().getValue());
-                setCertificateParams(retVal, alias, cert, certificateDTO, subjectData);
+                setCertificateParams(alias, cert, certificateDTO, subjectData);
+                retVal.add(certificateDTO);
             }
         } catch (CertificateEncodingException e) {
             e.printStackTrace();
@@ -133,7 +180,69 @@ public class CertificateKeystoreRepository {
                 if (cert != null) {
                     CertificateDTO certificateDTO = new CertificateDTO();
                     X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
-                    setCertificateParams(certificates, alias, cert, certificateDTO, subjectData);
+                    setCertificateParams(alias, cert, certificateDTO, subjectData);
+                    certificates.add(certificateDTO);
+                }
+            }
+        } catch (KeyStoreException | CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return certificates;
+    }
+
+    public List<CertificateDTO> findAllUsersCertificate(String userEmail) {
+        List<CertificateDTO> certificates = new ArrayList<>();
+
+        loadKeyStore();
+
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                X509Certificate cert = (X509Certificate) readCertificate(alias);
+
+                if (cert != null) {
+                    CertificateDTO certificateDTO = new CertificateDTO();
+                    X500Name subjectData = new JcaX509CertificateHolder(cert).getSubject();
+
+                    RDN emailRDN = subjectData.getRDNs(BCStyle.E)[0];
+                    String certEmail = IETFUtils.valueToString(emailRDN.getFirst().getValue());
+
+                    if(certEmail.equals(userEmail)){
+                        setCertificateParams(alias, cert, certificateDTO, subjectData);
+                        certificates.add(certificateDTO);
+                    }
+                }
+            }
+        } catch (KeyStoreException | CertificateEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return certificates;
+    }
+
+    public List<X509Certificate> findAllChildren(String parentAlias) {
+        List<X509Certificate> certificates = new ArrayList<>();
+
+        loadKeyStore();
+
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                X509Certificate cert = (X509Certificate) readCertificate(alias);
+                X500Name subject = new JcaX509CertificateHolder(cert).getSubject();
+                RDN pseudonymRDN = subject.getRDNs(BCStyle.PSEUDONYM)[0];
+                String pseudonym = IETFUtils.valueToString(pseudonymRDN.getFirst().getValue());
+
+                if(pseudonym.equals("endEntity")) return new ArrayList<>();
+
+                if (cert != null) {
+                    X500Name issuer = new JcaX509CertificateHolder(cert).getIssuer();
+                    RDN issuerAliasRDN = issuer.getRDNs(BCStyle.UID)[0];
+                    String issuerAlias = IETFUtils.valueToString(issuerAliasRDN.getFirst().getValue());
+                    if(issuerAlias.equals(parentAlias)) certificates.add(cert);
                 }
             }
         } catch (KeyStoreException | CertificateEncodingException e) {
@@ -160,7 +269,8 @@ public class CertificateKeystoreRepository {
                     String pseudonym=IETFUtils.valueToString(subjectData.getRDNs(BCStyle.PSEUDONYM)[0].getFirst().getValue());
 
                     if(pseudonym.equals("rootIntermediate")){
-                        setCertificateParams(certificates, alias, cert, certificateDTO, subjectData);
+                        setCertificateParams(alias, cert, certificateDTO, subjectData);
+                        certificates.add(certificateDTO);
                     }
                 }
             }
@@ -171,16 +281,16 @@ public class CertificateKeystoreRepository {
         return certificates;
     }
 
-    private void setCertificateParams(List<CertificateDTO> certificates, String alias, X509Certificate cert, CertificateDTO certificateDTO, X500Name subjectData) throws CertificateEncodingException {
+    private void setCertificateParams(String alias, X509Certificate cert, CertificateDTO certificateDTO, X500Name subjectData) throws CertificateEncodingException {
         certificateDTO.setSerialNumber(cert.getSerialNumber().toString());
         certificateDTO.setPublicKey(Base64Utility.encode(cert.getPublicKey().getEncoded()));
         certificateDTO.setAlias(alias);
         certificateDTO.setValidFrom(cert.getNotBefore());
         certificateDTO.setValidTo(cert.getNotAfter());
         certificateDTO.setSubjectData(convertX500Name(subjectData));
+        certificateDTO.setKeyUsage(cert.getKeyUsage());
         X500Name issuerData = new JcaX509CertificateHolder(cert).getIssuer();
         certificateDTO.setIssuerData(convertX500Name(issuerData));
-        certificates.add(certificateDTO);
     }
 
     public List<CertificateDTO> checkCertificates(X509Certificate cert, String alias) throws CertificateEncodingException {
@@ -193,7 +303,8 @@ public class CertificateKeystoreRepository {
             if(!pseudonym.equals("rootIntermediate")){
                return null;
             }
-            setCertificateParams(certificates, alias, cert, certificateDTO, subjectData);
+            setCertificateParams(alias, cert, certificateDTO, subjectData);
+            certificates.add(certificateDTO);
 
         }
         return certificates;

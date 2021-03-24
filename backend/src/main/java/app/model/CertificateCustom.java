@@ -25,5 +25,9 @@ public class CertificateCustom {
     private UUID alias;
 
     @Column(nullable = false)
-    private Boolean isActive;
+    private Boolean isInvalidated;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private InvalidationReason reason;
 }
