@@ -83,7 +83,7 @@ public class CertificateControllerImpl {
 
     @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping("/invalidate/{alias}")
-    public ResponseEntity<List<Void>> invalidateCertificate(@PathVariable UUID alias) {
+    public ResponseEntity<Void> invalidateCertificate(@PathVariable UUID alias) {
         logger.info("{} - Invalidating certificate {}", Calendar.getInstance().getTime(), alias.toString());
 
         boolean invalidated = certificateService.invalidateCertificate(alias);
