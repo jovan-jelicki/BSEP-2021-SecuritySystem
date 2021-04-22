@@ -1,8 +1,5 @@
 import React from 'react';
 import {Button, Container, Nav, Navbar} from "react-bootstrap";
-import { withRouter} from 'react-router-dom';
-
-
 
 export default class ProfilePage extends React.Component {
     constructor(props) {
@@ -11,8 +8,15 @@ export default class ProfilePage extends React.Component {
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
         }
     }
+    componentDidMount() {
+        if(this.state.user.role === null || this.state.user.role === undefined ) {
+            window.location.replace("http://localhost:3000/unauthorized");
+        }
+        return;
 
+    }
 
+    
     render() {
         return (
             <Container fluid style={{'background-color' : '#AEB6BF'}}>
