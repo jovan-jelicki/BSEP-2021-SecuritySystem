@@ -58,14 +58,12 @@ export default class RegistrationPage extends React.Component{
         switch (name) {
             case 'firstName':
                 this.setState({
-                    firstNameErr : this.state.firstName.length < 1 ? 'EnterFirstName' : '',
-                    //validForm: false,
+                    firstNameErr : this.checkNameAndSurname(this.state.firstName) ? '' : 'EnterFirstName'
                 })
                 break;
             case 'lastName':
                 this.setState({
-                    lastNameErr : this.state.lastName.length < 1 ? 'EnterLastName' : '',
-                    //validForm: false,
+                    lastNameErr : this.checkNameAndSurname(this.state.lastName) ? '' : 'EnterLastName'
                 })
                 break;
             case 'email':
@@ -93,6 +91,12 @@ export default class RegistrationPage extends React.Component{
                 break;
         }
 
+    }
+    checkNameAndSurname = (value) => {
+        if(/^[a-zA-Z ,.'-]+$/.test(value)){
+            return true;
+        }
+        return false;
     }
 
     checkPassword =  (password) =>{
@@ -142,7 +146,10 @@ export default class RegistrationPage extends React.Component{
         for(const Error of errors) {
             this.validationErrorMessage(this.createTarget(Error));
         }
-        //return this.state.validForm;
+        //Promeniti!
+        if(this.state.emailErr !== "" || this.state.passwordErr !== "" || this.state.firstNameErr !== "" ||
+            this.state.lastNameErr !== "" || this.state.rePasswordErr !== "")
+            return !valid;
         return valid;
     }
 
