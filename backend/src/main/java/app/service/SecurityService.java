@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class SecurityService {
 
-    public List<String> getBlacklistedPasswords() throws IOException {
+    public List<String> getBlacklistedPasswords() {
         BufferedReader in = null;
         List<String> passwords = new ArrayList<>();
         try {
@@ -25,7 +25,11 @@ public class SecurityService {
             e.printStackTrace();
         } finally {
             if (in != null) {
-                in.close();
+                try{
+                    in.close();
+                }catch(Exception e){
+                    System.out.println(e);
+                }
             }
         }
 

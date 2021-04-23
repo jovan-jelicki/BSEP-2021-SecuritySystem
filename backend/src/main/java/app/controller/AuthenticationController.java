@@ -4,6 +4,7 @@ import app.dtos.LoginDTO;
 import app.dtos.UserTokenDTO;
 import app.model.User;
 import app.security.TokenUtils;
+import app.service.SecurityService;
 import app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,18 +20,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthenticationController {
     private final TokenUtils tokenUtils;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final SecurityService securityService;
 
     @Autowired
-    public AuthenticationController(TokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService) {
+    public AuthenticationController(TokenUtils tokenUtils, AuthenticationManager authenticationManager, UserService userService, SecurityService securityService) {
         this.tokenUtils = tokenUtils;
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.securityService = securityService;
     }
 
     @PostMapping("/login")
@@ -52,6 +57,11 @@ public class AuthenticationController {
 
     @PostMapping(value="/save", consumes = "application/json")
     public ResponseEntity<User> save(@RequestBody User entity) {
+        List<String> blacklistedPasswords = securityService.getBlacklistedPasswords();
+        if(blacklistedPasswords.contains(entity.getPassword())){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         if(userService.save(entity)==null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

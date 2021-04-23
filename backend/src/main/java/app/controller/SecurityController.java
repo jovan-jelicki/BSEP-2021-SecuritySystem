@@ -1,6 +1,5 @@
 package app.controller;
 
-import app.dtos.CertificateDTO;
 import app.service.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -31,12 +29,7 @@ public class SecurityController {
     public ResponseEntity<List<String>> getBlacklistedPasswords() {
         logger.info("{} - Requesting blacklisted passwords", Calendar.getInstance().getTime());
 
-        List<String> passwords;
-        try{
-          passwords = securityService.getBlacklistedPasswords();
-        } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<String> passwords = securityService.getBlacklistedPasswords();
 
         logger.info("{} - Retrieved blacklisted passwords", Calendar.getInstance().getTime());
 

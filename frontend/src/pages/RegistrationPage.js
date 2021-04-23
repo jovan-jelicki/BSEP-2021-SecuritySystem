@@ -16,6 +16,7 @@ export default class RegistrationPage extends React.Component{
             rePassword : '',
             emailErr: 'Enter email',
             passwordErr: 'Enter password',
+            blacklistedPassword: "Password you entered is too common",
             firstNameErr: 'Enter First name',
             lastNameErr: 'Enter Last name',
             rePasswordErr: 'Repeat password',
@@ -100,21 +101,22 @@ export default class RegistrationPage extends React.Component{
     }
 
     checkPassword =  (password) =>{
+        console.log("Checking")
         if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
             this.setState({
                 passwordStrength: this.state.password
             })
-            return false;
+            return true;
         }else if(this.state.blacklistedPasswords.includes(password)){
             this.setState({
                 passwordStrength: this.state.password
             })
-            return false;
+            return true;
         } else {
             this.setState({
                 passwordStrength : ""
             })
-            return true;
+            return false;
         }
     }
 
@@ -148,7 +150,7 @@ export default class RegistrationPage extends React.Component{
         }
         //Promeniti!
         if(this.state.emailErr !== "" || this.state.passwordErr !== "" || this.state.firstNameErr !== "" ||
-            this.state.lastNameErr !== "" || this.state.rePasswordErr !== "")
+            this.state.lastNameErr !== "" || this.state.rePasswordErr !== "" || this.state.blacklistedPasswords !== "")
             return !valid;
         return valid;
     }
