@@ -21,10 +21,19 @@ export default class RegistrationPage extends React.Component{
             rePasswordErr: 'Repeat password',
             validForm: false,
             submitted: false,
-            successfullyReg:false,
+            successfullyReg: false,
             disabled: false,
-            errorMessage:false
+            errorMessage: false,
+            blacklistedPasswords: [],
         }
+    }
+
+    async componentDidMount() {
+        let response = await axios.get('http://localhost:8080/security/passwords');
+        if(response && response.status && response.status == 200)
+            this.setState({blacklistedPasswords: [...response.data]});
+        else
+            console.log("No blacklisted passwords.")
     }
 
     handleInputChange = (event) => {
@@ -49,30 +58,38 @@ export default class RegistrationPage extends React.Component{
         switch (name) {
             case 'firstName':
                 this.setState({
-                    firstNameErr : this.state.firstName.length < 1 ? 'EnterFirstName' : ''
+                    firstNameErr : this.state.firstName.length < 1 ? 'EnterFirstName' : '',
+                    //validForm: false,
                 })
                 break;
             case 'lastName':
                 this.setState({
-                    lastNameErr : this.state.lastName.length < 1 ? 'EnterLastName' : ''
+                    lastNameErr : this.state.lastName.length < 1 ? 'EnterLastName' : '',
+                    //validForm: false,
                 })
                 break;
             case 'email':
                 this.setState({
-                    emailErr : this.isValidEmail(this.state.email) && this.state.email.length > 1 ? '' : 'Email is not valid!'
+                    emailErr : this.isValidEmail(this.state.email) && this.state.email.length > 1 ? '' : 'Email is not valid!',
+                    //validForm: false,
                 })
                 break;
             case 'password':
                 this.setState({
-                    passwordErr : this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character)' : ''
+                    passwordErr : this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' : '',
+                    //validForm: false,
                 })
                 break;
             case 'rePassword':
                 this.setState({
-                    rePasswordErr : this.isValidRepeatedPassword(this.state.rePassword) ? '' : 'This password must match the previous'
+                    rePasswordErr : this.isValidRepeatedPassword(this.state.rePassword) ? '' : 'This password must match the previous!',
+                    //validForm: false,
                 })
                 break;
             default:
+                /*this.setState({
+                    validForm: true
+                })*/
                 break;
         }
 
@@ -84,13 +101,17 @@ export default class RegistrationPage extends React.Component{
                 passwordStrength: this.state.password
             })
             return false;
-        }else {
+        }else if(this.state.blacklistedPasswords.includes(password)){
+            this.setState({
+                passwordStrength: this.state.password
+            })
+            return false;
+        } else {
             this.setState({
                 passwordStrength : ""
             })
             return true;
         }
-
     }
 
     isValidEmail = (value) => {
@@ -106,11 +127,11 @@ export default class RegistrationPage extends React.Component{
     }
 
     submitForm = async (event) => {
-        this.setState({submitted: true});
         event.preventDefault();
-        const Errors = ['email', 'password', 'firstName', 'rePassword', 'lastName'];
-        if (this.validateForm(Errors)) {
+        const errors = ['email', 'password', 'firstName', 'rePassword', 'lastName'];
+        if (this.validateForm(errors)) {
             await this.sendParams()
+            this.setState({submitted: true});
         } else {
             console.log('Invalid Form')
         }
@@ -121,6 +142,7 @@ export default class RegistrationPage extends React.Component{
         for(const Error of errors) {
             this.validationErrorMessage(this.createTarget(Error));
         }
+        //return this.state.validForm;
         return valid;
     }
 
