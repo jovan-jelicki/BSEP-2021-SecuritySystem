@@ -46,7 +46,7 @@ export default class LogInPage extends React.Component {
                     </Form.Group>
                     <p hidden={this.state.badCredentials} style={{color : "red"}}> Invalid username or password!</p>
                     <div style={{display : "flex"}}>
-                        <a href={'/#'} style={{float : "right"}}> Forgot password?</a>
+                        <a href={'/forgotten'} style={{float : "right"}}> Forgot password?</a>
                     </div>
                     <br/>
                     {this.state.reCaptcha >= 3 &&

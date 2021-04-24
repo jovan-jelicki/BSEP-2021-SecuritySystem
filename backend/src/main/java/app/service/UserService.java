@@ -10,4 +10,7 @@ public interface UserService extends CRUDService<User> {
     User findByEmailAndPassword(String email, String password);
 
     UserTokenDTO getUserForLogIn(LoginDTO loginDTO);
+
+    User saveUser(User entity);
+
 }

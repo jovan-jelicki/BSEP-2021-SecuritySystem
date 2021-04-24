@@ -35,6 +35,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User saveUser(User entity) {
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        return userRepository.save(entity);
+    }
+
+
+    @Override
     public Collection<User> getAll() {
         return userRepository.findAll();
     }
@@ -72,4 +79,6 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+
 }

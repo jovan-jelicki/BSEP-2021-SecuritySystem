@@ -1,14 +1,12 @@
 package app.controller;
 
 import app.dtos.EmailDTO;
+import app.model.User;
 import app.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value="api/email")
@@ -23,9 +21,8 @@ public class EmailControllerImpl {
     @PutMapping(value = "/send")
     public ResponseEntity<Void> sendMail(@RequestBody EmailDTO emailParams) {
         try {
-            emailService.sendMail(emailParams.getTo(), emailParams.getSubject(), emailParams.getBody());
+            emailService.sendMail(emailParams.getTo(), emailParams.getSubject());
             return new ResponseEntity<>(HttpStatus.OK);
-
         } catch (NullPointerException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
