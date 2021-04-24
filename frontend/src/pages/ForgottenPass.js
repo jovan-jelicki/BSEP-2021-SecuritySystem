@@ -13,8 +13,10 @@ export default class ForgottenPass extends React.Component {
             step2: false,
             step3: false,
             step4:false,
+            user:null,
+            submitted:false,
+            emailError: 'Enter email',
 
-            user:null
         }
     }
 
@@ -23,11 +25,40 @@ export default class ForgottenPass extends React.Component {
         this.setState({
             [target.name] : target.value,
         })
+
+        this.validateEmail(target.value);
     }
 
-    handleSubmit = () => {
-        this.sendMail();
+    validateEmail=(value)=>{
+        if(this.isValidEmail(value) ) {
+            this.setState({
+                emailError:''
+            })
+        }else{
+            this.setState({
+                emailError:'Email is not valid!',
+            })
+        }
     }
+
+    isValidEmail = (value) => {
+        return !(value && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,64}$/i.test(value))
+    }
+
+
+    handleSubmit = () => {
+        let error = this.state.emailError;
+        this.setState({ submitted: true });
+        if(this.state.emailError=="") {
+            this.sendMail();
+        }else{
+            error="Please enter valid email address!"
+        }
+
+        this.setState({ error });
+    }
+
+
 
     async sendMail(){
           await axios
@@ -75,10 +106,19 @@ export default class ForgottenPass extends React.Component {
                         <tr>
                             <td> Please enter your email address:</td>
                             <td>
-                                <Form.Control autoFocus type="email" name="email" value={this.state.email}
-                                              onChange={e => this.handleInputChange(e)}/>
+                                <Form.Control autoFocus type="email" name="email" value={this.state.email} onChange={e => this.handleInputChange(e)}/>
+
                             </td>
                         </tr>
+
+                        }
+                        {this.state.step1 &&
+                            <tr>
+                                <td></td>
+                                <td>
+                                {this.state.submitted && this.state.emailError.length > 0 && <span className="text-danger">{this.state.emailError}</span>}
+                                </td>
+                            </tr>
                         }
                         {this.state.step1 &&
                         <tr>
