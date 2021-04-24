@@ -67,4 +67,19 @@ public class AuthenticationController {
         }
         return new ResponseEntity<>(userService.save(entity), HttpStatus.CREATED);
     }
+
+
+    @PostMapping(value="/changePassword", consumes = "application/json")
+    public ResponseEntity<Void> changePassword(@RequestBody LoginDTO loginDTO) {
+        List<String> blacklistedPasswords = securityService.getBlacklistedPasswords();
+        if(blacklistedPasswords.contains(loginDTO.getPassword())){
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        try {
+            userService.changePassword(loginDTO);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        }catch(Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

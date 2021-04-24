@@ -13,4 +13,6 @@ public interface UserService extends CRUDService<User> {
 
     User saveUser(User entity);
 
+    void changePassword(LoginDTO loginDTO);
+
 }

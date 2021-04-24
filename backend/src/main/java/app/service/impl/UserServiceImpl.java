@@ -40,6 +40,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(entity);
     }
 
+    @Override
+    public void changePassword(LoginDTO loginDTO) {
+        User user=this.findByEmail(loginDTO.getEmail());
+        user.setPassword(loginDTO.getPassword());
+        user.setResetCode(null);
+        this.saveUser(user);
+    }
+
 
     @Override
     public Collection<User> getAll() {
