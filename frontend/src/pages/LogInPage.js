@@ -1,16 +1,22 @@
 import * as React from "react";
 import {Button, Form, Modal,} from "react-bootstrap";
+import ReCAPTCHA from "react-google-recaptcha";
 import axios from "axios";
 import RegistrationPage from "./RegistrationPage";
 
+const TEST_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+
 export default class LogInPage extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             password : '',
             email : '',
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             showModal : false,
+            badCredentials : true,
+            reCaptcha : 0,
+            logInDisabled : false
         }
     }
 
@@ -38,16 +44,31 @@ export default class LogInPage extends React.Component {
                             onChange={e => this.handleInputChange(e)}
                         />
                     </Form.Group>
-                    <Button block size="lg" disabled={!this.validateForm} onClick={this.handleSubmit}>
+                    <p hidden={this.state.badCredentials} style={{color : "red"}}> Invalid username or password!</p>
+                    <div style={{display : "flex"}}>
+                        <a href={'/#'} style={{float : "right"}}> Forgot password?</a>
+                    </div>
+                    <br/>
+                    {this.state.reCaptcha >= 3 &&
+                    <ReCAPTCHA
+                        style={{display: "inline-block"}}
+                        theme="light"
+                        ref={React.createRef()}
+                        sitekey={TEST_SITE_KEY}
+                        onChange={this.closeCaptcha}
+                        asyncScriptOnLoad={this.asyncScriptOnLoad}
+                    />
+                    }
+                    <Button   block size="lg" disabled={this.state.logInDisabled} onClick={this.handleSubmit}>
                         Login
                     </Button>
                 </Form>
-                <br/>
                 <br/>
                 <div style={{display : " table"}}>
                     <p style={{display: "table-cell"}}>Don't have account?</p>
                     <a style={{display: "table-cell"}} className="nav-link" style={{'color' : '#00d8fe', 'fontWeight' : 'bold'}} href='#' name="workHours" onClick={this.handleModal}>Register</a>
                 </div>
+
 
                 <Modal show={this.state.showModal} onHide={this.closeModal}  style={{'height':650}} >
                     <Modal.Header closeButton style={{'background':'silver'}}>
@@ -61,6 +82,13 @@ export default class LogInPage extends React.Component {
 
             </div>
         )
+    }
+
+    closeCaptcha = () => {
+        this.setState({
+            reCaptcha : 0,
+            logInDisabled : false
+        })
     }
 
     validateForm = () => {
@@ -99,7 +127,21 @@ export default class LogInPage extends React.Component {
                     pathname: "/profile"
                 });
             })
-            .catch(res => alert("Bad request!"));
+            .catch(res => {
+                if(this.state.reCaptcha >= 2) {
+                    this.setState({
+                        reCaptcha: this.state.reCaptcha + 1,
+                        logInDisabled: true,
+                        badCredentials: false
+                    })
+                }else {
+                    this.setState({
+                        reCaptcha: this.state.reCaptcha + 1,
+                        badCredentials: false
+                    })
+                }
+            });
     }
+
 
 }
