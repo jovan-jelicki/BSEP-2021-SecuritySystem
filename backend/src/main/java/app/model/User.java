@@ -39,6 +39,9 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private String resetCode;
 
+    @Column
+    private Boolean approvedAccount;
+
     @Enumerated(EnumType.ORDINAL)
     private Role role;
 
@@ -49,6 +52,14 @@ public class User implements UserDetails {
         authority.setName(this.role.name());
         authorities.add(authority);
         return authorities;
+    }
+
+    public Boolean getApprovedAccount() {
+        return approvedAccount;
+    }
+
+    public void setApprovedAccount(Boolean approvedAccount) {
+        this.approvedAccount = approvedAccount;
     }
 
     @Override

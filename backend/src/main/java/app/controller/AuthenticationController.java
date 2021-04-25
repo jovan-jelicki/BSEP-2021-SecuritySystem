@@ -1,5 +1,6 @@
 package app.controller;
 
+import app.dtos.ChangePasswordDTO;
 import app.dtos.LoginDTO;
 import app.dtos.UserTokenDTO;
 import app.model.User;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -82,4 +84,7 @@ public class AuthenticationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+
+
 }

@@ -1,5 +1,6 @@
 package app.service.impl;
 
+import app.dtos.ChangePasswordDTO;
 import app.dtos.LoginDTO;
 import app.dtos.UserTokenDTO;
 import app.model.Role;
@@ -48,6 +49,15 @@ public class UserServiceImpl implements UserService {
         this.saveUser(user);
     }
 
+    @Override
+    public void approveAccount(ChangePasswordDTO changePasswordDTO) {
+        User user = this.findById(changePasswordDTO.getUserId()).get();
+
+        user.setPassword(changePasswordDTO.getNewPassword());
+        user.setResetCode(null);
+        user.setApprovedAccount(true);
+        this.saveUser(user);
+    }
 
     @Override
     public Collection<User> getAll() {

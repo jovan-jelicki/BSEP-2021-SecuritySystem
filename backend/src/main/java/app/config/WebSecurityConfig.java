@@ -57,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // sve neautentifikovane zahteve obradi uniformno i posalji 401 gresku
                 .exceptionHandling().authenticationEntryPoint(restAuthenticationEntryPoint).and()
                 // svim korisnicima dopusti da pristupe putanjama /auth/**, (/h2-console/** ako se koristi H2 baza) i /api/foo
-                .authorizeRequests().antMatchers("/auth/**").permitAll().antMatchers("/h2-console/**").permitAll().antMatchers("/api/email/**").permitAll().antMatchers("/api/users/**").permitAll().antMatchers("/auth/changePassword").permitAll()                    // svim korisnicima dopusti da pristupe putanjama /auth/**
+                .authorizeRequests().antMatchers("/auth/**").permitAll().antMatchers("/h2-console/**").permitAll().antMatchers("/api/email/**").permitAll().antMatchers("/api/users/getUserByEmail/**").permitAll().antMatchers("/auth/changePassword").permitAll()                    // svim korisnicima dopusti da pristupe putanjama /auth/**
                 .antMatchers("/security/**").permitAll()
                 // za svaki drugi zahtev korisnik mora biti autentifikovan
                 .anyRequest().authenticated().and()
@@ -76,7 +76,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         // TokenAuthenticationFilter ce ignorisati sve ispod navedene putanje
         web.ignoring().antMatchers(HttpMethod.POST, "/auth/login", "/auth/changePassword");
-        web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "/favicon.ico", "/**/*.html","/**/*.css", "/**/*.js","/api/users/**");
-        web.ignoring().antMatchers(HttpMethod.PUT, "/api/email/**");
+        web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "/favicon.ico", "/**/*.html","/**/*.css", "/**/*.js","/api/users/getUserByEmail/**");
     }
 }

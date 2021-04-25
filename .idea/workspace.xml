@@ -2,19 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="844d9d4c-a674-4039-b8a3-47cdf25af39a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/config/WebSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/config/WebSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/controller/EmailControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/controller/EmailControllerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/dtos/EmailDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/dtos/EmailDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/controller/AuthenticationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/controller/AuthenticationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/controller/UserControllerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/controller/UserControllerImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/service/EmailService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/service/impl/EmailServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/service/impl/EmailServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/data-postgres.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/data-postgres.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ForgottenPass.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ForgottenPass.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/LogInPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/LogInPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProfilePage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ProfilePage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +41,7 @@
       <updated>1615899617159</updated>
       <workItem from="1615899619615" duration="708000" />
       <workItem from="1619276564218" duration="130000" />
+      <workItem from="1619316199546" duration="10000" />
     </task>
     <servers />
   </component>
