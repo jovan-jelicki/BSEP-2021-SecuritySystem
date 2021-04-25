@@ -8,8 +8,6 @@ export default class NewCertificate extends React.Component {
         super(props);
         this.state={
             navbar : "root",
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
-
         }
     }
     renderNavbar = () => {

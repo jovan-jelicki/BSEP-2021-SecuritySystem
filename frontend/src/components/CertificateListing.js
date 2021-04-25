@@ -6,13 +6,13 @@ import CertificatePath from "./CertificatePath";
 import CertificateService from './../services/CertificateService'
 import { Button, Modal, Table } from "react-bootstrap";
 import { FaDownload } from "react-icons/fa";
+import { connect } from 'react-redux';
 
 
-export default class CertificateListing extends React.Component {
+class CertificateListing extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             certificates: [],
             search: [],
             showModal: false,
@@ -21,13 +21,13 @@ export default class CertificateListing extends React.Component {
         }
     }
     componentDidMount() {
-        if(this.state.user.role === "ROLE_admin")
+        if(this.props.user.role === "ROLE_admin")
             axios
                 .get("http://localhost:8080/api/certificate",
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: 'Bearer ' + this.state.user.jwtToken
+                            Authorization: 'Bearer ' + this.props.jwt
                         }
                     })
                 .then(res => {
@@ -41,11 +41,11 @@ export default class CertificateListing extends React.Component {
                 })
         else {
             axios
-                .get("http://localhost:8080/api/certificate/findAllUsersCertificate/" + this.state.user.email,
+                .get("http://localhost:8080/api/certificate/findAllUsersCertificate/" + this.props.user.email,
                     {
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: 'Bearer ' + this.state.user.jwtToken
+                            Authorization: 'Bearer ' + this.props.jwt
                         }
                     })
                 .then(res => {
@@ -61,13 +61,13 @@ export default class CertificateListing extends React.Component {
     }
 
     async downloadCertificate(certificateAlias) {
-        const userEmail = JSON.parse(localStorage.getItem('user')).email;
+        const userEmail = this.props.user.email;
         const downloadData = { userEmail, certificateAlias };
-        const response = await CertificateService.downloadCertificate(downloadData, this.state.user.jwtToken)
+        const response = await CertificateService.downloadCertificate(downloadData, this.props.jwt)
     }
 
     async invalidate(certificateAlias) {
-        const response = await CertificateService.invalidateCertificate(certificateAlias, this.state.user.jwtToken)
+        const response = await CertificateService.invalidateCertificate(certificateAlias, this.props.jwt)
         if (response.status) {
             if (response.status == 200)
                 alert(`Sucessfully invalidated ${certificateAlias}!`);
@@ -88,7 +88,7 @@ export default class CertificateListing extends React.Component {
                 <td>{moment(certificate.validTo).format('DD.MM.YYYY ')}</td>
                 <td> <Button onClick={() => this.handleModal(certificate)}>Details</Button></td>
                 <td> <Button onClick={() => this.downloadCertificate(certificate.alias)}><FaDownload /></Button></td>
-                {this.state.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate.alias)}> Invalidate </Button></td>}
+                {this.props.user.role === "ROLE_admin" && <td><Button onClick={() => this.invalidate(certificate.alias)}> Invalidate </Button></td>}
             </tr>
         );
         return (
@@ -108,7 +108,7 @@ export default class CertificateListing extends React.Component {
                                 <th>Valid to</th>
                                 <th>Show details</th>
                                 <th>Download</th>
-                                {this.state.user.role === "ROLE_admin" && <th> Invalidate </th>}
+                                {this.props.user.role === "ROLE_admin" && <th> Invalidate </th>}
                             </tr>
                             {Certificates}
                             {this.showModal()}
@@ -163,5 +163,13 @@ export default class CertificateListing extends React.Component {
             modalTab: "details"
         });
     }
-
 }
+
+const mapStateToProps = (state) => {
+    return {
+        user: state.user,
+        jwt: state.jwt,
+    };
+};
+
+export default connect(mapStateToProps)(CertificateListing);
