@@ -15,6 +15,7 @@ export default class ForgottenPass extends React.Component {
             step4:false,
             user:null,
             submitted:false,
+            success:false,
             emailError: 'Enter email',
 
         }
@@ -91,17 +92,28 @@ export default class ForgottenPass extends React.Component {
         })
     }
 
+    setSuccessFromChild=()=>{
+        this.setState({
+            success:true
+        })
+    }
+
+
     render() {
         return (
             <div style={{'background-color' : '#AEB6BF'}}>
                 <div style={{ overflowY: "auto", height: "500px", width:"1000px", marginLeft:'auto', marginRight:'auto'}}>
                     <Table striped bordered hover variant="dark" >
                         <tbody>
-                        <tr >
+                        {!this.state.step4 &&
+                        <tr>
                             <td colSpan="2">
-                                <p style={{textAlign:'center', margin:20}}> Follow these instructions if you forgot your password and need to create a new one. </p>
+                                <p style={{textAlign: 'center', margin: 20}}> Follow these instructions if you forgot
+                                    your password and need to create a new one. </p>
                             </td>
                         </tr>
+                        }
+
                         {this.state.step1 &&
                         <tr>
                             <td> Please enter your email address:</td>
@@ -139,7 +151,7 @@ export default class ForgottenPass extends React.Component {
                         }
 
                         {this.state.step3 && <ResetPasswordCode email={this.state.email}  onChangeValue={this.setStateFromChild}/>}
-                        {this.state.step4 && <PasswordChange email={this.state.email} />}
+                        {this.state.step4 && <PasswordChange email={this.state.email} onChangeValue={this.setSuccessFromChild}/>}
 
                         </tbody>
 
