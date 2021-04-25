@@ -2,12 +2,13 @@ import { createStore } from 'redux'
 import { persistStore, persistReducer } from 'redux-persist'
 // import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import localForage from 'localforage';
-import { v4 } from "uuid";
 
 import reducer from './reducer'
 
+const storeName = "localForage";
+
 const storage = localForage.createInstance({
-    name: v4()
+    name: storeName,
 })
 
 const persistConfig = {

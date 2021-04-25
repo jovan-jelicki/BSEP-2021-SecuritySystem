@@ -21,10 +21,6 @@ class LogInPage extends React.Component {
         }
     }
 
-    componentDidMount(){
-        localStorage.clear();
-    }
-
     render() {
         return (
             <div style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px' }}>

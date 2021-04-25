@@ -22,13 +22,6 @@ export default class App extends React.Component {
     }
   };
 
-  componentDidMount() {
-    persistor.purge()
-      .then(() => {
-        localStorage.clear();
-      });
-  }
-
   render() {
     document.title = "Certificates"
     return (

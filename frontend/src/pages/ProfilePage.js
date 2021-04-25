@@ -8,7 +8,6 @@ class ProfilePage extends React.Component {
         super(props);
     }
     componentDidMount() {
-        localStorage.clear();
         if(!this.props.user.role) window.location.replace("http://localhost:3000/unauthorized");
         return;
     }

@@ -37,3 +37,6 @@ buildNumber.properties
 /dist/
 /nbdist/
 /.nb-gradle/
+
+# Env variables
+.env

@@ -4,11 +4,13 @@ import app.dtos.CertificateDTO;
 import app.dtos.EntityDataDTO;
 import app.model.data.IssuerData;
 import app.util.Base64Utility;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
@@ -21,16 +23,21 @@ import java.util.*;
 
 @Repository
 public class CertificateKeystoreRepository {
-    private final String keystoreFilename = "keystore.jks";
-    private final char[] keystorePassword = "K3yst0reP@ssw0rd".toCharArray();
-    private final char[] certificatePassword = "C3rt1fic4teP@ssw0rd".toCharArray();
+    private String keystoreFilename;
+    private char[] keystorePassword;
+    private char[] certificatePassword;
     private KeyStore keyStore;
     private CertificateFactory cf;
+    private final Dotenv env = Dotenv.load();
 
     public CertificateKeystoreRepository() {
         try {
             keyStore = KeyStore.getInstance("JKS", "SUN");
             cf = CertificateFactory.getInstance("X.509");
+
+            keystoreFilename = this.env.get("KEYSTORE_NAME");
+            keystorePassword = this.env.get("KEYSTORE_PASSWORD").toCharArray();
+            certificatePassword = this.env.get("CERTIFICATE_PASSWORD").toCharArray();
         } catch (KeyStoreException | NoSuchProviderException | CertificateException e) {
             e.printStackTrace();
         }
