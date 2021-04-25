@@ -99,7 +99,7 @@ export default class PasswordChange extends React.Component {
     async sendParams() {
         axios
             .post('http://localhost:8080/auth/changePassword', {
-                'email' : this.state.email,
+                'email' : this.props.email,
                 'password' : this.state.password,
             })
             .then(res => {

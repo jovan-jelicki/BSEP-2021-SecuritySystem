@@ -139,7 +139,7 @@ export default class ForgottenPass extends React.Component {
                         }
 
                         {this.state.step3 && <ResetPasswordCode email={this.state.email}  onChangeValue={this.setStateFromChild}/>}
-                        {this.state.step4 && <PasswordChange/>}
+                        {this.state.step4 && <PasswordChange email={this.state.email} />}
 
                         </tbody>
 
