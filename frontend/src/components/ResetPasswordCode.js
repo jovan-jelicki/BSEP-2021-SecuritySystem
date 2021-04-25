@@ -8,6 +8,7 @@ export default class ResetPasswordCode extends React.Component {
         super(props);
         this.state = {
             resetCode:'',
+            wrongEmail:false
         }
     }
 
@@ -25,14 +26,11 @@ export default class ResetPasswordCode extends React.Component {
                 this.setState({
                     user:res.data
                 })
-                console.log(res.data);
 
             }).catch(res=> {
-            this.setState({
-                errors:{
-                    email: "Please enter valid email!"
-                },
-            })
+                this.setState({
+                    wrongEmail:true
+                })
         })
     }
 
@@ -67,29 +65,50 @@ export default class ResetPasswordCode extends React.Component {
             return false;
         }
     }
+
     render() {
         return (
             <div>
-                {!this.state.nextStep &&
-                <tr>
-                    <td colSpan="2">
-                        <p style={{textAlign: 'center', margin: 20}}>Please enter the code you were sent by email. It
-                            wil look something like MFcRhYpDo1.<br/> You may need a few moments before it arrives </p>
-                    </td>
-                </tr>
-                }
-                  {!this.state.nextStep &&
-                <tr>
-                    <td> Enter your reset code:</td>
-                    <td>
-                        <Form.Control autoFocus type="text" name="resetCode" onChange={e => this.handleInputChange(e)} value={this.state.resetCode}/>
-                    </td>
-                    <td colSpan="2">
-                        <Button variant="info" style={{display:'block', margin:'auto'}}  onClick={e => this.submitResetCode(e)}> Confirm </Button>
-                    </td>
-                </tr>
-                }
+            { !this.state.wrongEmail ?
+                    <div>
+                        {!this.state.nextStep &&
+                        <tr>
+                            <td colSpan="2">
+                                <p style={{textAlign: 'center', margin: 20}}>Please enter the code you were sent by
+                                    email. It
+                                    wil look something like MFcRhYpDo1.<br/> You may need a few moments before it
+                                    arrives </p>
+                            </td>
+                        </tr>
+                        }
+                        {!this.state.nextStep &&
+                        <tr>
+                            <td> Enter your reset code:</td>
+                            <td>
+                                <Form.Control autoFocus type="text" name="resetCode"
+                                              onChange={e => this.handleInputChange(e)} value={this.state.resetCode}/>
+                            </td>
+                            <td colSpan="2">
+                                <Button variant="info" style={{display: 'block', margin: 'auto'}}
+                                        onClick={e => this.submitResetCode(e)}> Confirm </Button>
+                            </td>
+                        </tr>
+                        }
+                    </div>
+                :
+                <div>
+                    <tr style={{ overflowY: "auto", width: "500px", textAlign:'center'}} >
+                        <td colSpan="2" >
+                            <p style={{textAlign: 'center', margin: 20}}>We couldn't find {this.props.email} email address please </p>
+                        </td>
+                        <td>
+                            <Button style={{ width: "350px",display:'block', margin:'auto' }}  variant="outline-warning"  href={'/forgotten'}>TRY AGAIN</Button>
 
+                        </td>
+                    </tr>
+                </div>
+
+            }
             </div>
         )
     }
