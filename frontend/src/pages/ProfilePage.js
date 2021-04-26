@@ -10,8 +10,13 @@ export default class ProfilePage extends React.Component {
             oldPw : "",
             newPw : "",
             repeatPw : "",
-            repErr : "",
-            wrongPw : "",
+            submitted:false,
+            errors:{
+                errorFirst : "",
+                errorNew : "",
+                errorRepeat:"",
+            },
+            blacklistedPasswords:[],
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
         }
     }
@@ -37,10 +42,22 @@ export default class ProfilePage extends React.Component {
             })
             .catch(res => alert("Greska!"));
 
+        this.fetchBlackListPasswords();
     }
+    async fetchBlackListPasswords() {
+        let response = await axios.get('http://localhost:8080/security/passwords');
+        if(response && response.status && response.status == 200)
+            this.setState({blacklistedPasswords: [...response.data]});
+        else
+            console.log("No blacklisted passwords.")
+    }
+
     sendData = () => {
-        if(this.state.repeatPw !== this.state.newPw)
-            return;
+
+        this.setState({submitted:true});
+        if( this.state.errors.errorFirst!=='' && this.state.errors.errorNew!=='' && this.state.errors.errorRepeat !==''){
+                return;
+        }
 
         axios
             .post('http://localhost:8080/api/users/approveAccount', {
@@ -60,7 +77,7 @@ export default class ProfilePage extends React.Component {
                     })
                 }
             })
-            .catch(res => this.setState({wrongPw : "First password is not correct!"}));
+            .catch(res => this.setState({wrongPw : "Something went wrong.Please try again!"}));
     }
 
     handleInputChange = (event) => {
@@ -71,23 +88,59 @@ export default class ProfilePage extends React.Component {
         this.validatePassword(event);
     }
 
+    handlePassChange = (event) => {
+        this.setState(
+            (state,props) => ({ repeatPw : event.target.value}),
+            () => this.validatePassword(event)
+        )
+    }
+
     validatePassword(event) {
-        let repErr = ''
-        let val = event.target.value;
-        let newPass = this.state.newPw;
+        const {name, value} = event.target;
+        let errors = this.state.errors;
+        switch (name) {
+            case 'oldPw':
+                this.state.errors.errorFirst = this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' : '';
+                break;
+            case 'newPw':
+                this.state.errors.errorNew = value.length < 1 ? 'Enter new password' : '';
+                break;
+            case 'repeatPw':
+                this.state.errors.errorRepeat = this.isValidRepeatedPassword(this.state.repeatPw) ? '' : 'This password must match the previous!';
+                break;
+            default:
+                break;
+        }
+        this.setState({errors})
+    }
 
-        if (event.target.name === 'repeatPw')
-            if(val===''){
-                repErr = 'Enter new password!';
-            }
-            if(val !== newPass.substr(0, Math.min(val.length, newPass.length)) ||
-                (val.trim() === '' && newPass.trim() !== '')) {
-                repErr = 'This password must match the previous';
-            }
+    checkPassword =  (password) =>{
+        console.log("Checking")
+        if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
+            this.setState({
+                passwordStrength: this.state.newPw
+            })
+            return true;
+        }else if(this.state.blacklistedPasswords.includes(password)){
+            this.setState({
+                passwordStrength: this.state.newPw
+            })
+            return true;
+        } else {
+            this.setState({
+                passwordStrength : ""
+            })
+            return false;
+        }
+    }
 
-        this.setState({
-            'repErr': repErr
-        })
+
+    isValidRepeatedPassword = (value) => {
+        if(this.state.newPw !== this.state.repeatPw) {
+            return false;
+        }else{
+            return  true
+        }
     }
 
     
@@ -115,19 +168,19 @@ export default class ProfilePage extends React.Component {
     showModalDialog = () => {
         return (
             <Modal backdrop="static" show={this.state.showModal} onHide={this.handleModal}>
-                <Modal.Header>
+                <Modal.Header  style={{'background':'gray'}}>
                     <Modal.Title>Verify account!</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body style={{'background':'gray'}}>
                     <p> You have to change password when you log in for first time.</p> <br/>
-                    <p> First password : </p> <input name="oldPw" onChange={this.handleInputChange} value={this.state.oldPw} type={"password"}/>
-                    <p> New password : </p> <input name="newPw" onChange={this.handleInputChange} value={this.state.newPw} type={"password"}/>
-                    <p> Repeat new password : </p> <input name="repeatPw" onChange={this.handleInputChange} value={this.state.repeatPw} type={"password"}/>
-                    <p style={{"color" : "red"}}>{this.state.repErr} </p>
-
+                    <p> First password : </p> <input name="oldPw" onChange={e=>this.handleInputChange(e)} value={this.state.oldPw} type={"password"}/>
+                    {this.state.submitted  && <span className="text-danger">{this.state.errors.errorFirst}</span>}
+                    <p> New password : </p> <input name="newPw" onChange={e=>this.handleInputChange(e)} value={this.state.newPw} type={"password"}/>
+                    {this.state.submitted  && <span className="text-danger">{this.state.errors.errorNew}</span>}
+                    <p> Repeat new password : </p> <input name="repeatPw" onChange={(e) => {this.handlePassChange(e)}} value={this.state.repeatPw} type={"password"}/>
+                    {this.state.submitted  && <span className="text-danger">{this.state.errors.errorRepeat}</span>}
                 </Modal.Body>
-                <Modal.Footer>
-                    <p style={{"color" : "red"}}>{this.state.wrongPw}</p>
+                <Modal.Footer style={{'background':'gray'}}>
                     <Button variant="secondary" onClick={this.sendData}>
                         Send
                     </Button>

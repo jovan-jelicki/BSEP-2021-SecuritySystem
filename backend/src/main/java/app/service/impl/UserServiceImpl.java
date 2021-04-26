@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(LoginDTO loginDTO) {
         User user=this.findByEmail(loginDTO.getEmail());
-        user.setPassword(loginDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
         user.setResetCode(null);
         this.saveUser(user);
     }
@@ -52,11 +52,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public void approveAccount(ChangePasswordDTO changePasswordDTO) {
         User user = this.findById(changePasswordDTO.getUserId()).get();
+        if(this.checkPassword(changePasswordDTO)) {
+            user.setPassword(changePasswordDTO.getNewPassword());
+            user.setResetCode(null);
+            user.setApprovedAccount(true);
+            this.saveUser(user);
+        }else{
+            throw new IllegalArgumentException("Please try again.");
 
-        user.setPassword(changePasswordDTO.getNewPassword());
-        user.setResetCode(null);
-        user.setApprovedAccount(true);
-        this.saveUser(user);
+        }
+    }
+
+    public boolean checkPassword(ChangePasswordDTO changePasswordDTO) {
+        User user = this.findById(changePasswordDTO.getUserId()).get();
+        String bla=passwordEncoder.encode(changePasswordDTO.getOldPassword());
+        if(!passwordEncoder.matches(changePasswordDTO.getOldPassword(),user.getPassword())){
+            return false;
+        }else if(!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getRepeatedPassword())){
+            return false;
+        }
+        return true;
     }
 
     @Override
