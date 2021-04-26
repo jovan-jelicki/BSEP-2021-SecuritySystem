@@ -12,9 +12,9 @@ export default class ProfilePage extends React.Component {
             repeatPw : "",
             submitted:false,
             errors:{
-                errorFirst : "",
-                errorNew : "",
-                errorRepeat:"",
+                errorFirst : "Please enter old password.",
+                errorNew : "Please enter new password.",
+                errorRepeat:"Please repeat new password",
             },
             blacklistedPasswords:[],
             user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
@@ -51,14 +51,16 @@ export default class ProfilePage extends React.Component {
         else
             console.log("No blacklisted passwords.")
     }
+    submitForm=()=>{
+        this.setState({submitted:true});
+        if(this.state.errors.errorFirst!=='' || this.state.errors.errorNew!=='' || this.state.errors.errorRepeat !==''){
+            return;
+        }else{
+            this.sendData();
+        }
+    }
 
     sendData = () => {
-
-        this.setState({submitted:true});
-        if( this.state.errors.errorFirst!=='' && this.state.errors.errorNew!=='' && this.state.errors.errorRepeat !==''){
-                return;
-        }
-
         axios
             .post('http://localhost:8080/api/users/approveAccount', {
                 'userId' : this.state.user.id,
@@ -77,7 +79,9 @@ export default class ProfilePage extends React.Component {
                     })
                 }
             })
-            .catch(res => this.setState({wrongPw : "Something went wrong.Please try again!"}));
+            .catch(res => this.setState({
+                errors:{errorFirst : "Your old password is wrong.Please try again!"}
+            }));
     }
 
     handleInputChange = (event) => {
@@ -181,7 +185,7 @@ export default class ProfilePage extends React.Component {
                     {this.state.submitted  && <span className="text-danger">{this.state.errors.errorRepeat}</span>}
                 </Modal.Body>
                 <Modal.Footer style={{'background':'gray'}}>
-                    <Button variant="secondary" onClick={this.sendData}>
+                    <Button variant="secondary" onClick={this.submitForm}>
                         Send
                     </Button>
                 </Modal.Footer>
