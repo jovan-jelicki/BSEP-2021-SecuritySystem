@@ -3,8 +3,9 @@ import {Button, CardColumns, Col, Form, Nav, Navbar, Row, Table} from "react-boo
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
+import { connect } from 'react-redux';
 
-export default class NewRootCertificate extends React.Component {
+class NewRootCertificate extends React.Component {
     constructor(props) {
         super(props);
         this.state={
@@ -36,8 +37,6 @@ export default class NewRootCertificate extends React.Component {
             submitted: false,
             purposes:[],
             indexArray:[],
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
-
         }
     }
 
@@ -162,7 +161,7 @@ export default class NewRootCertificate extends React.Component {
                    },
                    {  headers: {
                            'Content-Type': 'application/json',
-                           Authorization : 'Bearer ' + this.state.user.jwtToken
+                           Authorization : 'Bearer ' + this.props.jwt
                        }})
                .then(res => {
                    alert("Successfully!")
@@ -337,3 +336,11 @@ export default class NewRootCertificate extends React.Component {
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        jwt: state.jwt,
+    };
+};
+
+export default connect(mapStateToProps)(NewRootCertificate);

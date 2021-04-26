@@ -3,9 +3,9 @@ import {Button, Col, Form, FormControl, Modal, Row, Table} from "react-bootstrap
 import DatePicker from "react-datepicker";
 import axios from "axios";
 import moment from "moment";
+import { connect } from 'react-redux';
 
-
-export default class NewEndCertificate extends React.Component {
+class NewEndCertificate extends React.Component {
     constructor(props) {
         super(props);
         this.state={
@@ -47,8 +47,6 @@ export default class NewEndCertificate extends React.Component {
             boolPurposes:false,
             keyUsages:[],
             indexArray:[],
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
-
         }
     }
 
@@ -68,7 +66,7 @@ export default class NewEndCertificate extends React.Component {
             .get("http://localhost:8080/api/certificate/getRootInter",
                 {  headers: {
                         'Content-Type': 'application/json',
-                        Authorization : 'Bearer ' + this.state.user.jwtToken
+                        Authorization : 'Bearer ' + this.props.jwt
                     }})
             .then(res => {
                 this.setState({
@@ -99,7 +97,7 @@ export default class NewEndCertificate extends React.Component {
                 },
                 {  headers: {
                         'Content-Type': 'application/json',
-                        Authorization : 'Bearer ' + this.state.user.jwtToken
+                        Authorization : 'Bearer ' + this.props.jwt
                     }})
             .then(res => {
                 alert("Successfully!")
@@ -108,8 +106,6 @@ export default class NewEndCertificate extends React.Component {
             .catch(res => {
                 alert("Something went wrong!")
             })
-
-
     }
 
     handleInputChange = (event) => {
@@ -464,3 +460,11 @@ export default class NewEndCertificate extends React.Component {
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        jwt: state.jwt,
+    };
+};
+
+export default connect(mapStateToProps)(NewEndCertificate);

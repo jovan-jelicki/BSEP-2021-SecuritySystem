@@ -1,12 +1,13 @@
 import * as React from "react";
 import axios from "axios";
+import { connect } from 'react-redux';
 
-export default class CertificatePath extends React.Component {
+
+class CertificatePath extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             certificates : [],
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
             marginLeft : 30
         }
     }
@@ -16,7 +17,7 @@ export default class CertificatePath extends React.Component {
             get("http://localhost:8080/api/certificate/getChain/" + this.props.certificate.alias,
             {  headers: {
                     'Content-Type': 'application/json',
-                    Authorization : 'Bearer ' + this.state.user.jwtToken
+                    Authorization : 'Bearer ' + this.props.jwt
                 }
             })
             .then(res => {
@@ -40,3 +41,11 @@ export default class CertificatePath extends React.Component {
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        jwt: state.jwt,
+    };
+};
+
+export default connect(mapStateToProps)(CertificatePath);

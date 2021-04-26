@@ -39,10 +39,10 @@ export default class RegistrationPage extends React.Component{
 
     handleInputChange = (event) => {
         const target = event.target;
-        this.setState({
-            [target.name] : target.value,
-        })
-        this.validationErrorMessage(event);
+        this.setState(
+        (state,props) => ({ [target.name]  : target.value}),
+        () => this.validationErrorMessage(event)
+        )
     }
 
     handlePassChange = (event) => {
@@ -54,7 +54,6 @@ export default class RegistrationPage extends React.Component{
 
     validationErrorMessage = (event) => {
         const { name, value } = event.target;
-        let errors = this.state.errors;
 
         switch (name) {
             case 'firstName':
@@ -106,17 +105,17 @@ export default class RegistrationPage extends React.Component{
             this.setState({
                 passwordStrength: this.state.password
             })
-            return true;
+            return false;
         }else if(this.state.blacklistedPasswords.includes(password)){
             this.setState({
                 passwordStrength: this.state.password
             })
-            return true;
+            return false;
         } else {
             this.setState({
                 passwordStrength : ""
             })
-            return false;
+            return true;
         }
     }
 
@@ -133,11 +132,12 @@ export default class RegistrationPage extends React.Component{
     }
 
     submitForm = async (event) => {
+        this.setState({submitted: true});
+
         event.preventDefault();
         const errors = ['email', 'password', 'firstName', 'rePassword', 'lastName'];
         if (this.validateForm(errors)) {
             await this.sendParams()
-            this.setState({submitted: true});
         } else {
             console.log('Invalid Form')
         }
@@ -150,7 +150,7 @@ export default class RegistrationPage extends React.Component{
         }
         //Promeniti!
         if(this.state.emailErr !== "" || this.state.passwordErr !== "" || this.state.firstNameErr !== "" ||
-            this.state.lastNameErr !== "" || this.state.rePasswordErr !== "" || this.state.blacklistedPasswords !== "")
+            this.state.lastNameErr !== "" || this.state.rePasswordErr !== "" )
             return !valid;
         return valid;
     }
