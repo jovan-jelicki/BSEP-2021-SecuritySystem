@@ -20,7 +20,6 @@ class ProfilePage extends React.Component {
                 errorRepeat:"Please repeat new password",
             },
             blacklistedPasswords:[],
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
         }
     }
 
@@ -65,13 +64,13 @@ class ProfilePage extends React.Component {
     sendData = () => {
         axios
             .post('http://localhost:8080/api/users/approveAccount', {
-                'userId' : this.state.user.id,
+                'userId' : this.props.user.id,
                 'oldPassword' : this.state.oldPw,
                 'newPassword' : this.state.newPw,
                 'repeatedPassword' : this.state.repeatPw
             }, {  headers: {
                     'Content-Type': 'application/json',
-                    Authorization : 'Bearer ' + this.props.jwtToken
+                    Authorization : 'Bearer ' + this.props.jwt
                 }
             })
             .then(res => {

@@ -30,6 +30,7 @@ public class UserServiceImpl implements UserService {
         if (this.findByEmail(entity.getEmail()) == null) {
             entity.setRole(Role.ROLE_user);
             entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+            entity.setApprovedAccount(false);
             return userRepository.save(entity);
         }
         return null;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(User entity) {
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+        entity.setApprovedAccount(false);
         return userRepository.save(entity);
     }
 

@@ -66,7 +66,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // umetni custom filter TokenAuthenticationFilter kako bi se vrsila provera JWT tokena umesto cistih korisnickog imena i lozinke (koje radi BasicAuthenticationFilter)
                 .addFilterBefore(new TokenAuthenticationFilter(tokenUtils, jwtUserDetailsService),
-                        BasicAuthenticationFilter.class);
+                        BasicAuthenticationFilter.class)
+                // zastita od xss napada
+                .headers().xssProtection(); // stiti od reflektovanih xss napada
         // zbog jednostavnosti primera
         http.csrf().disable();
     }
