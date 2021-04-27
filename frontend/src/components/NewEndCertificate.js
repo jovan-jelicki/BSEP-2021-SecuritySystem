@@ -65,7 +65,7 @@ export default class NewEndCertificate extends React.Component {
     }
     fetchCertificates=()=>{
         axios
-            .get("http://localhost:8080/api/certificate/getRootInter",
+            .get("https://localhost:8443/api/certificate/getRootInter",
                 {  headers: {
                         'Content-Type': 'application/json',
                         Authorization : 'Bearer ' + this.state.user.jwtToken
@@ -84,7 +84,7 @@ export default class NewEndCertificate extends React.Component {
         console.log(this.state.certificate)
 
         axios
-            .post("http://localhost:8080/api/certificate/issueEndEntity",{
+            .post("https://localhost:8443/api/certificate/issueEndEntity",{
                     'issuerAlias':this.state.certificate.issuer,
                     'c':this.state.certificate.country,
                     's':this.state.certificate.stateProvince,

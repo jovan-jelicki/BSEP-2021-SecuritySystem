@@ -149,7 +149,7 @@ export default class NewRootCertificate extends React.Component {
         let fullYearEnd = periodEnd.getFullYear() + "-" + monthEnd + "-" + dayEnd + " " + hoursEnd + ":" + minutesEnd + ":00.000+01:00";
 
         axios
-               .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
+               .post("https://localhost:8443/api/certificate/issueRootIntermediate",{
                     'c':this.state.certificate.country,
                     's':this.state.certificate.stateProvince,
                     'o':this.state.certificate.organizationName,

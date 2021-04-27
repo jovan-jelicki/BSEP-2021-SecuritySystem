@@ -23,7 +23,7 @@ export default class CertificateListing extends React.Component {
     componentDidMount() {
         if(this.state.user.role === "ROLE_admin")
             axios
-                .get("http://localhost:8080/api/certificate",
+                .get("https://localhost:8443/api/certificate",
                     {
                         headers: {
                             'Content-Type': 'application/json',

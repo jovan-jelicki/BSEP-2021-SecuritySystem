@@ -13,7 +13,7 @@ export default class CertificatePath extends React.Component {
 
     componentDidMount() {
         axios.
-            get("http://localhost:8080/api/certificate/getChain/" + this.props.certificate.alias,
+            get("https://localhost:8443/api/certificate/getChain/" + this.props.certificate.alias,
             {  headers: {
                     'Content-Type': 'application/json',
                     Authorization : 'Bearer ' + this.state.user.jwtToken

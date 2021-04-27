@@ -63,7 +63,7 @@ export default class NewInterCertificate extends React.Component {
 
     fetchCertificates=()=>{
         axios
-            .get("http://localhost:8080/api/certificate/getRootInter",
+            .get("https://localhost:8443/api/certificate/getRootInter",
                 {  headers: {
                         'Content-Type': 'application/json',
                         Authorization : 'Bearer ' + this.state.user.jwtToken
@@ -82,7 +82,7 @@ export default class NewInterCertificate extends React.Component {
         console.log(this.state.certificate.startDate)
         console.log(this.state.certificate.endDate)
         axios
-            .post("http://localhost:8080/api/certificate/issueRootIntermediate",{
+            .post("https://localhost:8443/api/certificate/issueRootIntermediate",{
                     'issuerAlias':this.state.certificate.issuer,
                     'c':this.state.certificate.country,
                     's':this.state.certificate.stateProvince,

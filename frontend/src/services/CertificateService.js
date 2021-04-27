@@ -4,7 +4,7 @@ import fileDownload from 'js-file-download'
 class CertificateService {
     constructor() {
         this.apiClient = axios.create({
-            baseURL: "http://localhost:8080/api/certificate"
+            baseURL: "https://localhost:8443/api/certificate"
         })
     }
 

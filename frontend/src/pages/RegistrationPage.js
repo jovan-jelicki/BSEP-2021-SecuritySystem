@@ -140,7 +140,7 @@ export default class RegistrationPage extends React.Component{
 
     async sendParams() {
         axios
-            .post('http://localhost:8080/auth/save', {
+            .post('https://localhost:8443/auth/save', {
                 'id':'',
                 'firstName' : this.state.firstName,
                 'lastName' : this.state.lastName,

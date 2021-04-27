@@ -117,7 +117,7 @@ export default class LogInPage extends React.Component {
 
     handleSubmit = () => {
         axios
-            .post('http://localhost:8080/auth/login', {
+            .post('https://localhost:8443/auth/login', {
                 email : this.state.email,
                 password: this.state.password
             })
