@@ -140,13 +140,17 @@ export default class PasswordChange extends React.Component {
                 <tr>
                     <td colSpan="2">
                         {!this.state.success ?
-                            <p style={{textAlign: 'center', margin: 20}}> Change your password.<br/>Password must
+                            <p style={{textAlign: 'center', margin: 10}}> Change your password.<br/>Password must
                                 contains at least 8 characters (lowercase letter, capital letter, number and special
                                 character) or not be a common password! </p>
                             :
                             <p style={{textAlign: 'center', margin: 20}}> Successfully </p>
                         }
-                            </td>
+                    </td>
+                    <td>
+                        <a href={'/'} style={{'color': '#08B8A2',float : "right"}}> Back to login page?</a>
+
+                    </td>
                 </tr>
                 {this.state.success ?
                     <tr>
@@ -194,7 +198,7 @@ export default class PasswordChange extends React.Component {
                         </tr>
                         <tr>
                             <td colSpan="2">
-                                <Button variant="info" style={{display: 'block', margin: 'auto'}}
+                                <Button variant="info" style={{display: 'block', margin: 'auto', backgroundColor:"#08B8A2"}}
                                         onClick={this.submitPassword}> Submit </Button>
                             </td>
 

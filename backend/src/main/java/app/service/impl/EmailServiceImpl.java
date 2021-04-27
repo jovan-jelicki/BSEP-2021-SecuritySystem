@@ -29,7 +29,8 @@ public class EmailServiceImpl implements EmailService {
         message.setSubject(subject);
 
         String resetCode=generateResetCode();
-        String body="Hi,we received a request to reset your password. Your password reset code is: "+resetCode;
+        String body="Hi,\n"+"we received a request to reset your password.Your old password has been locked for security reasons.\n"+"To unlock your profile you must verify your identity.\n" +
+                "\nYour password reset code is: "+resetCode;
 
         try {
             User user = userService.findByEmail(to);

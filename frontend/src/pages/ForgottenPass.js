@@ -114,6 +114,12 @@ export default class ForgottenPass extends React.Component {
                                 <p style={{textAlign: 'center', margin: 20}}> Follow these instructions if you forgot
                                     your password and need to create a new one. </p>
                             </td>
+                            {!this.state.step2 &&  !this.state.step3 &&
+                            <td>
+                                <a href={'/'} style={{'color': '#08B8A2', float: "right"}}> Back to login page?</a>
+
+                            </td>
+                            }
                         </tr>
                         }
 
@@ -129,18 +135,22 @@ export default class ForgottenPass extends React.Component {
                         }
                         {this.state.step1 &&
                         <tr>
-                            <td></td>
+                            <td >
+                                <p style={{fontSize:"10px", color:"#08B8A2"}}>
+                                Reset code will be sent to your email. It could take 10 to 30 seconds to be delivered.
+                                </p>
+                            </td>
                             <td colSpan="2">
-                                <Button variant="info" style={{display:'block', margin:'auto'}}  onClick={this.handleSubmit}> Confirm </Button>
+                                <Button variant="info" style={{display:'block', margin:'auto', backgroundColor:"#08B8A2"}}  onClick={this.handleSubmit}> Confirm </Button>
                             </td>
                         </tr>
                         }
                         {this.state.step2 &&
                         <tr>
-                            <p style={{color:"#C00F15", margin:"20px"}}>Your old password has been locked for security reasons.To unlock your profile you must verify your identity.</p>
-                            <p style={{color:"#C00F15", margin:"20px"}}>Please check your email for a text message with your reset code</p>
+                            <p style={{color:"#08B8A2", margin:"20px"}}>Please check your email for a text message with your reset code.</p>
+                            <p style={{color:"#08B8A2", margin:"20px"}}>Your old password has been locked for security reasons.To unlock your profile you must verify your identity.</p>
                             <td colSpan="2">
-                            <Button variant="outline-primary" onClick={this.nextStep} >Next step</Button>
+                            <Button style={{backgroundColor:"#08B8A2", color:"white"}} variant="outline-primary" onClick={this.nextStep} >Next step</Button>
                             </td>
                         </tr>
                         }
