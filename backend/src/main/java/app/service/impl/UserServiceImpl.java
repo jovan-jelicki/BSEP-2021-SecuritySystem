@@ -39,14 +39,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveUser(User entity) {
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
-        entity.setApprovedAccount(false);
         return userRepository.save(entity);
     }
 
     @Override
     public void changePassword(LoginDTO loginDTO) {
         User user=this.findByEmail(loginDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
+        user.setPassword(loginDTO.getPassword());
         user.setResetCode(null);
         this.saveUser(user);
     }

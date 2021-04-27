@@ -10,10 +10,8 @@ export default class PasswordChange extends React.Component {
             password: '',
             rePassword: '',
             passwordStrength: "",
-            errors: {
-                'password': 'Enter password',
-                'rePassword': 'Repeat password'
-            },
+            'errPassword': 'Enter password',
+            'errRePassword': 'Repeat password',
             blacklistedPasswords: [],
             success: false
         }
@@ -27,6 +25,14 @@ export default class PasswordChange extends React.Component {
             console.log("No blacklisted passwords.")
     }
 
+    handleInputChange = (event) => {
+        const target = event.target;
+        this.setState(
+            (state,props) => ({ [target.name]  : target.value}),
+            () => this.validationErrorMessage(event)
+        )
+    }
+
     handlePasswordChange = (event) => {
         this.setState(
             (state, props) => ({rePassword: event.target.value}),
@@ -35,27 +41,23 @@ export default class PasswordChange extends React.Component {
     }
     validationErrorMessage = (event) => {
         const {name, value} = event.target;
-        let errors = this.state.errors;
         switch (name) {
             case 'password':
-                errors.password = this.checkPassword(value) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' : '';
+                this.setState({
+                    errPassword : this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' : '',
+                    //validForm: false,
+                })
                 break;
             case 'rePassword':
-                errors.rePassword = this.isValidRepeatedPassword(value) ? '' : 'This password must match the previous!';
+                this.setState({
+                    errRePassword : this.isValidRepeatedPassword(this.state.rePassword) ? '' : 'This password must match the previous!',
+                })
                 break;
             default:
                 break;
         }
-        this.setState({errors})
+    }
 
-    }
-    handleInputChange = (event) => {
-        const target = event.target;
-        this.setState({
-            [target.name]: target.value,
-        })
-        this.validationErrorMessage(event);
-    }
 
     isValidRepeatedPassword = (value) => {
         if (this.state.password !== this.state.rePassword) {
@@ -66,32 +68,47 @@ export default class PasswordChange extends React.Component {
     }
 
 
-    checkPassword = (password) => {
+    checkPassword =  (password) =>{
         console.log("Checking")
-        if (/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)) {
+        if(/^(?=.*[\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\w!@#$%^&*]{8,}$/.test(password)){
             this.setState({
                 passwordStrength: this.state.password
-            })
-            return true;
-        } else if (this.state.blacklistedPasswords.includes(password)) {
-            this.setState({
-                passwordStrength: this.state.password
-            })
-            return true;
-        } else {
-            this.setState({
-                passwordStrength: ""
             })
             return false;
+        }else if(this.state.blacklistedPasswords.includes(password)){
+            this.setState({
+                passwordStrength: this.state.password
+            })
+            return false;
+        } else {
+            this.setState({
+                passwordStrength : ""
+            })
+            return true;
         }
     }
 
+    validateForm = (errors) => {
+        let valid = true;
+        for (const Error of errors) {
+            this.validationErrorMessage(this.createTarget(Error));
+        }
+        //Promeniti!
+        if (this.state.errPassword !== "" || this.state.errRePassword !== "") {
+            return !valid;
+        }
+        return valid;
+    }
+    createTarget = (error) => {
+        return {target : {value : error, name : error}}
+    }
 
     submitPassword = async (event) => {
         this.setState({submitted: true});
         event.preventDefault();
+        const errors = ['password','rePassword'];
 
-        if (this.state.errors.password == "" && this.state.errors.rePassword == "") {
+        if (this.validateForm(errors)) {
             await this.sendParams()
         } else {
             console.log('Invalid Form')
@@ -105,14 +122,13 @@ export default class PasswordChange extends React.Component {
                 'password': this.state.password,
             })
             .then(res => {
-                alert("bravo");
                 this.props.onChangeValue();
                 this.setState({
                     success: true,
                 })
 
             }).catch(res => {
-            alert("plakili")
+            alert("Something went wrong!")
 
         })
 
@@ -149,7 +165,8 @@ export default class PasswordChange extends React.Component {
                                               autoFocus type="password" name="password"
                                               onChange={e => this.handleInputChange(e)} value={this.state.password}/>
                                 {this.state.submitted &&
-                                <span className="text-danger">{this.state.errors.password}</span>}
+                                <span className="text-danger">{this.state.errPassword}</span>}
+                                <PasswordStrengthBar password={this.state.passwordStrength}/>
 
                             </td>
 
@@ -164,8 +181,7 @@ export default class PasswordChange extends React.Component {
                                     this.handlePasswordChange(e)
                                 }}/>
                                 {this.state.submitted &&
-                                <span className="text-danger">{this.state.errors.rePassword}</span>}
-                                <PasswordStrengthBar password={this.state.passwordStrength}/>
+                                <span className="text-danger">{this.state.errRePassword}</span>}
 
                             </td>
 

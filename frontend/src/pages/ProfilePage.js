@@ -14,11 +14,10 @@ class ProfilePage extends React.Component {
             newPw : "",
             repeatPw : "",
             submitted:false,
-            errors:{
-                errorFirst : "Please enter old password.",
-                errorNew : "Please enter new password.",
-                errorRepeat:"Please repeat new password",
-            },
+            errorFirst : "Please enter old password.",
+            errorNew : "Please enter new password.",
+            errorRepeat:"Please repeat new password",
+
             blacklistedPasswords:[],
         }
     }
@@ -45,6 +44,8 @@ class ProfilePage extends React.Component {
 
         this.fetchBlackListPasswords();
     }
+
+
     async fetchBlackListPasswords() {
         let response = await axios.get('http://localhost:8080/security/passwords');
         if(response && response.status && response.status == 200)
@@ -52,14 +53,59 @@ class ProfilePage extends React.Component {
         else
             console.log("No blacklisted passwords.")
     }
+
+    handleInputChange = (event) => {
+        const target = event.target;
+        this.setState(
+            (state, props) => ({[target.name]: target.value}),
+            () => this.validationErrorMessage(event)
+        )
+    }
+
+    handlePassChange = (event) => {
+        this.setState(
+            (state,props) => ({ repeatPw : event.target.value}),
+            () => this.validationErrorMessage(event)
+        )
+    }
+
+    validationErrorMessage(event) {
+        const {name, value} = event.target;
+
+        switch (name) {
+            case 'newPw':
+                this.setState({
+                    errorFirst: this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' :'',
+                })
+                break;
+            case 'oldPw':
+                this.setState({
+                    errorNew : value.length < 1 ? 'Enter old password' : '',
+                })
+                break;
+            case 'repeatPw':
+                this.setState({
+                    errorRepeat : this.isValidRepeatedPassword(this.state.repeatPw) ? '' : 'This password must match the previous!',
+
+                })
+                break;
+            default:
+                break;
+        }
+
+    }
+
+
     submitForm=()=>{
         this.setState({submitted:true});
-        if(this.state.errors.errorFirst!=='' || this.state.errors.errorNew!=='' || this.state.errors.errorRepeat !==''){
+        if(this.state.errorFirst!=='' || this.state.errorNew!=='' || this.state.errorRepeat !==''){
             return;
         }else{
             this.sendData();
         }
     }
+
+
 
     sendData = () => {
         axios
@@ -81,43 +127,13 @@ class ProfilePage extends React.Component {
                 }
             })
             .catch(res => this.setState({
-                errors:{errorFirst : "Your old password is wrong.Please try again!"}
+               errorFirst : "Your old password is wrong.Please try again!"
             }));
     }
 
-    handleInputChange = (event) => {
-        const target = event.target;
-        this.setState({
-            [target.name]: target.value
-        })
-        this.validatePassword(event);
-    }
 
-    handlePassChange = (event) => {
-        this.setState(
-            (state,props) => ({ repeatPw : event.target.value}),
-            () => this.validatePassword(event)
-        )
-    }
 
-    validatePassword(event) {
-        const {name, value} = event.target;
-        let errors = this.state.errors;
-        switch (name) {
-            case 'oldPw':
-                this.state.errors.errorFirst = this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' : '';
-                break;
-            case 'newPw':
-                this.state.errors.errorNew = value.length < 1 ? 'Enter new password' : '';
-                break;
-            case 'repeatPw':
-                this.state.errors.errorRepeat = this.isValidRepeatedPassword(this.state.repeatPw) ? '' : 'This password must match the previous!';
-                break;
-            default:
-                break;
-        }
-        this.setState({errors})
-    }
+
 
     checkPassword =  (password) =>{
         console.log("Checking")
@@ -180,11 +196,11 @@ class ProfilePage extends React.Component {
                 <Modal.Body style={{'background':'gray'}}>
                     <p> You have to change password when you log in for first time.</p> <br/>
                     <p> First password : </p> <input name="oldPw" onChange={e=>this.handleInputChange(e)} value={this.state.oldPw} type={"password"}/>
-                    {this.state.submitted  && <span className="text-danger">{this.state.errors.errorFirst}</span>}
+                    {this.state.submitted  && <span className="text-danger">{this.state.errorFirst}</span>}
                     <p> New password : </p> <input name="newPw" onChange={e=>this.handleInputChange(e)} value={this.state.newPw} type={"password"}/>
-                    {this.state.submitted  && <span className="text-danger">{this.state.errors.errorNew}</span>}
+                    {this.state.submitted  && <span className="text-danger">{this.state.errorNew}</span>}
                     <p> Repeat new password : </p> <input name="repeatPw" onChange={(e) => {this.handlePassChange(e)}} value={this.state.repeatPw} type={"password"}/>
-                    {this.state.submitted  && <span className="text-danger">{this.state.errors.errorRepeat}</span>}
+                    {this.state.submitted  && <span className="text-danger">{this.state.errorRepeat}</span>}
                 </Modal.Body>
                 <Modal.Footer style={{'background':'gray'}}>
                     <Button variant="secondary" onClick={this.submitForm}>
