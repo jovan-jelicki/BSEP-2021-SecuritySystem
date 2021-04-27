@@ -29,10 +29,4 @@ public class EmailControllerImpl {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
-
-
-
-
-
 }
