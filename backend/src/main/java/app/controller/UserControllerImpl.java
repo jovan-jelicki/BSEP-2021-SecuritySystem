@@ -33,13 +33,15 @@ public class UserControllerImpl {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    //@PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    @PreAuthorize("@permissionService.checkPermission('isAccountApproved')")
     @GetMapping( "/isAccountApproved/{id}")
     public ResponseEntity<Boolean> isAccountApproved(@PathVariable Long id){
         return new ResponseEntity<>(userService.findById(id).get().getApprovedAccount(), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    //@PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    @PreAuthorize("@permissionService.checkPermission('approveAccount')")
     @PostMapping(value="/approveAccount", consumes = "application/json")
     public ResponseEntity<Void> approveAccount(@RequestBody ChangePasswordDTO changePasswordDTO) {
         List<String> blacklistedPasswords = securityService.getBlacklistedPasswords();

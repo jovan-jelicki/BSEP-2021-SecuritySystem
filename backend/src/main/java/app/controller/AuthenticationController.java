@@ -46,9 +46,10 @@ public class AuthenticationController {
         try {
             auth = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
-        } catch (BadCredentialsException e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         UserTokenDTO user = userService.getUserForLogIn(loginDTO);
