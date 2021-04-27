@@ -99,4 +99,15 @@ public class User implements UserDetails {
     public void setResetCode(String resetCode) {
         this.resetCode = resetCode;
     }
+    public void validateUser() {
+        if(!this.email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-zA-Z]{2,64}$"))
+            throw new IllegalArgumentException();
+        if(!this.firstName.matches("^[a-zA-Z ,.'-]+$"))
+            throw new IllegalArgumentException();
+        if(!this.lastName.matches("^[a-zA-Z ,.'-]+$"))
+            throw new IllegalArgumentException();
+        if(!this.password.matches("^(?=.*[\\d])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*])[\\w!@#$%^&*]{8,}$"))
+            throw new IllegalArgumentException();
+    }
+
 }

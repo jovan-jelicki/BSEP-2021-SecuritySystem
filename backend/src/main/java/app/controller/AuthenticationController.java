@@ -2,6 +2,7 @@ package app.controller;
 
 import app.dtos.ChangePasswordDTO;
 import app.dtos.LoginDTO;
+import app.dtos.RegistrationDTO;
 import app.dtos.UserTokenDTO;
 import app.model.User;
 import app.security.TokenUtils;
@@ -59,16 +60,21 @@ public class AuthenticationController {
     }
 
     @PostMapping(value="/save", consumes = "application/json")
-    public ResponseEntity<User> save(@RequestBody User entity) {
+    public ResponseEntity<User> save(@RequestBody RegistrationDTO entity) {
         List<String> blacklistedPasswords = securityService.getBlacklistedPasswords();
         if(blacklistedPasswords.contains(entity.getPassword())){
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-
-        if(userService.save(entity)==null){
+        try {
+            entity.validateUser();
+            User user = userService.registration(entity);
+            if (user == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(userService.save(entity), HttpStatus.CREATED);
     }
 
 

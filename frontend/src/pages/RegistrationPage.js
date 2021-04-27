@@ -167,6 +167,7 @@ export default class RegistrationPage extends React.Component{
                 'lastName' : this.state.lastName,
                 'email' : this.state.email,
                 'password' : this.state.password,
+                'rePassword':this.state.rePassword
             })
             .then(res => {
                 this.setState({ errorMessage:false });

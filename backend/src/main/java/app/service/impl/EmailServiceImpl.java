@@ -34,7 +34,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             User user = userService.findByEmail(to);
             user.setResetCode(resetCode);
-            userService.saveUser(user);
+            userService.save(user);
 
             message.setText(body);
             mailSender.send(message);

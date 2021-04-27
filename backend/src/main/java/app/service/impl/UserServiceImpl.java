@@ -2,6 +2,7 @@ package app.service.impl;
 
 import app.dtos.ChangePasswordDTO;
 import app.dtos.LoginDTO;
+import app.dtos.RegistrationDTO;
 import app.dtos.UserTokenDTO;
 import app.model.Role;
 import app.model.User;
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -26,38 +28,40 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User entity) {
-        if (this.findByEmail(entity.getEmail()) == null) {
-            entity.setRole(Role.ROLE_user);
-            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
-            entity.setApprovedAccount(false);
-            return userRepository.save(entity);
-        }
+    public User registration(RegistrationDTO entity) {
+        if (this.findByEmail(entity.getEmail()) == null && entity.getPassword().equals(entity.getRePassword()) ) {
+                entity.setRole(Role.ROLE_user);
+                entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+                entity.setApprovedAccount(false);
+
+                return this.save(new User(entity.getId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPassword(),
+                        null, entity.getApprovedAccount(), entity.getRole()));
+            }
         return null;
     }
 
     @Override
-    public User saveUser(User entity) {
-        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+    public User save(User entity) {
         return userRepository.save(entity);
     }
 
     @Override
     public void changePassword(LoginDTO loginDTO) {
         User user=this.findByEmail(loginDTO.getEmail());
-        user.setPassword(loginDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
         user.setResetCode(null);
-        this.saveUser(user);
+        this.save(user);
     }
 
     @Override
     public void approveAccount(ChangePasswordDTO changePasswordDTO) {
         User user = this.findById(changePasswordDTO.getUserId()).get();
         if(this.checkPassword(changePasswordDTO)) {
-            user.setPassword(changePasswordDTO.getNewPassword());
+
+            user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
             user.setResetCode(null);
             user.setApprovedAccount(true);
-            this.saveUser(user);
+            this.save(user);
         }else{
             throw new NullPointerException("Please try again.");
 
@@ -66,7 +70,6 @@ public class UserServiceImpl implements UserService {
 
     public boolean checkPassword(ChangePasswordDTO changePasswordDTO) {
         User user = this.findById(changePasswordDTO.getUserId()).get();
-        String bla=passwordEncoder.encode(changePasswordDTO.getOldPassword());
         if(!passwordEncoder.matches(changePasswordDTO.getOldPassword(),user.getPassword())){
             return false;
         }else if(!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getRepeatedPassword())){
