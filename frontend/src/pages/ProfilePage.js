@@ -3,6 +3,7 @@ import {Button, Container, Modal, Nav, Navbar} from "react-bootstrap";
 import axios from "axios";
 import { connect } from 'react-redux';
 import * as actionTypes from './../store/actions';
+import PasswordStrengthBar from "react-password-strength-bar";
 
 class ProfilePage extends React.Component {
     constructor(props) {
@@ -17,12 +18,12 @@ class ProfilePage extends React.Component {
             errorFirst : "Please enter old password.",
             errorNew : "Please enter new password.",
             errorRepeat:"Please repeat new password",
-
+            passwordStrength:"",
             blacklistedPasswords:[],
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if(!this.props.user.role) window.location.replace("http://localhost:3000/unauthorized");
 
         axios
@@ -75,12 +76,12 @@ class ProfilePage extends React.Component {
         switch (name) {
             case 'newPw':
                 this.setState({
-                    errorFirst: this.checkPassword(this.state.password) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' :'',
+                    errorNew: this.checkPassword(this.state.newPw) ? 'Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password!' :'',
                 })
                 break;
             case 'oldPw':
                 this.setState({
-                    errorNew : value.length < 1 ? 'Enter old password' : '',
+                    errorFirst : value.length < 1 ? 'Enter new password' : '',
                 })
                 break;
             case 'repeatPw':
@@ -96,18 +97,34 @@ class ProfilePage extends React.Component {
     }
 
 
-    submitForm=()=>{
-        this.setState({submitted:true});
-        if(this.state.errorFirst!=='' || this.state.errorNew!=='' || this.state.errorRepeat !==''){
-            return;
-        }else{
-            this.sendData();
+    submitForm= async (event) => {
+        this.setState({submitted: true});
+        event.preventDefault();
+        const errors = ['errorNew','errorFirst','errorRepeat'];
+
+        if (this.validateForm(errors)) {
+            await this.sendData()
+        } else {
+            console.log('Invalid Form')
         }
+    }
+    validateForm = (errors) => {
+        let valid = true;
+        for (const Error of errors) {
+            this.validationErrorMessage(this.createTarget(Error));
+        }
+        //Promeniti!
+        if (this.state.errorRepeat !== "" || this.state.errorFirst !== "" || this.state.errorNew ) {
+            return !valid;
+        }
+        return valid;
+    }
+    createTarget = (error) => {
+        return {target : {value : error, name : error}}
     }
 
 
-
-    sendData = () => {
+    async sendData(){
         axios
             .post('http://localhost:8080/api/users/approveAccount', {
                 'userId' : this.props.user.id,
@@ -141,17 +158,17 @@ class ProfilePage extends React.Component {
             this.setState({
                 passwordStrength: this.state.newPw
             })
-            return true;
+            return false;
         }else if(this.state.blacklistedPasswords.includes(password)){
             this.setState({
                 passwordStrength: this.state.newPw
             })
-            return true;
+            return false;
         } else {
             this.setState({
                 passwordStrength : ""
             })
-            return false;
+            return true;
         }
     }
 
@@ -190,19 +207,20 @@ class ProfilePage extends React.Component {
     showModalDialog = () => {
         return (
             <Modal backdrop="static" show={this.state.showModal} onHide={this.handleModal}>
-                <Modal.Header  style={{'background':'gray'}}>
-                    <Modal.Title>Verify account!</Modal.Title>
+                <Modal.Header  style={{'background':'#E0E0E0'}}>
+                    <Modal.Title>Verify your account:</Modal.Title>
                 </Modal.Header>
-                <Modal.Body style={{'background':'gray'}}>
+                <Modal.Body style={{'background':'#C0C0C0'}}>
                     <p> You have to change password when you log in for first time.</p> <br/>
                     <p> First password : </p> <input name="oldPw" onChange={e=>this.handleInputChange(e)} value={this.state.oldPw} type={"password"}/>
                     {this.state.submitted  && <span className="text-danger">{this.state.errorFirst}</span>}
                     <p> New password : </p> <input name="newPw" onChange={e=>this.handleInputChange(e)} value={this.state.newPw} type={"password"}/>
+                    <PasswordStrengthBar password={this.state.passwordStrength}/>
                     {this.state.submitted  && <span className="text-danger">{this.state.errorNew}</span>}
                     <p> Repeat new password : </p> <input name="repeatPw" onChange={(e) => {this.handlePassChange(e)}} value={this.state.repeatPw} type={"password"}/>
                     {this.state.submitted  && <span className="text-danger">{this.state.errorRepeat}</span>}
                 </Modal.Body>
-                <Modal.Footer style={{'background':'gray'}}>
+                <Modal.Footer style={{'background':'#E0E0E0'}}>
                     <Button variant="secondary" onClick={this.submitForm}>
                         Send
                     </Button>
