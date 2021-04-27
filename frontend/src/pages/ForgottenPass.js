@@ -61,8 +61,8 @@ export default class ForgottenPass extends React.Component {
 
 
 
-    async sendMail(){
-          await axios
+      sendMail(){
+            axios
             .put("http://localhost:8080/api/email/send", {
                 'to': this.state.email,
                 'subject': "Recover your password",
@@ -70,10 +70,13 @@ export default class ForgottenPass extends React.Component {
             .then(res => {
                 this.setState({
                     step2:true,
-                    step1:false
+                    step1:false,
+                    emailError:""
                 })
             }).catch(res => {
-                alert("NECE DA MOZE")
+                this.setState({
+                    emailError:"Sorry, we don't recognize this email. Please try again."
+                })
             })
     }
 
@@ -119,18 +122,10 @@ export default class ForgottenPass extends React.Component {
                             <td> Please enter your email address:</td>
                             <td>
                                 <Form.Control autoFocus type="email" name="email" value={this.state.email} onChange={e => this.handleInputChange(e)}/>
-
+                                {this.state.submitted && <span className="text-danger">{this.state.emailError}</span>}
                             </td>
                         </tr>
 
-                        }
-                        {this.state.step1 &&
-                            <tr>
-                                <td></td>
-                                <td>
-                                {this.state.submitted && this.state.emailError.length > 0 && <span className="text-danger">{this.state.emailError}</span>}
-                                </td>
-                            </tr>
                         }
                         {this.state.step1 &&
                         <tr>
@@ -142,8 +137,8 @@ export default class ForgottenPass extends React.Component {
                         }
                         {this.state.step2 &&
                         <tr>
-                            <p>Your old password has been locked for security reasons.To unlock your profile you must verify your identity.</p>
-                            <p>Please check your email for a text message with your reset code</p>
+                            <p style={{color:"#C00F15", margin:"20px"}}>Your old password has been locked for security reasons.To unlock your profile you must verify your identity.</p>
+                            <p style={{color:"#C00F15", margin:"20px"}}>Please check your email for a text message with your reset code</p>
                             <td colSpan="2">
                             <Button variant="outline-primary" onClick={this.nextStep} >Next step</Button>
                             </td>

@@ -8,19 +8,17 @@ export default class ResetPasswordCode extends React.Component {
         super(props);
         this.state = {
             resetCode:'',
-            wrongEmail:false
+            wrongEmail:false,
+            errorResetCode:false,
+            submitted:false
+
         }
     }
 
     async componentDidMount() {
-        let headers = new Headers();
-
-        headers.append('Access-Control-Allow-Origin', '*');
-
         await axios
             .get('http://localhost:8080/api/users/getUserByEmail/'+this.props.email,{
                 headers: {"Access-Control-Allow-Origin": "*"}
-
             })
             .then(res => {
                 this.setState({
@@ -39,9 +37,12 @@ export default class ResetPasswordCode extends React.Component {
         this.setState({
             [target.name] : target.value,
         })
+
+        this.isValidResetCode(target.value);
     }
 
     submitResetCode=()=>{
+        this.setState({submitted:true})
         if(this.isValidResetCode(this.state.resetCode)) {
             this.props.onChangeValue();
         }
@@ -51,16 +52,12 @@ export default class ResetPasswordCode extends React.Component {
         console.log(value);
         if(value==this.state.user.resetCode){
             this.setState({
-                errors:{
-                    resetCode: ""
-                }
+                    errorResetCode: ""
             })
             return true;
         }else{
             this.setState({
-                errors:{
-                    resetCode: "Please enter valid reset code!"
-                }
+                errorResetCode: "Please enter valid reset code!"
             })
             return false;
         }
@@ -87,6 +84,8 @@ export default class ResetPasswordCode extends React.Component {
                             <td>
                                 <Form.Control autoFocus type="text" name="resetCode"
                                               onChange={e => this.handleInputChange(e)} value={this.state.resetCode}/>
+                                {this.state.submitted && <span className="text-danger">{this.state.errorResetCode}</span>}
+
                             </td>
                             <td colSpan="2">
                                 <Button variant="info" style={{display: 'block', margin: 'auto'}}

@@ -31,13 +31,18 @@ public class EmailServiceImpl implements EmailService {
         String resetCode=generateResetCode();
         String body="Hi,we received a request to reset your password. Your password reset code is: "+resetCode;
 
-        User user= userService.findByEmail(to);
+        try {
+            User user = userService.findByEmail(to);
+            user.setResetCode(resetCode);
+            userService.saveUser(user);
 
-        user.setResetCode(resetCode);
-        userService.saveUser(user);
+            message.setText(body);
+            mailSender.send(message);
+        }catch (Exception e){
+            throw new IllegalArgumentException(e);
+        }
 
-        message.setText(body);
-        mailSender.send(message);
+
 
     }
 

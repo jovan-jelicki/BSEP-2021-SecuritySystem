@@ -17,7 +17,6 @@ public class EmailControllerImpl {
         this.emailService = emailService;
     }
 
-    @Async
     @PutMapping(value = "/send")
     public ResponseEntity<Void> sendMail(@RequestBody EmailDTO emailParams) {
         try {
@@ -27,6 +26,9 @@ public class EmailControllerImpl {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 }

@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
             user.setApprovedAccount(true);
             this.saveUser(user);
         }else{
-            throw new IllegalArgumentException("Please try again.");
+            throw new NullPointerException("Please try again.");
 
         }
     }
