@@ -20,10 +20,13 @@ class LogInPage extends React.Component {
             logInDisabled: false
         }
     }
+    componentDidMount() {
+        document.body.style.backgroundColor = "#C0C0C0"
+    }
 
     render() {
         return (
-            <div style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px' }}>
+            <div  style={{ padding: '60px 0', margin: '0 auto', maxWidth: '320px'}}>
                 <br />
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group size="lg" controlId="email">
@@ -47,7 +50,7 @@ class LogInPage extends React.Component {
                     </Form.Group>
                     <p hidden={this.state.badCredentials} style={{color : "red"}}> Invalid username or password!</p>
                     <div style={{display : "flex"}}>
-                        <a href={'/forgotten'} style={{float : "right"}}> Forgot password?</a>
+                        <a href={'/forgotten'} style={{'color': '#08B8A2',float : "right"}}> Forgot password?</a>
                     </div>
                     <br />
                     {this.state.reCaptcha >= 3 &&
@@ -60,14 +63,14 @@ class LogInPage extends React.Component {
                             asyncScriptOnLoad={this.asyncScriptOnLoad}
                         />
                     }
-                    <Button block size="lg" disabled={this.state.logInDisabled} onClick={this.handleSubmit}>
+                    <Button style={{backgroundColor:'#089A87'}}block size="lg" disabled={this.state.logInDisabled} onClick={this.handleSubmit}>
                         Login
                     </Button>
                 </Form>
                 <br />
                 <div style={{ display: " table" }}>
                     <p style={{ display: "table-cell" }}>Don't have account?</p>
-                    <a style={{ display: "table-cell" }} className="nav-link" style={{ 'color': '#00d8fe', 'fontWeight': 'bold' }} href='#' name="workHours" onClick={this.handleModal}>Register</a>
+                    <a style={{ display: "table-cell" }} className="nav-link" style={{ 'color': '#08B8A2', 'fontWeight': 'bold' }} href='#' name="workHours" onClick={this.handleModal}>Register</a>
                 </div>
 
 

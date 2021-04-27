@@ -139,8 +139,14 @@ export default class PasswordChange extends React.Component {
             <div>
                 <tr>
                     <td colSpan="2">
-                        <p style={{textAlign: 'center', margin: 20}}> Change your password.<br/>Password must contains at least 8 characters (lowercase letter, capital letter, number and special character) or not be a common password! </p>
-                    </td>
+                        {!this.state.success ?
+                            <p style={{textAlign: 'center', margin: 20}}> Change your password.<br/>Password must
+                                contains at least 8 characters (lowercase letter, capital letter, number and special
+                                character) or not be a common password! </p>
+                            :
+                            <p style={{textAlign: 'center', margin: 20}}> Successfully </p>
+                        }
+                            </td>
                 </tr>
                 {this.state.success ?
                     <tr>
