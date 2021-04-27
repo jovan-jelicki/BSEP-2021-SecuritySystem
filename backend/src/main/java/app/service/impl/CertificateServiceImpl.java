@@ -12,6 +12,7 @@ import app.model.data.SubjectData;
 import app.model.exceptions.ActionNotAllowedException;
 import app.repository.CertificateKeystoreRepository;
 import app.repository.CertificateRepository;
+import app.security.ParamValidator;
 import app.service.CertificateService;
 import app.service.DataGenerator;
 import app.service.UserService;
@@ -35,16 +36,18 @@ public class CertificateServiceImpl implements CertificateService {
     private DataGenerator dataGenerator;
     private final ValidationService validationService;
     private final UserService userService;
+    private final ParamValidator paramValidator;
 
 
     @Autowired
-    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, UserService userService, ValidationService validationService, CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
+    public CertificateServiceImpl(@Qualifier("endEntityDataGenerator") DataGenerator dataGenerator, ParamValidator paramValidator ,UserService userService, ValidationService validationService, CertificateRepository certificateRepository, CertificateKeystoreRepository certificateKeystoreRepository) {
         this.certificateRepository = certificateRepository;
         this.certificateKeystoreRepository = certificateKeystoreRepository;
         this.userService = userService;
         this.certificateGenerator = new CertificateGenerator();
         this.dataGenerator = dataGenerator;
         this.validationService = validationService;
+        this.paramValidator = paramValidator;
     }
 
     @Override
@@ -63,6 +66,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     public ArrayList<CertificateDTO> getCertificateChain(String alias){
+        if(!paramValidator.validate(alias))
+            throw new IllegalArgumentException();
         return certificateKeystoreRepository.getCertificateChain(alias);
     }
 
@@ -129,11 +134,13 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public Resource prepareCertificateForDownload(DownloadRequestDTO downloadRequest) throws Exception {
-        String email = certificateKeystoreRepository.extractEmailFromCertificate(downloadRequest.getCertificateAlias().toString());
-        User user = userService.findByEmail(downloadRequest.getUserEmail());
-        if(!downloadRequest.getUserEmail().equals(email) && user.getRole() != Role.ROLE_admin) throw new ActionNotAllowedException("You are not allowed to download this certificate.");
-
         try{
+            if(!paramValidator.validate(downloadRequest.getUserEmail()))
+                throw new IllegalArgumentException();
+            String email = certificateKeystoreRepository.extractEmailFromCertificate(downloadRequest.getCertificateAlias().toString());
+            User user = userService.findByEmail(downloadRequest.getUserEmail());
+            if(!downloadRequest.getUserEmail().equals(email) && user.getRole() != Role.ROLE_admin) throw new ActionNotAllowedException("You are not allowed to download this certificate.");
+
             Resource resource = certificateKeystoreRepository.getDownloadData(downloadRequest.getCertificateAlias().toString());
             return resource;
         }catch(Exception e){

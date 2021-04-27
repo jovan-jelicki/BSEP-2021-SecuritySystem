@@ -14,4 +14,11 @@ import java.util.UUID;
 public class DownloadRequestDTO {
     String userEmail;
     UUID certificateAlias;
+
+    public Boolean validate(){
+        if(!this.userEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-zA-Z]{2,64}$"))
+            throw new IllegalArgumentException();
+        return true;
+    }
+
 }

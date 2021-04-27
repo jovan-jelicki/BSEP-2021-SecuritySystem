@@ -37,24 +37,33 @@ public class AuthenticationController {
     public ResponseEntity<UserTokenDTO> login(@RequestBody LoginDTO loginDTO) {
         Authentication auth;
         try {
+            loginDTO.validateUser();
             auth = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
-        } catch (BadCredentialsException e) {
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            UserTokenDTO user = userService.getUserForLogIn(loginDTO);
+            String jwt = tokenUtils.generateToken(user.getEmail(), user.getId());
+
+            return ResponseEntity.ok(new UserTokenDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(), jwt));
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        UserTokenDTO user = userService.getUserForLogIn(loginDTO);
-        String jwt = tokenUtils.generateToken(user.getEmail(), user.getId());
-
-        return ResponseEntity.ok(new UserTokenDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getRole(), jwt));
     }
 
     @PostMapping(value="/save", consumes = "application/json")
     public ResponseEntity<User> save(@RequestBody User entity) {
-        if(userService.save(entity)==null){
+
+        try {
+            entity.validateUser();
+            User user = userService.save(entity);
+            if(user==null){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(userService.save(entity), HttpStatus.CREATED);
+
     }
 }

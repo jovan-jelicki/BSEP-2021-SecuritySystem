@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ public class CertificateControllerImpl {
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")
-    @GetMapping()
+    @GetMapping( )
     public ResponseEntity<List<CertificateDTO>> getAllCertificates() {
         logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
 
@@ -58,6 +59,7 @@ public class CertificateControllerImpl {
 
         Resource file = null;
         try{
+            downloadRequest.validate();
            file = certificateService.prepareCertificateForDownload(downloadRequest);
            return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"certificate.cer\"")
@@ -103,6 +105,8 @@ public class CertificateControllerImpl {
     @PreAuthorize("hasRole('ROLE_user')")
     @GetMapping("/findAllUsersCertificate/{userEmail}")
     public ResponseEntity<List<CertificateDTO>> findAllUsersCertificate(@PathVariable String userEmail) {
+        if(!userEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-zA-Z]{2,64}$"))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         List<CertificateDTO> certificates = certificateService.findAllUsersCertificate(userEmail);
 
         return new ResponseEntity<>(certificates, HttpStatus.OK);
@@ -111,7 +115,7 @@ public class CertificateControllerImpl {
 
     @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping("/issueRootIntermediate")
-    public ResponseEntity<Void> issueRootIntermediateCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
+    public ResponseEntity<Void> issueRootIntermediateCertificate(@Valid @RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
         certificateService.setDataGenerator(rootIntermediateDataGenerator);
         try {
@@ -143,6 +147,8 @@ public class CertificateControllerImpl {
     @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
     @GetMapping("/getChain/{alias}")
     public ResponseEntity<Collection<CertificateDTO>> getCertificateChain(@PathVariable String alias){
+        if(!alias.matches("^[a-zA-Z0-9\\-]+$"))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(certificateService.getCertificateChain(alias), HttpStatus.OK);
     }
 }
