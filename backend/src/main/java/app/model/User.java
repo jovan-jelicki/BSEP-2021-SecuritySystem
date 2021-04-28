@@ -36,6 +36,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = true)
+    private String resetCode;
+
+    @Column
+    private Boolean approvedAccount;
+
     @Enumerated(EnumType.ORDINAL)
     private Role role;
 
@@ -46,6 +52,14 @@ public class User implements UserDetails {
         authority.setName(this.role.name());
         authorities.add(authority);
         return authorities;
+    }
+
+    public Boolean getApprovedAccount() {
+        return approvedAccount;
+    }
+
+    public void setApprovedAccount(Boolean approvedAccount) {
+        this.approvedAccount = approvedAccount;
     }
 
     @Override
@@ -78,6 +92,14 @@ public class User implements UserDetails {
         return true;
     }
 
+
+    public String getResetCode() {
+        return resetCode;
+    }
+
+    public void setResetCode(String resetCode) {
+        this.resetCode = resetCode;
+    }
     public void validateUser() {
         if(!this.email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-zA-Z]{2,64}$"))
             throw new IllegalArgumentException();

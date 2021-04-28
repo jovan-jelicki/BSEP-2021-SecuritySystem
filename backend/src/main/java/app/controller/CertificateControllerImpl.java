@@ -3,10 +3,9 @@ package app.controller;
 import app.dtos.CertificateDTO;
 import app.dtos.CertificateDataDTO;
 import app.dtos.DownloadRequestDTO;
-import app.model.exceptions.ActionNotAllowedException;
-import app.security.TokenUtils;
 import app.service.CertificateService;
 import app.service.DataGenerator;
+import app.service.PermissionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +39,10 @@ public class CertificateControllerImpl {
         this.rootIntermediateDataGenerator = dataGeneratorRoot;
     }
 
-    @PreAuthorize("hasRole('ROLE_admin')")
-    @GetMapping( )
+
+    //@PreAuthorize("hasRole('ROLE_admin')")
+    @PreAuthorize("@permissionService.checkPermission('getAllCertificates')")
+    @GetMapping()
     public ResponseEntity<List<CertificateDTO>> getAllCertificates() {
         logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
 
@@ -52,7 +53,8 @@ public class CertificateControllerImpl {
         return new ResponseEntity<>(certificates, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    //@PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    @PreAuthorize("@permissionService.checkPermission('downloadCertificate')")
     @PostMapping("/download")
     public ResponseEntity<Resource> downloadCertificate(@RequestBody DownloadRequestDTO downloadRequest) {
         logger.info("{} - Downloading certificate {}", Calendar.getInstance().getTime(), downloadRequest.getCertificateAlias());
@@ -71,7 +73,8 @@ public class CertificateControllerImpl {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_admin')")
+    //@PreAuthorize("hasRole('ROLE_admin')")
+    @PreAuthorize("@permissionService.checkPermission('getAllRootInterCertificates')")
     @GetMapping("/getRootInter")
     public ResponseEntity<List<CertificateDTO>> getAllRootInterCertificates() {
         logger.info("{} - Requesting all available certificates", Calendar.getInstance().getTime());
@@ -84,7 +87,8 @@ public class CertificateControllerImpl {
         return new ResponseEntity<>(certificates, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_admin')")
+    //@PreAuthorize("hasRole('ROLE_admin')")
+    @PreAuthorize("@permissionService.checkPermission('invalidateCertificate')")
     @PostMapping("/invalidate/{alias}")
     public ResponseEntity<Void> invalidateCertificate(@PathVariable UUID alias) {
         logger.info("{} - Invalidating certificate {}", Calendar.getInstance().getTime(), alias.toString());
@@ -102,7 +106,8 @@ public class CertificateControllerImpl {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_user')")
+    //@PreAuthorize("hasRole('ROLE_user')")
+    @PreAuthorize("@permissionService.checkPermission('findAllUsersCertificate')")
     @GetMapping("/findAllUsersCertificate/{userEmail}")
     public ResponseEntity<List<CertificateDTO>> findAllUsersCertificate(@PathVariable String userEmail) {
         if(!userEmail.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[a-zA-Z]{2,64}$"))
@@ -113,7 +118,8 @@ public class CertificateControllerImpl {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_admin')")
+    //@PreAuthorize("hasRole('ROLE_admin')")
+    @PreAuthorize("@permissionService.checkPermission('issueRootIntermediateCertificate')")
     @PostMapping("/issueRootIntermediate")
     public ResponseEntity<Void> issueRootIntermediateCertificate(@Valid @RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
@@ -129,7 +135,8 @@ public class CertificateControllerImpl {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('ROLE_admin')")
+    //@PreAuthorize("hasRole('ROLE_admin')")
+    @PreAuthorize("@permissionService.checkPermission('issueEndEntityCertificate')")
     @PostMapping("/issueEndEntity")
     public ResponseEntity<Void> issueEndEntityCertificate(@RequestBody CertificateDataDTO certificateDataDTO) {
         logger.info("{} - Issuing a certificate", Calendar.getInstance().getTime());
@@ -144,7 +151,8 @@ public class CertificateControllerImpl {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    //@PreAuthorize("hasAnyRole('ROLE_admin, ROLE_user')")
+    @PreAuthorize("@permissionService.checkPermission('issueEndEntityCertificate')")
     @GetMapping("/getChain/{alias}")
     public ResponseEntity<Collection<CertificateDTO>> getCertificateChain(@PathVariable String alias){
         if(!alias.matches("^[a-zA-Z0-9\\-]+$"))

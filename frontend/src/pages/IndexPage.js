@@ -1,16 +1,13 @@
 import * as React from "react";
 import ProfilePage from "./ProfilePage";
-import LogInPage from "./LogInPage";
-import RegistrationPage from "./RegistrationPage";
 import CertificateListing from "../components/CertificateListing";
 import NewCertificate from "../components/NewCertificate";
 
-export default class IndexPage extends React.Component {
+import { connect } from 'react-redux'; 
+
+class IndexPage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            user : !!localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : {},
-        }
     }
 
     render() {
@@ -21,9 +18,17 @@ export default class IndexPage extends React.Component {
                     <br/>
                     <br/>
                     <br/>
-                    {this.state.user.role === "ROLE_admin" && <NewCertificate></NewCertificate>}
+                    {this.props.user.role === "ROLE_admin" && <NewCertificate></NewCertificate>}
                 </ProfilePage>
             </div>
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        user: state.user,
+    };
+};
+
+export default connect(mapStateToProps)(IndexPage);

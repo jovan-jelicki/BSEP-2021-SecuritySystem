@@ -1,6 +1,8 @@
 package app.service.impl;
 
+import app.dtos.ChangePasswordDTO;
 import app.dtos.LoginDTO;
+import app.dtos.RegistrationDTO;
 import app.dtos.UserTokenDTO;
 import app.model.Role;
 import app.model.User;
@@ -20,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ParamValidator paramValidator;
 
+
     @Autowired
     public UserServiceImpl(ParamValidator paramValidator, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -28,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User save(User entity) {
+    public User registration(RegistrationDTO entity) {
         if(!paramValidator.validate(entity.getEmail()))
             throw new IllegalArgumentException();
         if(!paramValidator.validate(entity.getPassword()))
@@ -37,15 +40,60 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException();
         if(!paramValidator.validate(entity.getLastName()))
             throw new IllegalArgumentException();
-        if(!paramValidator.validate(entity.getUsername()))
-            throw new IllegalArgumentException();
 
-        if (this.findByEmail(entity.getEmail()) == null) {
-            entity.setRole(Role.ROLE_user);
-            entity.setPassword(passwordEncoder.encode(entity.getPassword()));
-            return userRepository.save(entity);
-        }
+        if (this.findByEmail(entity.getEmail()) == null && entity.getPassword().equals(entity.getRePassword()) ) {
+                entity.setRole(Role.ROLE_user);
+                entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+                entity.setApprovedAccount(false);
+
+                return this.save(new User(entity.getId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPassword(),
+                        null, entity.getApprovedAccount(), entity.getRole()));
+            }
         return null;
+    }
+
+    @Override
+    public User save(User entity) {
+        return userRepository.save(entity);
+    }
+
+    @Override
+    public void changePassword(LoginDTO loginDTO) {
+        User user=this.findByEmail(loginDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
+        user.setResetCode(null);
+        this.save(user);
+    }
+
+    @Override
+    public void approveAccount(ChangePasswordDTO changePasswordDTO) {
+        if(!paramValidator.validate(changePasswordDTO.getOldPassword()))
+            throw new IllegalArgumentException();
+        if(!paramValidator.validate(changePasswordDTO.getNewPassword()))
+            throw new IllegalArgumentException();
+        if(!paramValidator.validate(changePasswordDTO.getRepeatedPassword()))
+            throw new IllegalArgumentException();
+        User user = this.findById(changePasswordDTO.getUserId()).get();
+        if(this.checkPassword(changePasswordDTO)) {
+
+            user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+            user.setResetCode(null);
+            user.setApprovedAccount(true);
+            this.save(user);
+        }else{
+            throw new NullPointerException("Please try again.");
+
+        }
+    }
+
+    public boolean checkPassword(ChangePasswordDTO changePasswordDTO) {
+        User user = this.findById(changePasswordDTO.getUserId()).get();
+        if(!passwordEncoder.matches(changePasswordDTO.getOldPassword(),user.getPassword())){
+            return false;
+        }else if(!changePasswordDTO.getNewPassword().equals(changePasswordDTO.getRepeatedPassword())){
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -97,4 +145,6 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+
 }
