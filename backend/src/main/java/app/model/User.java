@@ -1,16 +1,20 @@
 package app.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Table(name = "users")
@@ -44,6 +48,17 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.ORDINAL)
     private Role role;
+
+    @Column
+    private Date tokenEnd;
+
+    public Date getTokenEnd() {
+        return tokenEnd;
+    }
+
+    public void setTokenEnd(Date tokenEnd) {
+        this.tokenEnd = tokenEnd;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -35,7 +37,7 @@ public class UserServiceImpl implements UserService {
                 entity.setApprovedAccount(false);
 
                 return this.save(new User(entity.getId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPassword(),
-                        null, entity.getApprovedAccount(), entity.getRole()));
+                        null, entity.getApprovedAccount(), entity.getRole(),new Date(0)));
             }
         return null;
     }
@@ -48,25 +50,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(LoginDTO loginDTO) {
         User user=this.findByEmail(loginDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
-        user.setResetCode(null);
-        this.save(user);
+        Date todayDate=new Date();
+        if (todayDate.before(user.getTokenEnd())) {
+            user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
+            user.setResetCode(null);
+            user.setTokenEnd(new Date(0));
+            this.save(user);
+        }else {
+            throw new NullPointerException("Please try again.");
+        }
     }
 
     @Override
     public void approveAccount(ChangePasswordDTO changePasswordDTO) {
         User user = this.findById(changePasswordDTO.getUserId()).get();
-        if(this.checkPassword(changePasswordDTO)) {
 
-            user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
-            user.setResetCode(null);
-            user.setApprovedAccount(true);
-            this.save(user);
-        }else{
-            throw new NullPointerException("Please try again.");
+            if (this.checkPassword(changePasswordDTO)) {
+                    user.setPassword(passwordEncoder.encode(changePasswordDTO.getNewPassword()));
+                    user.setResetCode(null);
+                    user.setTokenEnd(new Date(0));
+                    user.setApprovedAccount(true);
+                    this.save(user);
+            } else {
+                throw new NullPointerException("Please try again.");
+            }
 
-        }
     }
+
 
     public boolean checkPassword(ChangePasswordDTO changePasswordDTO) {
         User user = this.findById(changePasswordDTO.getUserId()).get();
