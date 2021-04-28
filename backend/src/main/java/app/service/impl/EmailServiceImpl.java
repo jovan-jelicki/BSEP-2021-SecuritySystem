@@ -8,6 +8,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Random;
 
 @Service
@@ -35,6 +36,8 @@ public class EmailServiceImpl implements EmailService {
         try {
             User user = userService.findByEmail(to);
             user.setResetCode(resetCode);
+            Date today=new Date();
+            user.setTokenEnd(new Date(today.getTime() + (1000 * 60 * 60 * 24)));
             userService.save(user);
 
             message.setText(body);

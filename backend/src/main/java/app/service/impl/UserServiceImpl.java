@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -46,8 +47,8 @@ public class UserServiceImpl implements UserService {
                 entity.setPassword(passwordEncoder.encode(entity.getPassword()));
                 entity.setApprovedAccount(false);
 
-                return this.save(new User(entity.getId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPassword(),
-                        null, entity.getApprovedAccount(), entity.getRole()));
+            return this.save(new User(entity.getId(), entity.getFirstName(), entity.getLastName(), entity.getEmail(), entity.getPassword(),
+                    null, entity.getApprovedAccount(), entity.getRole(),new Date(0)));
             }
         return null;
     }
@@ -60,9 +61,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changePassword(LoginDTO loginDTO) {
         User user=this.findByEmail(loginDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
-        user.setResetCode(null);
-        this.save(user);
+        Date todayDate=new Date();
+        if (todayDate.before(user.getTokenEnd())) {
+            user.setPassword(passwordEncoder.encode(loginDTO.getPassword()));
+            user.setResetCode(null);
+            user.setTokenEnd(new Date(0));
+            this.save(user);
+        }else {
+            throw new NullPointerException("Please try again.");
+        }
     }
 
     @Override

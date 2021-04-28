@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Table(name = "users")
@@ -44,6 +45,16 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.ORDINAL)
     private Role role;
+    @Column
+    private Date tokenEnd;
+
+    public Date getTokenEnd() {
+        return tokenEnd;
+    }
+
+    public void setTokenEnd(Date tokenEnd) {
+        this.tokenEnd = tokenEnd;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

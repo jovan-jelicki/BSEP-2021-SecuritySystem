@@ -1,10 +1,10 @@
 -- Sve sifre su "nekipass123"
-INSERT INTO users (id, first_name, last_name, email, password, role, approved_account)
-VALUES (1, 'Jovan', 'Jelicki', 'jovanjovanjovan@gmail.com', '$2a$10$Nqiae.pIzL.ww2rMu0kNS.1EcCvfsJQW0/XxK1pbd5hPIp5zi5aGe', 0, false);
-INSERT INTO users (id, first_name, last_name, email, password, role, approved_account)
-VALUES (2, 'Igor', 'Roncevic', 'igorigorigor@gmail.com', '$2a$10$Nqiae.pIzL.ww2rMu0kNS.1EcCvfsJQW0/XxK1pbd5hPIp5zi5aGe', 0, false);
-INSERT INTO users (id, first_name, last_name, email, password, role, approved_account)
-VALUES (3, 'Tamara', 'Kovacevic', 't.kovacevic98@gmail.com', '$2a$10$Nqiae.pIzL.ww2rMu0kNS.1EcCvfsJQW0/XxK1pbd5hPIp5zi5aGe', 1, false);
+INSERT INTO users (id, first_name, last_name, email, password, role, approved_account, token_end)
+VALUES (1, 'Jovan', 'Jelicki', 'jovanjovanjovan@gmail.com', '$2a$10$Nqiae.pIzL.ww2rMu0kNS.1EcCvfsJQW0/XxK1pbd5hPIp5zi5aGe', 0, false, '2020-01-01');
+INSERT INTO users (id, first_name, last_name, email, password, role, approved_account, token_end)
+VALUES (2, 'Igor', 'Roncevic', 'igorigorigor@gmail.com', '$2a$10$Nqiae.pIzL.ww2rMu0kNS.1EcCvfsJQW0/XxK1pbd5hPIp5zi5aGe', 0, false, '2020-01-01');
+INSERT INTO users (id, first_name, last_name, email, password, role, approved_account, token_end)
+VALUES (3, 'Tamara', 'Kovacevic', 't.kovacevic98@gmail.com', '$2a$10$Nqiae.pIzL.ww2rMu0kNS.1EcCvfsJQW0/XxK1pbd5hPIp5zi5aGe', 1, false,'2020-01-01');
 
 -- Permissions
 INSERT INTO permissions(id, name) VALUES (1, 'getAllCertificates');
