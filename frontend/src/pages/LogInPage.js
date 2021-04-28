@@ -20,6 +20,11 @@ export default class LogInPage extends React.Component {
         }
     }
 
+    componentDidMount() {
+        alert(process.env.SSL_CERT_FILE);
+        console.log(process.env)
+    }
+
     render() {
         return (
             <div style={{padding : '60px 0', margin : '0 auto', maxWidth : '320px'}}>
